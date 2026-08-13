@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Lint & tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: gui-app/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install GUI dependencies
+        working-directory: gui-app
+        run: npm ci
+
+      - name: i18n key validation
+        working-directory: gui-app
+        run: npm test
+
+      - name: Python syntax check
+        run: |
+          python3 -m py_compile \
+            fan_backend.py \
+            nbfc_control_api.py \
+            nitro_fan_daemon.py \
+            nitro_log_summary.py \
+            test_fan_backend.py \
+            test_nbfc_control_api.py \
+            test_nitro_fan_daemon.py
+
+      - name: Fan backend unit tests
+        run: |
+          python3 test_fan_backend.py
+          python3 test_nbfc_control_api.py
+          python3 test_nitro_fan_daemon.py
+
+      - name: Shell script syntax check
+        run: |
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n restore-auto.sh
+          bash -n update-daemon.sh
+          bash -n check-system.sh
+          bash -n nbfc/install-nbfc-config.sh
+          bash -n acer-nitro-ec/apply.sh
+
+      - name: JSON configs
+        run: |
+          python3 -m json.tool nbfc_config.json > /dev/null
+          python3 -m json.tool "nbfc/Acer Nitro AN515-54.json" > /dev/null
+          python3 -m json.tool nbfc/nbfc.json > /dev/null

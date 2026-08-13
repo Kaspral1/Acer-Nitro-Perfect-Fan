@@ -1,0 +1,30 @@
+[Unit]
+Description=Acer Nitro Perfect Fan daemon (acer_nitro_ec or nbfc)
+Documentation=https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan
+# Skrypt i konfiguracja leżą na / (nie w zaszyfrowanym /home), więc są dostępne
+# od razu po zamontowaniu systemu plików — jeszcze przed zalogowaniem użytkownika.
+After=local-fs.target nbfc_service.service
+Wants=local-fs.target
+
+[Service]
+Type=simple
+User=acer_nitro_perfect_fan
+Group=acer_nitro_perfect_fan
+ExecStart=/usr/bin/python3 /usr/local/lib/acer-nitro-perfect-fan/nitro_fan_daemon.py
+# Siatka bezpieczeństwa: sam daemon przywraca tryb auto na SIGTERM/SIGINT,
+# ale po SIGKILL lub crashu EC zostałby z ostatnim manualnym pwm.
+# Prefiks "+" = pełne uprawnienia (root) niezależnie od User= powyżej.
+ExecStopPost=+/usr/local/lib/acer-nitro-perfect-fan/restore-auto.sh
+Restart=always
+RestartSec=3
+# Hardening (uwaga: NIE dodawać ProtectKernelTunables — zablokowałby zapis do /sys).
+ProtectSystem=full
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+# Regulacja co 1 s nie może czekać w kolejce ani paść jako pierwsza przy OOM.
+Nice=-5
+OOMScoreAdjust=-500
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+
+# Build / packaging
+gui-app/dist/
+dist/
+*.AppImage
+*.deb
+*.rpm
+*.snap
+
+# Editor / OS
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.bak
+*.orig
+*.orig2
+*.rej
+
+# Secrets / local env
+.env
+.env.*
+
+# Logs & local telemetry
+*.log
+telemetry.csv
+
+# Electron cache
+.electron/
+
+# Local notes — over-claim hardware; not for GitHub
+antigravity.md
+antigravity_PL.md
+
+# graphify / agent scratch
+graphify-out/

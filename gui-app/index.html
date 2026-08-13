@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acer Nitro Perfect Fan</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app-wrapper">
+    <!-- Top Custom Titlebar -->
+    <header class="titlebar">
+        <div class="titlebar-drag">
+            <div class="app-logo">
+                <img src="./assets/icon.png" alt="Acer Nitro Perfect Fan" width="20" height="20"/>
+            </div>
+            <span class="app-title">Acer Nitro Perfect Fan</span>
+            <div class="header-badge offline" id="header-status-badge">
+                <span class="status-dot red"></span>
+                <span id="header-status-text">OFFLINE</span>
+            </div>
+        </div>
+        <div class="titlebar-controls">
+            <button id="tray-btn" title="Minimalizuj do tray" style="font-size: 11px;">&#10515;</button>
+            <button id="minimize-btn" title="Minimalizuj">&minus;</button>
+            <button id="maximize-btn" title="Maksymalizuj">&#9633;</button>
+            <button id="close-btn" class="close" title="Zamknij">&times;</button>
+        </div>
+    </header>
+
+    <!-- Thermal safety disclaimer (dismissible, stored in localStorage) -->
+    <div id="safety-disclaimer" class="safety-disclaimer" role="alert">
+        <span class="disclaimer-icon">⚠</span>
+        <span id="disclaimer-text">Ostrzeżenie: ręczne sterowanie wentylatorami może spowodować przegrzanie. W trybie manualnym Master/CPU/GPU nie schodzą poniżej 30% PWM. Używasz na własną odpowiedzialność.</span>
+        <button type="button" id="disclaimer-dismiss" class="disclaimer-dismiss" title="OK">×</button>
+    </div>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="section-title" id="profiles-title">PROFILE STEROWANIA</div>
+                <div class="profile-buttons">
+                    <button class="profile-btn active" data-profile="Silent">
+                        <div class="btn-glow"></div>
+                        <svg class="profile-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                        </svg>
+                        <div class="btn-text">
+                            <span class="btn-name" id="profile-silent-name">Cichy</span>
+                        </div>
+                    </button>
+                    <button class="profile-btn" data-profile="Balanced">
+                        <div class="btn-glow"></div>
+                        <svg class="profile-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 3v18M3 12h18M6 8l12 8M6 16l12-8"/>
+                        </svg>
+                        <div class="btn-text">
+                            <span class="btn-name" id="profile-balanced-name">Normalny</span>
+                        </div>
+                    </button>
+                    <button class="profile-btn" data-profile="Turbo">
+                        <div class="btn-glow"></div>
+                        <svg class="profile-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                        <div class="btn-text">
+                            <span class="btn-name" id="profile-turbo-name">Turbo</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title" id="working-mode-title">TRYB PRACY</div>
+                <div class="mode-card">
+                    <div class="mode-segmented-control">
+                        <button type="button" id="mode-btn-auto" class="mode-segment-btn active">
+                            <span id="mode-auto-btn">AUTO</span>
+                        </button>
+                        <button type="button" id="mode-btn-manual" class="mode-segment-btn">
+                            <span id="mode-manual-btn">MANUAL</span>
+                        </button>
+                    </div>
+                    <input type="checkbox" id="mode-toggle" style="display: none;">
+                    <p class="mode-desc" id="mode-label">Tryb Auto (Krzywa EC)</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title" id="resources-title">OBCIĄŻENIE ZASOBÓW</div>
+                <div class="resources-card">
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-label cpu-text">CPU</span>
+                            <span class="resource-val" id="cpu-load-text">0%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill cpu-fill" id="cpu-load-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-label gpu-text">GPU</span>
+                            <span class="resource-val" id="gpu-load-text">0%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill gpu-fill" id="gpu-load-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-label">RAM</span>
+                            <span class="resource-val" id="ram-load-text">0.0 / 0.0 GB</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill ram-fill" id="ram-load-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-label">VRAM</span>
+                            <span class="resource-val" id="vram-load-text">0.0 / 0.0 GB</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill vram-fill" id="vram-load-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title" id="other-sensors-title">TEMPERATURA</div>
+                <div class="resources-card" id="other-sensors-container">
+                    <!-- Sensors will be injected here via JS -->
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-label" id="loading-sensors" style="font-size: 0.8rem; color: #636b83;">Ładowanie danych...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Main Dashboard Area -->
+        <main class="main-content">
+            <!-- Top Metric Cards Row -->
+            <div class="metrics-grid">
+                <!-- CPU Telemetry Card -->
+                <section class="card tele-card cpu-theme" id="cpu-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="icon-dot cpu-dot"></span>
+                            <h2 id="cpu-header">PROCESOR (CPU)</h2>
+                        </div>
+                        <div class="temp-badge" id="cpu-temp">0.0°C</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="gauge-wrapper">
+                            <svg class="gauge-svg" viewBox="0 0 160 160">
+                                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
+                                <circle class="gauge-progress cpu-progress" id="cpu-gauge-circle" cx="80" cy="80" r="70"></circle>
+                            </svg>
+                            <div class="gauge-center">
+                                <span class="gauge-rpm-val" id="cpu-rpm">0</span>
+                                <span class="gauge-unit">RPM</span>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="footer-stat">
+                                <span class="stat-lbl" id="cpu-pwm-label">Wypełnienie PWM</span>
+                                <span class="stat-num" id="cpu-speed">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fan Control Panel Card -->
+                <section class="card control-card" id="fan-control-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                            <h2 id="manual-sliders-title">SUWAKI MANUALNE</h2>
+                        </div>
+                        <div class="quick-preset-pills">
+                            <button class="preset-pill" data-speed="30">30% (MIN)</button>
+                            <button class="preset-pill" data-speed="60">60%</button>
+                            <button class="preset-pill" data-speed="100">100% (MAX)</button>
+                        </div>
+                    </div>
+                    <div class="card-body controls-body">
+                        <!-- Master Slider -->
+                        <div class="slider-group master-group">
+                            <div class="slider-header">
+                                <span class="slider-lbl" id="master-slider-label">Sterowanie Łączne (Master)</span>
+                                <span class="slider-val-badge" id="slider-value">30%</span>
+                            </div>
+                            <div class="range-wrapper">
+                                <input type="range" min="30" max="100" value="30" class="custom-range master" id="fan-slider">
+                            </div>
+                        </div>
+
+                        <!-- CPU Slider (min 30%) -->
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <span class="slider-lbl cpu-text" id="cpu-fan-label">Wentylator CPU</span>
+                                <span class="slider-val-badge cpu-badge" id="cpu-slider-value">30%</span>
+                            </div>
+                            <div class="range-wrapper">
+                                <input type="range" min="30" max="100" value="30" class="custom-range cpu" id="cpu-fan-slider">
+                            </div>
+                        </div>
+
+                        <!-- GPU Slider (min 30% in manual; Zero-RPM only in Auto) -->
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <span class="slider-lbl gpu-text" id="gpu-fan-label">Wentylator GPU</span>
+                                <span class="slider-val-badge gpu-badge" id="gpu-slider-value">30%</span>
+                            </div>
+                            <div class="range-wrapper">
+                                <input type="range" min="30" max="100" value="30" class="custom-range gpu" id="gpu-fan-slider">
+                            </div>
+                        </div>
+
+                        <!-- CPU vs GPU speed offset: + = CPU faster, − = GPU faster -->
+                        <div class="slider-group offset-group">
+                            <div class="slider-header">
+                                <span class="slider-lbl" id="offset-label">Różnica CPU vs GPU</span>
+                                <span class="slider-val-badge offset-badge" id="offset-value">0%</span>
+                            </div>
+                            <div class="range-wrapper">
+                                <input type="range" min="-50" max="50" value="0" step="1" class="custom-range offset" id="speed-offset-slider">
+                            </div>
+                            <div class="offset-scale">
+                                <span id="offset-scale-gpu">GPU +50%</span>
+                                <span>0</span>
+                                <span id="offset-scale-cpu">CPU +50%</span>
+                            </div>
+                            <p class="offset-desc" id="offset-desc">CPU = GPU (bez różnicy)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GPU Telemetry Card -->
+                <section class="card tele-card gpu-theme" id="gpu-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="icon-dot gpu-dot"></span>
+                            <h2 id="gpu-header">GRAFIKA (GPU)</h2>
+                        </div>
+                        <div class="temp-badge" id="gpu-temp">0.0°C</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="gauge-wrapper">
+                            <svg class="gauge-svg" viewBox="0 0 160 160">
+                                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
+                                <circle class="gauge-progress gpu-progress" id="gpu-gauge-circle" cx="80" cy="80" r="70"></circle>
+                            </svg>
+                            <div class="gauge-center">
+                                <span class="gauge-rpm-val" id="gpu-rpm">0</span>
+                                <span class="gauge-unit">RPM</span>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="footer-stat">
+                                <span class="stat-lbl" id="gpu-pwm-label">Wypełnienie PWM</span>
+                                <span class="stat-num" id="gpu-speed">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Bottom Tools Row -->
+            <div class="tools-grid">
+                <!-- Custom Curve Editor Card -->
+                <section class="card curve-card" id="custom-curve-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h2 id="curve-editor-title">KRZYWA CHŁODZENIA PROFIL CICHY</h2>
+                        </div>
+                        <div class="curve-legend">
+                            <span class="curve-legend-item cpu"><i></i> CPU</span>
+                            <span class="curve-legend-item gpu"><i></i> GPU</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body curve-body">
+                        <!-- Dual curve preview (CPU + GPU on one scale) -->
+                        <div class="curve-preview-container">
+                            <canvas id="curve-preview-canvas" width="360" height="140"></canvas>
+                        </div>
+
+                        <!-- 4-column dual curve inputs: CPU temp/rpm | GPU temp/rpm -->
+                        <div class="curve-inputs-table">
+                            <div class="table-head">
+                                <span class="col-cpu" id="cpu-temp-col">Temp (°C)</span>
+                                <span class="col-cpu" id="cpu-rpm-col">Obroty (%)</span>
+                                <span class="col-gpu" id="gpu-temp-col">Temp (°C)</span>
+                                <span class="col-gpu" id="gpu-rpm-col">Obroty (%)</span>
+                            </div>
+                            <div class="table-row" data-pt="1">
+                                <input type="number" class="curve-temp curve-cpu" id="curve-cpu-temp-1" min="0" max="110" value="45">
+                                <input type="number" class="curve-speed curve-cpu" id="curve-cpu-speed-1" min="30" max="100" value="30" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="curve-gpu-temp-1" min="0" max="110" value="45">
+                                <input type="number" class="curve-speed curve-gpu" id="curve-gpu-speed-1" min="30" max="100" value="30" step="1">
+                            </div>
+                            <div class="table-row" data-pt="2">
+                                <input type="number" class="curve-temp curve-cpu" id="curve-cpu-temp-2" min="0" max="110" value="55">
+                                <input type="number" class="curve-speed curve-cpu" id="curve-cpu-speed-2" min="30" max="100" value="30" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="curve-gpu-temp-2" min="0" max="110" value="55">
+                                <input type="number" class="curve-speed curve-gpu" id="curve-gpu-speed-2" min="30" max="100" value="30" step="1">
+                            </div>
+                            <div class="table-row" data-pt="3">
+                                <input type="number" class="curve-temp curve-cpu" id="curve-cpu-temp-3" min="0" max="110" value="65">
+                                <input type="number" class="curve-speed curve-cpu" id="curve-cpu-speed-3" min="30" max="100" value="30" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="curve-gpu-temp-3" min="0" max="110" value="65">
+                                <input type="number" class="curve-speed curve-gpu" id="curve-gpu-speed-3" min="30" max="100" value="30" step="1">
+                            </div>
+                            <div class="table-row" data-pt="4">
+                                <input type="number" class="curve-temp curve-cpu" id="curve-cpu-temp-4" min="0" max="110" value="75">
+                                <input type="number" class="curve-speed curve-cpu" id="curve-cpu-speed-4" min="30" max="100" value="42" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="curve-gpu-temp-4" min="0" max="110" value="75">
+                                <input type="number" class="curve-speed curve-gpu" id="curve-gpu-speed-4" min="30" max="100" value="42" step="1">
+                            </div>
+                            <div class="table-row" data-pt="5">
+                                <input type="number" class="curve-temp curve-cpu" id="curve-cpu-temp-5" min="0" max="110" value="85">
+                                <input type="number" class="curve-speed curve-cpu" id="curve-cpu-speed-5" min="30" max="100" value="65" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="curve-gpu-temp-5" min="0" max="110" value="85">
+                                <input type="number" class="curve-speed curve-gpu" id="curve-gpu-speed-5" min="30" max="100" value="65" step="1">
+                            </div>
+                            <div class="table-row" data-pt="6">
+                                <input type="number" class="curve-temp curve-cpu" id="curve-cpu-temp-6" min="0" max="110" value="">
+                                <input type="number" class="curve-speed curve-cpu" id="curve-cpu-speed-6" min="30" max="100" value="" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="curve-gpu-temp-6" min="0" max="110" value="">
+                                <input type="number" class="curve-speed curve-gpu" id="curve-gpu-speed-6" min="30" max="100" value="" step="1">
+                            </div>
+                        </div>
+
+                        <!-- Domyślny (profil) / Własny — tuż nad zapisem -->
+                        <div class="curve-source-bar">
+                            <button type="button" class="curve-source-btn active" id="curve-source-default" data-source="default">
+                                <span id="curve-source-default-label">Domyślny</span>
+                            </button>
+                            <button type="button" class="curve-source-btn" id="curve-source-custom" data-source="custom">
+                                <span id="curve-source-custom-label">Własny</span>
+                            </button>
+                        </div>
+
+                        <div class="curve-action-bar">
+                            <button class="btn btn-primary btn-block" id="apply-curve-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                <span id="save-curve-btn-text">ZAPISZ I ZASTOSUJ</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Temperature History Telemetry Card -->
+                <section class="card history-card" id="temp-history-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h2 id="temp-history-title">HISTORIA TEMPERATUR (REALTIME)</h2>
+                        </div>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-time="5">5m</button>
+                            <button class="chart-btn" data-time="10">10m</button>
+                            <button class="chart-btn" data-time="30">30m</button>
+                        </div>
+                    </div>
+                    <div class="card-body chart-body">
+                        <div class="chart-container">
+                            <canvas id="temp-chart"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <footer class="status-bar">
+        <div class="status-left">
+            <div class="status-pill">
+                <span class="status-dot red" id="daemon-dot"></span>
+                <span id="daemon-status-text">Usługa daemona: </span><strong id="status-value">Brak połączenia</strong>
+            </div>
+            <div class="status-pill">
+                <span id="working-mode-label">Tryb pracy: </span><strong id="active-mode-display">Dynamic EC</strong>
+            </div>
+        </div>
+        <div class="status-right">
+            <div class="status-menu-container">
+                <button id="status-menu-btn" class="status-menu-btn" title="Statystyki i Opcje">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 20V10M12 20V4M6 20v-6"/>
+                    </svg>
+                    <span id="menu-btn-label">Statystyki</span>
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
+                <div id="status-menu-dropdown" class="status-dropdown hidden">
+                    <div class="dropdown-header">
+                        <span id="menu-header-title">STATYSTYKI I LOGI</span>
+                    </div>
+                    <label class="dropdown-item checkbox-item">
+                        <input type="checkbox" id="menu-logging-toggle" checked>
+                        <span id="menu-logging-label">Zapisywanie logów</span>
+                    </label>
+                    <div class="dropdown-divider"></div>
+                    <button id="menu-summary-btn" class="dropdown-item action-item">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        <span id="menu-summary-label">Podsumowanie temperatur</span>
+                    </button>
+                    <button id="menu-open-logs-btn" class="dropdown-item action-item">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span id="menu-open-logs-label">Przejrzyj logi</span>
+                    </button>
+                </div>
+            </div>
+            <div class="status-menu-container">
+                <button id="settings-menu-btn" class="status-menu-btn" title="Ustawienia">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <span id="settings-btn-label">Ustawienia</span>
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
+                <div id="settings-menu-dropdown" class="status-dropdown settings-dropdown hidden">
+                    <div class="dropdown-header">
+                        <span id="settings-header-title">USTAWIENIA</span>
+                    </div>
+                    <div class="dropdown-section-label" id="settings-close-label">Przycisk X (zamknięcie)</div>
+                    <select id="settings-close-action" class="settings-select" title="Zachowanie przycisku X">
+                        <option value="ask" id="settings-close-ask">Pytaj za każdym razem</option>
+                        <option value="minimize" id="settings-close-minimize">Zawsze minimalizuj do tray</option>
+                        <option value="quit" id="settings-close-quit">Zawsze zamykaj całkowicie</option>
+                    </select>
+                    <div class="dropdown-divider"></div>
+                    <button id="settings-edit-defaults-btn" class="dropdown-item action-item">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20h9"/>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                        <span id="settings-edit-defaults-label">Zmień domyślne ustawienia</span>
+                    </button>
+                    <button id="settings-show-disclaimer-btn" class="dropdown-item action-item">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <span id="settings-show-disclaimer-label">Pokaż ostrzeżenie bezpieczeństwa</span>
+                    </button>
+                    <button id="settings-reset-close-btn" class="dropdown-item action-item">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                            <path d="M3 3v5h5"/>
+                        </svg>
+                        <span id="settings-reset-close-label">Resetuj pytanie przy zamykaniu</span>
+                    </button>
+                </div>
+            </div>
+            <select id="language-select" class="custom-select status-select" title="Zmień język / Change language">
+                <option value="pl">PL</option>
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+                <option value="de">DE</option>
+                <option value="cs">CS</option>
+            </select>
+            <span class="app-version-badge" id="app-version">v1.0</span>
+        </div>
+    </footer>
+    </div>
+
+    <!-- Warstwa modalów poza #app-wrapper — nie wpływa na skalowanie layoutu -->
+    <div id="modal-layer" aria-live="polite">
+    <!-- Summary Modal -->
+    <div id="summary-modal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon">
+                        <path d="M18 20V10M12 20V4M6 20v-6"/>
+                    </svg>
+                    <h3 id="summary-modal-title">Podsumowanie Temperatur i Telemetrii</h3>
+                </div>
+                <button id="close-modal-x" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="summary-modal-content">
+                <div class="summary-loading">Ładowanie statystyk...</div>
+            </div>
+            <div class="modal-footer">
+                <button id="copy-summary-btn" class="modal-btn secondary">
+                    <span id="btn-copy-report">Kopiuj Raport</span>
+                </button>
+                <button id="close-summary-btn" class="modal-btn primary">
+                    <span id="btn-close">Zamknij</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit profile default curves -->
+    <div id="defaults-modal" class="modal-backdrop defaults-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="defaults-modal-title">
+        <div class="modal-card defaults-modal-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    <h3 id="defaults-modal-title">Domyślne krzywe profili</h3>
+                </div>
+                <button type="button" id="defaults-modal-close-x" class="modal-close-btn" title="Zamknij">&times;</button>
+            </div>
+            <div class="modal-body defaults-modal-body">
+                <p class="defaults-modal-hint" id="defaults-modal-hint">
+                    Edytuj domyślną krzywą dla każdego profilu. Własne ustawienia (Własny) pozostają bez zmian.
+                </p>
+                <div id="defaults-edited-banner" class="defaults-edited-banner hidden" role="status">
+                    <div class="defaults-edited-text">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span id="defaults-edited-msg">Ustawienia domyślne były edytowane. Możesz je przywrócić.</span>
+                    </div>
+                    <button type="button" id="defaults-modal-restore" class="modal-btn secondary defaults-restore-btn">
+                        <span id="defaults-btn-restore">Przywróć domyślne ustawienia</span>
+                    </button>
+                </div>
+                <div class="defaults-profile-tabs" role="tablist">
+                    <button type="button" class="defaults-profile-tab active" data-profile="Silent" id="defaults-tab-silent">
+                        <span id="defaults-tab-silent-label">Cichy</span>
+                    </button>
+                    <button type="button" class="defaults-profile-tab" data-profile="Balanced" id="defaults-tab-balanced">
+                        <span id="defaults-tab-balanced-label">Normalny</span>
+                    </button>
+                    <button type="button" class="defaults-profile-tab" data-profile="Turbo" id="defaults-tab-turbo">
+                        <span id="defaults-tab-turbo-label">Turbo</span>
+                    </button>
+                </div>
+
+                <!-- Wykres + tabela obok siebie — oba zawsze widoczne -->
+                <div class="defaults-editor-grid">
+                    <div class="defaults-chart-col">
+                        <div class="defaults-legend">
+                            <span class="curve-legend-item cpu"><i></i> CPU</span>
+                            <span class="curve-legend-item gpu"><i></i> GPU</span>
+                        </div>
+                        <div class="curve-preview-container defaults-preview">
+                            <canvas id="defaults-curve-canvas" width="320" height="220"></canvas>
+                        </div>
+                    </div>
+                    <div class="defaults-table-col">
+                        <div class="curve-inputs-table defaults-inputs-table" id="defaults-inputs-table">
+                            <div class="table-head">
+                                <span class="col-cpu" id="defaults-cpu-temp-col">Temp (°C)</span>
+                                <span class="col-cpu" id="defaults-cpu-rpm-col">Obroty (%)</span>
+                                <span class="col-gpu" id="defaults-gpu-temp-col">Temp (°C)</span>
+                                <span class="col-gpu" id="defaults-gpu-rpm-col">Obroty (%)</span>
+                            </div>
+                            <div class="table-row" data-pt="1">
+                                <input type="number" class="curve-temp curve-cpu" id="def-cpu-temp-1" min="0" max="110" value="45">
+                                <input type="number" class="curve-speed curve-cpu" id="def-cpu-speed-1" min="30" max="100" value="30" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="def-gpu-temp-1" min="0" max="110" value="45">
+                                <input type="number" class="curve-speed curve-gpu" id="def-gpu-speed-1" min="30" max="100" value="30" step="1">
+                            </div>
+                            <div class="table-row" data-pt="2">
+                                <input type="number" class="curve-temp curve-cpu" id="def-cpu-temp-2" min="0" max="110" value="55">
+                                <input type="number" class="curve-speed curve-cpu" id="def-cpu-speed-2" min="30" max="100" value="30" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="def-gpu-temp-2" min="0" max="110" value="55">
+                                <input type="number" class="curve-speed curve-gpu" id="def-gpu-speed-2" min="30" max="100" value="30" step="1">
+                            </div>
+                            <div class="table-row" data-pt="3">
+                                <input type="number" class="curve-temp curve-cpu" id="def-cpu-temp-3" min="0" max="110" value="65">
+                                <input type="number" class="curve-speed curve-cpu" id="def-cpu-speed-3" min="30" max="100" value="30" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="def-gpu-temp-3" min="0" max="110" value="65">
+                                <input type="number" class="curve-speed curve-gpu" id="def-gpu-speed-3" min="30" max="100" value="30" step="1">
+                            </div>
+                            <div class="table-row" data-pt="4">
+                                <input type="number" class="curve-temp curve-cpu" id="def-cpu-temp-4" min="0" max="110" value="75">
+                                <input type="number" class="curve-speed curve-cpu" id="def-cpu-speed-4" min="30" max="100" value="42" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="def-gpu-temp-4" min="0" max="110" value="75">
+                                <input type="number" class="curve-speed curve-gpu" id="def-gpu-speed-4" min="30" max="100" value="42" step="1">
+                            </div>
+                            <div class="table-row" data-pt="5">
+                                <input type="number" class="curve-temp curve-cpu" id="def-cpu-temp-5" min="0" max="110" value="85">
+                                <input type="number" class="curve-speed curve-cpu" id="def-cpu-speed-5" min="30" max="100" value="65" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="def-gpu-temp-5" min="0" max="110" value="85">
+                                <input type="number" class="curve-speed curve-gpu" id="def-gpu-speed-5" min="30" max="100" value="65" step="1">
+                            </div>
+                            <div class="table-row" data-pt="6">
+                                <input type="number" class="curve-temp curve-cpu" id="def-cpu-temp-6" min="0" max="110" value="">
+                                <input type="number" class="curve-speed curve-cpu" id="def-cpu-speed-6" min="30" max="100" value="" step="1">
+                                <input type="number" class="curve-temp curve-gpu" id="def-gpu-temp-6" min="0" max="110" value="">
+                                <input type="number" class="curve-speed curve-gpu" id="def-gpu-speed-6" min="30" max="100" value="" step="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer defaults-modal-footer">
+                <button type="button" id="defaults-modal-cancel" class="modal-btn secondary">
+                    <span id="defaults-btn-cancel">Anuluj</span>
+                </button>
+                <button type="button" id="defaults-modal-save" class="modal-btn primary">
+                    <span id="defaults-btn-save">Zapisz domyślne</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Close / quit confirmation -->
+    <div id="close-confirm-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="close-confirm-title">
+        <div class="modal-card close-confirm-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                    <h3 id="close-confirm-title">Zamknąć aplikację?</h3>
+                </div>
+                <button type="button" id="close-confirm-dismiss" class="modal-close-btn" title="Anuluj">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="close-confirm-text" id="close-confirm-text">
+                    Wybierz, czy całkowicie zakończyć program, czy tylko zminimalizować do zasobnika systemowego.
+                </p>
+                <label class="close-confirm-checkbox">
+                    <input type="checkbox" id="close-dont-ask">
+                    <span id="close-dont-ask-label">Nie pytaj ponownie</span>
+                </label>
+            </div>
+            <div class="modal-footer close-confirm-footer">
+                <button type="button" id="close-confirm-cancel" class="modal-btn secondary">
+                    <span id="close-btn-cancel">Anuluj</span>
+                </button>
+                <button type="button" id="close-confirm-minimize" class="modal-btn secondary">
+                    <span id="close-btn-minimize">Minimalizuj do tray</span>
+                </button>
+                <button type="button" id="close-confirm-quit" class="modal-btn danger">
+                    <span id="close-btn-quit">Zamknij całkowicie</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    </div><!-- /#modal-layer -->
+
+    <!-- Chart.js UMD (no nodeIntegration in renderer) -->
+    <script src="./node_modules/chart.js/dist/chart.umd.min.js"></script>
+    <script src="./renderer.js"></script>
+</body>
+</html>
