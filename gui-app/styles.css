@@ -546,6 +546,74 @@ body {
   display: none;
 }
 
+.power-license-credit {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 10px;
+  line-height: 1.35;
+  color: #7a86a3;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.power-license-credit:hover {
+  color: #b8c4de;
+}
+
+.license-modal-card {
+  max-width: 560px;
+}
+
+.license-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.license-block h4 {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--text-main);
+  margin: 10px 0 6px;
+}
+
+.license-block:first-child h4 {
+  margin-top: 0;
+}
+
+.license-block p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.license-link {
+  display: block;
+  width: fit-content;
+  margin: 0 0 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #6cb6ff;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.license-link:hover {
+  color: #b8dcff;
+}
+
 /* Mode Switch Card */
 .mode-card {
   background: rgba(255, 255, 255, 0.03);

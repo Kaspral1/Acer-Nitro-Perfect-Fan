@@ -33,7 +33,7 @@ You want something like `Nitro AN515-54`.
 Two pieces. You need both.
 
 1. **Background service (daemon)** — starts with the computer, even with no window open. This is what actually writes fan speeds.
-2. **Window (GUI)** — sliders, Silent / Balanced / Turbo, charts.
+2. **Window (GUI)** — sliders, Silent / Balanced / Turbo, charts. CPU power profiles (Eco / Quiet / Balanced / Sport / Max) need a separately installed **DAMX** daemon (Div Acer Manager Max, **GPL-3.0**). This project does not ship or install DAMX. The rest of the panel works without it.
 
 An AppImage **does not replace** the service. Always run `install.sh` first.
 

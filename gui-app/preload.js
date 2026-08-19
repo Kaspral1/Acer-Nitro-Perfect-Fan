@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setAutoLogging: (enabled) => ipcRenderer.send('set-auto-logging', enabled),
   getLogSummary: () => ipcRenderer.send('get-log-summary'),
   openLogFile: () => ipcRenderer.send('open-log-file'),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
   setFanCurve: (curveData) => ipcRenderer.send('set-fan-curve', curveData),
   setCurveSource: (source) => ipcRenderer.send('set-curve-source', source),
   setDefaultCurve: (payload) => ipcRenderer.send('set-default-curve', payload),

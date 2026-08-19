@@ -33,7 +33,7 @@ Powinno pojawić się coś w stylu `Nitro AN515-54`.
 Program ma **dwie części**. Obie są potrzebne.
 
 1. **Usługa w tle (daemon)** — działa po starcie systemu, nawet bez otwartego okna. To ona naprawdę kręci wentylatorami.
-2. **Okienko (GUI)** — suwaki, profile Silent / Normalny / Turbo, wykresy. Na AN515-54 także jasność czerwonej klawiatury i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**).
+2. **Okienko (GUI)** — suwaki, profile Silent / Normalny / Turbo, wykresy. Na AN515-54 także jasność czerwonej klawiatury i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**). Profile zasilania CPU (Eco / Cichy / Balans / Sport / Max) wymagają osobno zainstalowanego **DAMX** (Div Acer Manager Max, **GPL-3.0**) — ten program go nie instaluje i nie zawiera jego kodu. Bez DAMX reszta panelu działa.
 
 Sama paczka AppImage **nie zastępuje** usługi. Najpierw zawsze `install.sh`.
 

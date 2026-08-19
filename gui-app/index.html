@@ -97,6 +97,9 @@
                         </button>
                     </div>
                     <p class="power-profile-hint" id="power-profile-hint"></p>
+                    <button type="button" class="power-license-credit" id="power-license-credit">
+                        Profile CPU przez DAMX (GPL-3.0)
+                    </button>
                 </div>
             </div>
 
@@ -514,6 +517,15 @@
                         </svg>
                         <span id="settings-edit-defaults-label">Zmień domyślne ustawienia</span>
                     </button>
+                    <button id="settings-licenses-btn" class="dropdown-item action-item">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        <span id="settings-licenses-label">Licencje</span>
+                    </button>
                     <button id="settings-show-disclaimer-btn" class="dropdown-item action-item">
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
@@ -566,6 +578,43 @@
                 </button>
                 <button id="close-summary-btn" class="modal-btn primary">
                     <span id="btn-close">Zamknij</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Licenses / third-party notice -->
+    <div id="license-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="license-modal-title">
+        <div class="modal-card license-modal-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <h3 id="license-modal-title">Licencje</h3>
+                </div>
+                <button type="button" id="license-modal-close-x" class="modal-close-btn" title="Zamknij">&times;</button>
+            </div>
+            <div class="modal-body license-modal-body">
+                <section class="license-block">
+                    <h4 id="license-app-heading">Acer Nitro Perfect Fan</h4>
+                    <p id="license-app-body">Ten program jest na licencji MIT (keizenx 2024, Kaspral1 2026). Kod źródłowy jest w repozytorium projektu.</p>
+                </section>
+                <section class="license-block">
+                    <h4 id="license-damx-heading">Profile zasilania — DAMX</h4>
+                    <p id="license-damx-body">Przyciski Eco / Cichy / Balans / Sport / Max łączą się z już zainstalowanym daemonem DAMX (Div Acer Manager Max) przez gniazdo Unix. Ten program nie zawiera kodu DAMX i zostaje na MIT. DAMX oraz sterownik Linuwu-Sense to osobne projekty na GNU GPL v3.</p>
+                    <button type="button" class="license-link" id="license-damx-link" data-url="https://github.com/PXDiv/Div-Acer-Manager-Max">Div Acer Manager Max (GPL-3.0)</button>
+                    <button type="button" class="license-link" id="license-linuwu-link" data-url="https://github.com/PXDiv/Div-Linuwu-Sense">Linuwu-Sense (GPL-3.0)</button>
+                </section>
+                <section class="license-block">
+                    <h4 id="license-ec-heading">Sterownik acer-nitro-ec</h4>
+                    <p id="license-ec-body">Dołączony moduł jądra (wentylatory i na AN515-54 podświetlenie klawiatury) jest na GPL-2.0. To nie zmienia licencji MIT daemona ani okienka.</p>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="license-modal-close" class="modal-btn primary">
+                    <span id="license-btn-close">Zamknij</span>
                 </button>
             </div>
         </div>

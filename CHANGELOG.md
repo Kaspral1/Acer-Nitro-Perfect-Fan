@@ -14,6 +14,7 @@ Project / GitHub name: **Acer Nitro Perfect Fan** (repository `Kaspral1/Acer-Nit
 - Docs: beginner install (EN/PL), honest compatibility list, MIT copyright for both keizenx and Kaspral1.
 - CI: Python compile, `test_fan_backend.py`, `test_nbfc_control_api.py`, `test_nitro_fan_daemon.py`, i18n key parity, `bash -n`, NBFC JSON.
 - Sidebar power profiles (Eco / Quiet / Balanced / Sport / Max) via DAMX daemon socket — independent of fan curves.
+- License notice for DAMX (GPL-3.0, not bundled) and `acer-nitro-ec` (GPL-2.0): Settings → Licenses, sidebar credit, [THIRD_PARTY.md](THIRD_PARTY.md). The userspace app stays MIT.
 - Manual sliders: telemetry cannot overwrite Master/CPU/GPU/offset while a change is in flight.
 - CPU and GPU sliders are independent when offset is 0. Master still sets both, but no longer follows min(CPU, GPU).
 

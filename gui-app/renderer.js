@@ -2313,6 +2313,50 @@ function setupEventListeners() {
         }
     });
 
+    const licenseModal = document.getElementById('license-modal');
+    const openLicenseModal = () => {
+        closeAllStatusDropdowns();
+        if (licenseModal) licenseModal.classList.remove('hidden');
+    };
+    const closeLicenseModal = () => {
+        if (licenseModal) licenseModal.classList.add('hidden');
+    };
+    const settingsLicensesBtn = document.getElementById('settings-licenses-btn');
+    const powerLicenseCredit = document.getElementById('power-license-credit');
+    if (settingsLicensesBtn) {
+        settingsLicensesBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openLicenseModal();
+        });
+    }
+    if (powerLicenseCredit) {
+        powerLicenseCredit.addEventListener('click', (e) => {
+            e.preventDefault();
+            openLicenseModal();
+        });
+    }
+    const licenseCloseX = document.getElementById('license-modal-close-x');
+    const licenseCloseBtn = document.getElementById('license-modal-close');
+    if (licenseCloseX) licenseCloseX.addEventListener('click', closeLicenseModal);
+    if (licenseCloseBtn) licenseCloseBtn.addEventListener('click', closeLicenseModal);
+    if (licenseModal) {
+        licenseModal.addEventListener('click', (e) => {
+            if (e.target === licenseModal) closeLicenseModal();
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && licenseModal && !licenseModal.classList.contains('hidden')) {
+            closeLicenseModal();
+        }
+    });
+    document.querySelectorAll('.license-link').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const url = btn.dataset.url;
+            if (url && api.openExternal) api.openExternal(url);
+        });
+    });
+
     const settingsShowDisclaimer = document.getElementById('settings-show-disclaimer-btn');
     if (settingsShowDisclaimer) {
         settingsShowDisclaimer.addEventListener('click', () => {
@@ -2606,7 +2650,19 @@ function applyTranslations() {
     setText('settings-header-title', 'settings_header_title');
     setText('settings-close-label', 'settings_close_label');
     setText('settings-edit-defaults-label', 'settings_edit_defaults');
+    setText('settings-licenses-label', 'settings_licenses');
     setText('settings-show-disclaimer-label', 'settings_show_disclaimer');
+    setText('power-license-credit', 'power_license_credit');
+    setText('license-modal-title', 'license_modal_title');
+    setText('license-app-heading', 'license_app_heading');
+    setText('license-app-body', 'license_app_body');
+    setText('license-damx-heading', 'license_damx_heading');
+    setText('license-damx-body', 'license_damx_body');
+    setText('license-damx-link', 'license_damx_link');
+    setText('license-linuwu-link', 'license_linuwu_link');
+    setText('license-ec-heading', 'license_ec_heading');
+    setText('license-ec-body', 'license_ec_body');
+    setText('license-btn-close', 'btn_close');
     setText('settings-reset-close-label', 'settings_reset_close');
 
     // Settings select options (i18n)

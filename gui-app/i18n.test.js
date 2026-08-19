@@ -119,7 +119,18 @@ const REQUIRED_KEYS = [
   "power_offline",
   "power_status_label",
   "toast_power_profile",
-  "toast_power_profile_fail"
+  "toast_power_profile_fail",
+  "settings_licenses",
+  "power_license_credit",
+  "license_modal_title",
+  "license_app_heading",
+  "license_app_body",
+  "license_damx_heading",
+  "license_damx_body",
+  "license_damx_link",
+  "license_linuwu_link",
+  "license_ec_heading",
+  "license_ec_body"
 ];
 
 const LANGUAGES = ['pl', 'en', 'es', 'de', 'cs'];

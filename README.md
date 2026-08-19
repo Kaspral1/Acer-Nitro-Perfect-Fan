@@ -242,3 +242,5 @@ Copyright (c) 2026 [Kaspral1](https://github.com/Kaspral1)
 
 GUI lineage: [keizenx/nitro-fan-control](https://github.com/keizenx/nitro-fan-control).  
 NBFC profile based on the AN515-54 EC map by Chandradeep Dey / alex-fl.
+
+**This project stays MIT** when power-profile buttons are used. Those buttons talk to a separately installed [Div Acer Manager Max (DAMX)](https://github.com/PXDiv/Div-Acer-Manager-Max) daemon (and [Linuwu-Sense](https://github.com/PXDiv/Div-Linuwu-Sense)) over a Unix socket. DAMX is **GPL-3.0** and is **not** bundled here. The optional `acer-nitro-ec` kernel module in this repo is **GPL-2.0**. Details: [THIRD_PARTY.md](THIRD_PARTY.md).

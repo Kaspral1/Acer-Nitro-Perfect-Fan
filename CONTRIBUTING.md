@@ -42,3 +42,4 @@ Predator / Helios / Nitro V use a different EC or WMI. They stay out of `acer-ni
 ## License
 
 MIT. Preserve both copyright lines in [LICENSE](LICENSE) (`keizenx` 2024, `Kaspral1` 2026).
+Power-profile IPC talks to separately installed DAMX (**GPL-3.0**, not vendored). Bundled `acer-nitro-ec` is **GPL-2.0**. Keep [THIRD_PARTY.md](THIRD_PARTY.md) accurate.

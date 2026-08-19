@@ -128,5 +128,16 @@
   "power_offline": "DAMX is offline. sudo systemctl start damx-daemon",
   "power_status_label": "Power: ",
   "toast_power_profile": "Power profile set: {profile}",
-  "toast_power_profile_fail": "Could not change the power profile (DAMX)"
+  "toast_power_profile_fail": "Could not change the power profile (DAMX)",
+  "settings_licenses": "Licenses",
+  "power_license_credit": "CPU profiles via DAMX (GPL-3.0)",
+  "license_modal_title": "Licenses",
+  "license_app_heading": "Acer Nitro Perfect Fan",
+  "license_app_body": "This program is MIT-licensed (keizenx 2024, Kaspral1 2026). Source is in the project repository.",
+  "license_damx_heading": "Power profiles — DAMX",
+  "license_damx_body": "Eco / Quiet / Balanced / Sport / Max talk to an already-installed DAMX daemon (Div Acer Manager Max) over a Unix socket. This program does not include DAMX code and stays MIT. DAMX and the Linuwu-Sense driver are separate GNU GPL v3 projects.",
+  "license_damx_link": "Div Acer Manager Max (GPL-3.0)",
+  "license_linuwu_link": "Linuwu-Sense (GPL-3.0)",
+  "license_ec_heading": "acer-nitro-ec driver",
+  "license_ec_body": "The bundled kernel module (fans and, on AN515-54, keyboard backlight) is GPL-2.0. That does not change the MIT license of the daemon or the window."
 }

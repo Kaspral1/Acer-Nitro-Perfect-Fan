@@ -258,6 +258,30 @@ app.on('activate', () => {
 
 ipcMain.handle('get-app-version', () => app.getVersion());
 
+const EXTERNAL_URLS = new Set([
+  'https://github.com/PXDiv/Div-Acer-Manager-Max',
+  'https://github.com/PXDiv/Div-Linuwu-Sense',
+  'https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan',
+  'https://github.com/keizenx/nitro-fan-control',
+  'https://www.gnu.org/licenses/gpl-3.0.html',
+  'https://opensource.org/licenses/MIT',
+]);
+
+ipcMain.handle('open-external', async (_event, url) => {
+  const target = String(url || '').trim();
+  if (!EXTERNAL_URLS.has(target)) {
+    console.warn('[Main] blocked open-external:', target);
+    return false;
+  }
+  try {
+    await shell.openExternal(target);
+    return true;
+  } catch (err) {
+    console.error('[Main] open-external failed:', err.message);
+    return false;
+  }
+});
+
 // DAMX thermal / CPU power profiles (firmware platform_profile is EIO on AN515-54;
 // the daemon + LD_PRELOAD shim applies intel_pstate via /var/run/DAMX.sock).
 const DAMX_SOCKET = '/var/run/DAMX.sock';

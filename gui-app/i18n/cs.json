@@ -128,5 +128,16 @@
   "power_offline": "DAMX je offline. sudo systemctl start damx-daemon",
   "power_status_label": "Napájení: ",
   "toast_power_profile": "Profil napájení: {profile}",
-  "toast_power_profile_fail": "Profil napájení se nepodařilo změnit (DAMX)"
+  "toast_power_profile_fail": "Profil napájení se nepodařilo změnit (DAMX)",
+  "settings_licenses": "Licence",
+  "power_license_credit": "Profily CPU přes DAMX (GPL-3.0)",
+  "license_modal_title": "Licence",
+  "license_app_heading": "Acer Nitro Perfect Fan",
+  "license_app_body": "Tento program je pod licencí MIT (keizenx 2024, Kaspral1 2026). Zdrojový kód je v repozitáři projektu.",
+  "license_damx_heading": "Profily napájení — DAMX",
+  "license_damx_body": "Eco / Tichý / Vyvážený / Sport / Max se spojují s již nainstalovaným démonem DAMX (Div Acer Manager Max) přes Unix socket. Tento program neobsahuje kód DAMX a zůstává na MIT. DAMX a ovladač Linuwu-Sense jsou samostatné projekty pod GNU GPL v3.",
+  "license_damx_link": "Div Acer Manager Max (GPL-3.0)",
+  "license_linuwu_link": "Linuwu-Sense (GPL-3.0)",
+  "license_ec_heading": "Ovladač acer-nitro-ec",
+  "license_ec_body": "Přiložený modul jádra (ventilátory a na AN515-54 podsvícení klávesnice) je GPL-2.0. To nemění licenci MIT démona ani okna."
 }

@@ -128,5 +128,16 @@
   "power_offline": "Brak połączenia z DAMX. sudo systemctl start damx-daemon",
   "power_status_label": "Zasilanie: ",
   "toast_power_profile": "Ustawiono profil zasilania: {profile}",
-  "toast_power_profile_fail": "Nie udało się zmienić profilu zasilania (DAMX)"
+  "toast_power_profile_fail": "Nie udało się zmienić profilu zasilania (DAMX)",
+  "settings_licenses": "Licencje",
+  "power_license_credit": "Profile CPU przez DAMX (GPL-3.0)",
+  "license_modal_title": "Licencje",
+  "license_app_heading": "Acer Nitro Perfect Fan",
+  "license_app_body": "Ten program jest na licencji MIT (keizenx 2024, Kaspral1 2026). Kod źródłowy jest w repozytorium projektu.",
+  "license_damx_heading": "Profile zasilania — DAMX",
+  "license_damx_body": "Przyciski Eco / Cichy / Balans / Sport / Max łączą się z już zainstalowanym daemonem DAMX (Div Acer Manager Max) przez gniazdo Unix. Ten program nie zawiera kodu DAMX i zostaje na MIT. DAMX oraz sterownik Linuwu-Sense to osobne projekty na GNU GPL v3.",
+  "license_damx_link": "Div Acer Manager Max (GPL-3.0)",
+  "license_linuwu_link": "Linuwu-Sense (GPL-3.0)",
+  "license_ec_heading": "Sterownik acer-nitro-ec",
+  "license_ec_body": "Dołączony moduł jądra (wentylatory i na AN515-54 podświetlenie klawiatury) jest na GPL-2.0. To nie zmienia licencji MIT daemona ani okienka."
 }
