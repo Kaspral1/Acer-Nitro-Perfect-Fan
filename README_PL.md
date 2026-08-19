@@ -1,4 +1,6 @@
-<a href="https://www.buymeacoffee.com/Kaspral" target="_blank"><img align="right" src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me a Coffee" height="36" width="130"></a>
+<p align="right">
+  <a href="https://www.buymeacoffee.com/Kaspral" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me a Coffee" height="36"></a>
+</p>
 
 # Acer Nitro Perfect Fan
 
