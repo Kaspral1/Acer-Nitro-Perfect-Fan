@@ -1,32 +1,88 @@
 /* Nitro Fan Control - Modern Design System (CSS) */
 
 :root {
-  --bg-dark: #090a0f;
-  --bg-card: rgba(18, 21, 33, 0.85);
-  --bg-card-hover: rgba(26, 30, 48, 0.95);
-  --bg-sidebar: rgba(12, 14, 22, 0.95);
-  --bg-input: #0e111a;
+  --bg-dark: #08090e;
+  --bg-card: #171c2b;
+  --bg-card-hover: #1d2334;
+  --bg-sidebar: #0b0d14;
+  --bg-box: #1a2030;
+  --bg-input: #10141e;
+  --bg-chrome: #0a0b11;
 
-  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass: rgba(214, 222, 240, 0.16);
   --border-focus: rgba(255, 59, 48, 0.5);
 
-  /* New color palette */
+  /* Accent palette — a bit glossier than flat brand chips */
   --color-black: #000000;
-  --color-blue: #0066ff;
+  --color-blue: #1a86ff;
   --color-white: #ffffff;
-  --color-red: #ff3b30;
-  --color-green: #30d158;
+  --color-red: #ff4b42;
+  --color-green: #3ee66e;
+  --color-orange: #ffb020;
+  --color-purple: #c084fc;
+  --color-ram: #d07aff;
 
-  /* Intel blue (CPU) / NVIDIA green (GPU) */
+  /* CPU fill stays dark enough for white text (AA 4.5:1).
+   * --cpu-hi / stronger glow give the shine on buttons, charts, thumbs. */
   --cpu-color: #0071c5;
-  --cpu-glow: rgba(0, 113, 197, 0.45);
+  --cpu-hi: #3dcfff;
+  --cpu-text: #7ed8ff;
+  --cpu-glow: rgba(0, 210, 255, 0.58);
 
-  --gpu-color: #76b900;
-  --gpu-glow: rgba(118, 185, 0, 0.45);
+  --gpu-color: #8fe000;
+  --gpu-hi: #c8ff3a;
+  --gpu-text: #d6ff5e;
+  --gpu-glow: rgba(180, 255, 40, 0.58);
 
-  --text-main: var(--color-white);
-  --text-muted: #b5bed5;
-  --text-sub: #98a2bc;
+  --gloss-inset: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  --btn-on-neon: #140818;
+  --btn-on-light: #140818;
+  --btn-on-dark: #ffffff;
+
+  /* OutRun palette — one role each, not a fill for every active chip. */
+  --pal-plum: #540D6E;
+  --pal-pink: #FF3864;
+  --pal-sun: #FF6C11;
+  --pal-royal: #023788;
+  --pal-sky: #2DE2E6;
+  --pal-peak: #F9C80E;
+  --pal-cta: #F6019D;
+
+  --gloss-quiet: linear-gradient(180deg, #791E94 0%, var(--pal-plum) 48%, #541388 100%);
+  --gloss-action: linear-gradient(180deg, #FF4365 0%, var(--pal-pink) 48%, #FD1D53 100%);
+  --gloss-heat: linear-gradient(180deg, #ff8533 0%, var(--pal-sun) 48%, #d4580c 100%);
+  --gloss-steady: linear-gradient(180deg, #0348a0 0%, var(--pal-royal) 48%, #01285f 100%);
+  --gloss-auto: linear-gradient(180deg, #5eeaee 0%, var(--pal-sky) 48%, #1bb8bc 100%);
+  --gloss-peak: linear-gradient(180deg, #ffe04a 0%, var(--pal-peak) 48%, #d4a80a 100%);
+  --gloss-cta: linear-gradient(180deg, #F706CF 0%, var(--pal-cta) 48%, #D40078 100%);
+  --gloss-cpu: linear-gradient(180deg, #67f4ff 0%, var(--gauge-cpu) 42%, #00c4e0 100%);
+  --gloss-blue: var(--gloss-steady);
+  --gloss-red: linear-gradient(180deg, #ff7a72 0%, #ff4b42 52%, #e02820 100%);
+  --gloss-orange: var(--gloss-heat);
+
+  --glow-quiet: rgba(84, 13, 110, 0.7);
+  --glow-action: rgba(255, 56, 100, 0.5);
+  --glow-heat: rgba(255, 108, 17, 0.5);
+  --glow-steady: rgba(2, 55, 136, 0.55);
+  --glow-auto: rgba(45, 226, 230, 0.5);
+  --glow-peak: rgba(249, 200, 14, 0.5);
+  --glow-cta: rgba(246, 1, 157, 0.5);
+
+  /* Aliases used by settings/modals (were referenced but never defined). */
+  --accent-cyan: var(--cpu-hi);
+  --accent-blue: var(--pal-royal);
+
+  /* Gauge neon (screenshot 1 colors). Scoped to fan rings — fills stay Intel/NVIDIA. */
+  --gauge-cpu: #00e5ff;
+  --gauge-cpu-dim: rgba(0, 229, 255, 0.14);
+  --gauge-cpu-glow: rgba(0, 229, 255, 0.75);
+  --gauge-gpu: #b4ff2c;
+  --gauge-gpu-dim: rgba(180, 255, 44, 0.14);
+  --gauge-gpu-glow: rgba(180, 255, 44, 0.7);
+
+  --text-main: #f4f6fb;
+  --text-muted: #d7dde8;
+  --text-sub: #c5cde0;
 
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -41,6 +97,41 @@
 
   --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* OutRun — pełna paleta z plakatu (tła + neony). Przyciski ról zostają. */
+html[data-theme="outrun"] {
+  --bg-dark: #0D0221;
+  --bg-card: #261447;
+  --bg-card-hover: #2E2157;
+  --bg-sidebar: #0D0221;
+  --bg-box: #2E2157;
+  --bg-input: #241734;
+  --bg-chrome: #0D0221;
+  --border-glass: rgba(45, 226, 230, 0.2);
+  --border-focus: rgba(255, 56, 100, 0.55);
+  --color-blue: #2DE2E6;
+  --color-red: #FD1D53;
+  --color-orange: #FF6C11;
+  --color-purple: #791E94;
+  --color-ram: #F6019D;
+  --cpu-color: #023788;
+  --cpu-hi: #2DE2E6;
+  --cpu-text: #7ef6f8;
+  --cpu-glow: rgba(45, 226, 230, 0.55);
+  --gpu-color: #F9C80E;
+  --gpu-hi: #ffe04a;
+  --gpu-text: #ffe56a;
+  --gpu-glow: rgba(249, 200, 14, 0.5);
+  --gauge-cpu: #2DE2E6;
+  --gauge-cpu-dim: rgba(45, 226, 230, 0.14);
+  --gauge-cpu-glow: rgba(45, 226, 230, 0.75);
+  --gauge-gpu: #F9C80E;
+  --gauge-gpu-dim: rgba(249, 200, 14, 0.14);
+  --gauge-gpu-glow: rgba(249, 200, 14, 0.7);
+  --accent-cyan: #2DE2E6;
+  --accent-blue: #023788;
+  --shadow-glow: 0 0 20px rgba(246, 1, 157, 0.28);
 }
 
 /* Reset & Global */
@@ -117,7 +208,7 @@ body {
 /* Header Titlebar */
 .titlebar {
   height: 38px;
-  background-color: rgba(10, 11, 17, 0.95);
+  background-color: var(--bg-chrome);
   border-bottom: 1px solid var(--border-glass);
   display: flex;
   justify-content: space-between;
@@ -136,17 +227,17 @@ body {
 }
 
 .app-logo {
-  color: var(--cpu-color);
+  color: var(--cpu-hi);
   display: flex;
   align-items: center;
-  filter: drop-shadow(0 0 8px var(--cpu-glow));
+  filter: drop-shadow(0 0 10px var(--cpu-glow));
 }
 
 .app-title {
-  font-family: var(--font-body);
-  font-weight: 700;
+  font-family: system-ui, "Noto Sans", "Ubuntu", sans-serif;
+  font-weight: 600;
   font-size: 13px;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
   color: var(--text-main);
 }
 
@@ -172,8 +263,8 @@ body {
 }
 
 .status-dot.green {
-  background-color: #30d158;
-  box-shadow: 0 0 8px rgba(48, 209, 88, 0.6);
+  background-color: var(--color-green);
+  box-shadow: 0 0 10px rgba(62, 230, 110, 0.75);
 }
 
 .status-dot.yellow {
@@ -268,34 +359,79 @@ body {
   flex: 1;
   display: flex;
   overflow: hidden;
-  background: radial-gradient(circle at 10% 20%, rgba(255, 59, 48, 0.05) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(118, 185, 0, 0.04) 0%, transparent 40%);
+  background: radial-gradient(circle at 10% 20%, rgba(0, 210, 255, 0.06) 0%, transparent 42%),
+              radial-gradient(circle at 90% 80%, rgba(180, 255, 40, 0.05) 0%, transparent 42%);
 }
 
 /* Sidebar */
 .sidebar {
-  width: 220px;
+  width: 248px;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-glass);
-  padding: 12px;
+  padding: 10px 10px 6px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   overflow-y: auto;
   min-height: 0;
 }
 
-/* Temperatures fill leftover sidebar height. */
+/* Shared lifted surface — must read as a panel, not the sidebar wash. */
+.sidebar-box,
+.power-profile-card,
+.mode-card,
+.resources-card {
+  background: var(--bg-box);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+}
+
+/* Temps box grows into leftover rail height so the bottom is not empty wash. */
 .sidebar-section.sidebar-temps {
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+}
+
+.sidebar-section.sidebar-temps .section-title {
+  margin-bottom: 5px;
 }
 
 .sidebar-section.sidebar-temps .resources-card {
-  flex: 1;
-  min-height: 0;
+  flex: 1 0 auto;
+  justify-content: space-evenly;
+  gap: 7px;
+  padding: 10px 12px;
+}
+
+.sidebar-section.sidebar-temps .resource-item {
+  gap: 0;
+  margin-bottom: 0;
+}
+
+.sidebar-section.sidebar-temps .resource-header {
+  font-size: 13px;
+  line-height: 1.25;
+  gap: 10px;
+}
+
+.sidebar-section.sidebar-temps .resource-label,
+.sidebar-section.sidebar-temps .resource-val {
+  font-size: 13px;
+}
+
+.sidebar-section.sidebar-temps .resource-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-section.sidebar-temps .resource-val {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
 }
 
 .settings-kbd {
@@ -342,7 +478,7 @@ body {
   font-weight: 700;
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
-  color: #aab4cc;
+  color: var(--text-muted);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
@@ -357,9 +493,9 @@ body {
 }
 
 .kbd-level-btn.active {
-  background: var(--color-red);
-  color: #fff;
-  box-shadow: 0 2px 10px rgba(255, 59, 48, 0.4);
+  background: var(--gloss-auto);
+  color: var(--btn-on-light);
+  box-shadow: 0 2px 10px var(--glow-auto), var(--gloss-inset);
 }
 
 .kbd-timeout-row {
@@ -395,29 +531,31 @@ body {
 
 .section-title {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--text-sub);
-  margin-bottom: 12px;
-  padding-left: 4px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .profile-buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
+  padding: 6px;
 }
 
 .profile-btn {
   position: relative;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-input);
   border: 1px solid var(--border-glass);
-  border-radius: var(--radius-md);
-  padding: 8px 12px;
+  border-radius: 8px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   color: var(--text-muted);
   transition: var(--transition-fast);
@@ -432,20 +570,48 @@ body {
 }
 
 .profile-btn.active {
-  background: rgba(255, 59, 48, 0.12);
-  border-color: rgba(255, 59, 48, 0.4);
-  color: var(--text-main);
-  box-shadow: 0 4px 15px rgba(255, 59, 48, 0.15);
-}
-
-.profile-btn.active .profile-icon {
-  color: #ff9500;
-  filter: drop-shadow(0 0 6px rgba(255, 149, 0, 0.55));
+  color: var(--btn-on-dark);
+  box-shadow: var(--gloss-inset);
 }
 
 .profile-btn.active .btn-name {
-  color: #ffffff;
   font-weight: 700;
+}
+
+.profile-btn[data-profile="Silent"].active {
+  background: var(--gloss-quiet);
+  border-color: rgba(121, 30, 148, 0.8);
+  color: var(--btn-on-dark);
+  box-shadow: 0 4px 16px var(--glow-quiet), var(--gloss-inset);
+}
+
+.profile-btn[data-profile="Silent"].active .profile-icon {
+  color: #e8c8f2;
+  filter: drop-shadow(0 0 8px rgba(180, 110, 200, 0.7));
+}
+
+.profile-btn[data-profile="Balanced"].active {
+  background: var(--gloss-steady);
+  border-color: rgba(45, 120, 220, 0.7);
+  color: var(--btn-on-dark);
+  box-shadow: 0 4px 16px var(--glow-steady), var(--gloss-inset);
+}
+
+.profile-btn[data-profile="Balanced"].active .profile-icon {
+  color: #d5dcff;
+  filter: drop-shadow(0 0 8px rgba(86, 109, 202, 0.75));
+}
+
+.profile-btn[data-profile="Turbo"].active {
+  background: var(--gloss-heat);
+  border-color: rgba(255, 108, 17, 0.75);
+  color: var(--btn-on-light);
+  box-shadow: 0 4px 16px var(--glow-heat), var(--gloss-inset);
+}
+
+.profile-btn[data-profile="Turbo"].active .profile-icon {
+  color: #3a2208;
+  filter: drop-shadow(0 0 8px rgba(229, 144, 54, 0.7));
 }
 
 .profile-icon {
@@ -460,7 +626,7 @@ body {
 
 .btn-name {
   font-family: var(--font-heading);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -472,10 +638,7 @@ body {
 
 /* CPU / DAMX power profiles — distinct from fan curve profiles */
 .power-profile-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-md);
-  padding: 8px;
+  padding: 6px;
 }
 
 .power-profile-status {
@@ -492,7 +655,7 @@ body {
 }
 
 .power-profile-btn {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-input);
   border: 1px solid var(--border-glass);
   border-radius: 8px;
   padding: 7px 6px;
@@ -519,31 +682,60 @@ body {
 }
 
 .power-profile-btn.active {
-  background: rgba(0, 113, 197, 0.2);
-  border-color: rgba(0, 113, 197, 0.55);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(0, 113, 197, 0.22);
+  box-shadow: var(--gloss-inset);
+}
+
+.power-profile-btn[data-power-profile="low-power"].active,
+.power-profile-btn[data-power-profile="quiet"].active {
+  background: var(--gloss-quiet);
+  border-color: rgba(121, 30, 148, 0.8);
+  color: var(--btn-on-dark);
+  box-shadow: 0 4px 16px var(--glow-quiet), var(--gloss-inset);
+}
+
+.power-profile-btn[data-power-profile="balanced"].active {
+  background: var(--gloss-steady);
+  border-color: rgba(45, 120, 220, 0.7);
+  color: var(--btn-on-dark);
+  box-shadow: 0 4px 16px var(--glow-steady), var(--gloss-inset);
+}
+
+.power-profile-btn[data-power-profile="balanced-performance"].active {
+  background: var(--gloss-heat);
+  border-color: rgba(255, 108, 17, 0.75);
+  color: var(--btn-on-light);
+  box-shadow: 0 4px 16px var(--glow-heat), var(--gloss-inset);
+}
+
+.power-profile-btn[data-power-profile="performance"].active {
+  background: var(--gloss-peak);
+  border-color: rgba(249, 200, 14, 0.75);
+  color: var(--btn-on-light);
+  box-shadow: 0 4px 16px var(--glow-peak), var(--gloss-inset);
 }
 
 .power-profile-btn.active .power-profile-name {
   font-weight: 700;
 }
 
-.power-profile-hint {
-  margin: 8px 2px 0;
-  font-size: 10px;
-  line-height: 1.35;
-  color: var(--text-sub);
-  min-height: 1.35em;
+.power-profile-tooltip {
+  position: fixed;
+  z-index: 4000;
+  max-width: 260px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--border-glass);
+  background: rgba(16, 20, 32, 0.96);
+  color: #e8eefc;
+  font-size: 11px;
+  line-height: 1.4;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
 }
 
 .power-profile-card.is-offline .power-profile-btn {
   opacity: 0.45;
   pointer-events: none;
-}
-
-.power-profile-card.is-offline .power-profile-hint {
-  display: none;
 }
 
 .power-license-credit {
@@ -616,21 +808,18 @@ body {
 
 /* Mode Switch Card */
 .mode-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-md);
-  padding: 10px;
+  padding: 6px;
 }
 
 /* Mode Segmented Control */
 .mode-segmented-control {
   display: flex;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--bg-input);
   border: 1px solid var(--border-glass);
   border-radius: 8px;
   padding: 3px;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .mode-segment-btn {
@@ -642,7 +831,7 @@ body {
   font-size: 11px;
   font-weight: 700;
   font-family: var(--font-body);
-  color: #aab4cc;
+  color: var(--text-muted);
   cursor: pointer;
   transition: var(--transition-fast);
   text-align: center;
@@ -655,14 +844,15 @@ body {
 }
 
 .mode-segment-btn.active {
-  background: var(--color-blue);
-  color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 102, 255, 0.4);
+  background: var(--gloss-auto);
+  color: var(--btn-on-light);
+  box-shadow: 0 2px 16px var(--glow-auto), var(--gloss-inset);
 }
 
 #mode-btn-manual.active {
-  background: var(--color-red);
-  box-shadow: 0 2px 10px rgba(255, 59, 48, 0.4);
+  background: var(--gloss-action);
+  color: var(--btn-on-light);
+  box-shadow: 0 2px 14px var(--glow-action), var(--gloss-inset);
 }
 
 /* Fan speed offset (GPU vs CPU) — under manual sliders */
@@ -690,16 +880,17 @@ body {
 }
 
 .slider-val-badge.offset-badge {
-  color: #c4b5fd;
-  border-color: rgba(167, 139, 250, 0.35);
+  color: var(--color-purple);
+  border-color: rgba(192, 132, 252, 0.45);
 }
 
 .custom-range.offset {
-  accent-color: #a78bfa;
+  accent-color: var(--color-purple);
 }
 
 .custom-range.offset::-webkit-slider-thumb {
-  background: #a78bfa;
+  background: var(--color-purple);
+  box-shadow: 0 0 10px rgba(192, 132, 252, 0.65);
 }
 
 .custom-select {
@@ -797,13 +988,10 @@ input:checked + .slider:before {
 
 /* Resource Load Progress Bars (Sidebar) */
 .resources-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
 }
 
 .resource-item {
@@ -827,9 +1015,10 @@ input:checked + .slider:before {
 
 .resource-val {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-main);
+  font-variant-numeric: tabular-nums;
 }
 
 .progress-track {
@@ -849,23 +1038,23 @@ input:checked + .slider:before {
 }
 
 .progress-fill.cpu-fill {
-  background: var(--cpu-color);
-  box-shadow: 0 0 8px var(--cpu-glow);
+  background: linear-gradient(90deg, var(--cpu-color), var(--cpu-hi));
+  box-shadow: 0 0 10px var(--cpu-glow);
 }
 
 .progress-fill.gpu-fill {
-  background: var(--gpu-color);
-  box-shadow: 0 0 8px var(--gpu-glow);
+  background: linear-gradient(90deg, var(--gpu-color), var(--gpu-hi));
+  box-shadow: 0 0 10px var(--gpu-glow);
 }
 
 .progress-fill.ram-fill {
-  background: #bf5af2;
-  box-shadow: 0 0 8px rgba(191, 90, 242, 0.4);
+  background: linear-gradient(90deg, #bf5af2, var(--color-ram));
+  box-shadow: 0 0 10px rgba(208, 122, 255, 0.55);
 }
 
 .progress-fill.vram-fill {
-  background: #30d158;
-  box-shadow: 0 0 8px rgba(48, 209, 88, 0.4);
+  background: linear-gradient(90deg, #30d158, var(--color-green));
+  box-shadow: 0 0 10px rgba(62, 230, 110, 0.55);
 }
 
 /* Main Dashboard Container */
@@ -881,7 +1070,6 @@ input:checked + .slider:before {
 /* Card Base */
 .card {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
@@ -923,13 +1111,13 @@ input:checked + .slider:before {
 }
 
 .cpu-dot {
-  background: var(--cpu-color);
-  box-shadow: 0 0 10px var(--cpu-glow);
+  background: var(--cpu-hi);
+  box-shadow: 0 0 12px var(--cpu-glow);
 }
 
 .gpu-dot {
-  background: var(--gpu-color);
-  box-shadow: 0 0 10px var(--gpu-glow);
+  background: var(--gpu-hi);
+  box-shadow: 0 0 12px var(--gpu-glow);
 }
 
 .temp-badge {
@@ -940,12 +1128,12 @@ input:checked + .slider:before {
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-glass);
-  color: #30d158;
+  color: var(--color-green);
 }
 
 .temp-badge.high {
-  color: var(--cpu-color);
-  border-color: var(--cpu-color);
+  color: #ffb020;
+  border-color: rgba(255, 176, 32, 0.55);
   background: rgba(255, 59, 48, 0.15);
   animation: pulse-border 1.5s infinite;
 }
@@ -965,47 +1153,62 @@ input:checked + .slider:before {
 
 /* Telemetry Circular Gauge */
 .tele-card .card-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  min-height: 0;
 }
 
 .gauge-wrapper {
   position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 6px 0;
+  width: 176px;
+  height: 176px;
+  margin: 2px 0 6px;
+  flex: 0 0 auto;
 }
 
 .gauge-svg {
   width: 100%;
   height: 100%;
+  overflow: visible;
   transform: rotate(-90deg);
+}
+
+.gauge-inner {
+  fill: #0b0e16;
 }
 
 .gauge-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.06);
-  stroke-width: 10;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 9;
 }
 
 .gauge-progress {
   fill: none;
-  stroke-width: 10;
+  stroke-width: 9;
   stroke-linecap: round;
-  stroke-dasharray: 440;
-  stroke-dashoffset: 440;
+  stroke-dasharray: 427.3;
+  stroke-dashoffset: 427.3;
   transition: stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cpu-progress {
-  stroke: var(--cpu-color);
-  filter: drop-shadow(0 0 6px var(--cpu-glow));
+  stroke: var(--gauge-cpu);
+  filter:
+    drop-shadow(0 0 3px var(--gauge-cpu))
+    drop-shadow(0 0 10px var(--gauge-cpu-glow))
+    drop-shadow(0 0 18px rgba(0, 180, 255, 0.4));
 }
 
 .gpu-progress {
-  stroke: var(--gpu-color);
-  filter: drop-shadow(0 0 6px var(--gpu-glow));
+  stroke: var(--gauge-gpu);
+  filter:
+    drop-shadow(0 0 3px var(--gauge-gpu))
+    drop-shadow(0 0 10px var(--gauge-gpu-glow))
+    drop-shadow(0 0 18px rgba(118, 255, 0, 0.35));
 }
 
 .gauge-center {
@@ -1015,25 +1218,62 @@ input:checked + .slider:before {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  pointer-events: none;
 }
 
 .gauge-rpm-val {
   font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-main);
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.28);
 }
 
 .gauge-unit {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: var(--text-sub);
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.cpu-theme .gauge-unit { color: var(--gauge-cpu); }
+.gpu-theme .gauge-unit { color: var(--gauge-gpu); }
+
+.cpu-theme .cpu-dot {
+  background: var(--gauge-cpu);
+  box-shadow: 0 0 10px var(--gauge-cpu-glow);
+}
+
+.gpu-theme .gpu-dot {
+  background: var(--gauge-gpu);
+  box-shadow: 0 0 10px var(--gauge-gpu-glow);
+}
+
+.cpu-theme .temp-badge {
+  color: var(--gauge-cpu);
+  background: var(--gauge-cpu-dim);
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+.gpu-theme .temp-badge {
+  color: var(--gauge-gpu);
+  background: var(--gauge-gpu-dim);
+  border-color: rgba(180, 255, 44, 0.4);
+}
+
+.cpu-theme .temp-badge.high,
+.gpu-theme .temp-badge.high {
+  color: #ffb020;
+  border-color: rgba(255, 176, 32, 0.55);
+  background: rgba(255, 59, 48, 0.15);
 }
 
 .metric-footer {
   width: 100%;
-  margin-top: 10px;
+  margin-top: auto;
   background: rgba(0, 0, 0, 0.2);
   border-radius: var(--radius-sm);
   padding: 8px 12px;
@@ -1046,7 +1286,7 @@ input:checked + .slider:before {
 }
 
 .stat-lbl {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
@@ -1081,9 +1321,23 @@ input:checked + .slider:before {
 }
 
 .preset-pill:hover {
-  background: rgba(255, 59, 48, 0.2);
-  border-color: var(--cpu-color);
+  background: rgba(86, 109, 202, 0.22);
+  border-color: rgba(123, 145, 230, 0.7);
   color: #fff;
+  box-shadow: 0 0 10px var(--glow-steady);
+}
+
+.preset-pill[data-speed="30"]:hover {
+  background: rgba(71, 31, 83, 0.55);
+  border-color: rgba(160, 100, 180, 0.7);
+  box-shadow: 0 0 10px var(--glow-quiet);
+}
+
+.preset-pill[data-speed="100"]:hover {
+  background: rgba(229, 144, 54, 0.28);
+  border-color: rgba(255, 180, 80, 0.7);
+  color: var(--btn-on-light);
+  box-shadow: 0 0 10px var(--glow-heat);
 }
 
 .controls-body {
@@ -1109,11 +1363,11 @@ input:checked + .slider:before {
 .slider-lbl {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
-.cpu-text { color: var(--cpu-color); }
-.gpu-text { color: var(--gpu-color); }
+.cpu-text { color: var(--cpu-text); }
+.gpu-text { color: var(--gpu-text); }
 
 .slider-val-badge {
   font-family: var(--font-mono);
@@ -1125,8 +1379,8 @@ input:checked + .slider:before {
   border-radius: 4px;
 }
 
-.cpu-badge { color: var(--cpu-color); }
-.gpu-badge { color: var(--gpu-color); }
+.cpu-badge { color: var(--cpu-text); }
+.gpu-badge { color: var(--gpu-text); }
 
 /* Custom Range Sliders */
 .range-wrapper {
@@ -1161,9 +1415,9 @@ input:checked + .slider:before {
   transform: scale(1.2);
 }
 
-.custom-range.master::-webkit-slider-thumb { background: var(--cpu-color); box-shadow: 0 0 8px var(--cpu-glow); }
-.custom-range.cpu::-webkit-slider-thumb { background: var(--cpu-color); box-shadow: 0 0 8px var(--cpu-glow); }
-.custom-range.gpu::-webkit-slider-thumb { background: var(--gpu-color); box-shadow: 0 0 8px var(--gpu-glow); }
+.custom-range.master::-webkit-slider-thumb { background: var(--cpu-hi); box-shadow: 0 0 12px var(--cpu-glow); }
+.custom-range.cpu::-webkit-slider-thumb { background: var(--cpu-hi); box-shadow: 0 0 12px var(--cpu-glow); }
+.custom-range.gpu::-webkit-slider-thumb { background: var(--gpu-hi); box-shadow: 0 0 12px var(--gpu-glow); }
 
 .custom-range:disabled {
   opacity: 0.3;
@@ -1221,14 +1475,14 @@ input:checked + .slider:before {
 }
 
 .btn-primary {
-  background: var(--cpu-color);
-  color: #ffffff;
-  box-shadow: 0 4px 15px var(--cpu-glow);
+  background: var(--gloss-cta);
+  color: var(--btn-on-light);
+  box-shadow: 0 4px 18px var(--glow-cta), var(--gloss-inset);
 }
 
 .btn-primary:hover {
-  background: var(--cpu-color);
-  box-shadow: 0 6px 20px var(--cpu-glow);
+  background: var(--gloss-cta);
+  box-shadow: 0 6px 24px var(--glow-cta), var(--gloss-inset);
   transform: translateY(-1px);
 }
 
@@ -1274,14 +1528,24 @@ input:checked + .slider:before {
 }
 
 .curve-source-btn.active {
-  background: rgba(255, 149, 0, 0.14);
-  border-color: rgba(255, 149, 0, 0.55);
-  color: #ff9500;
-  box-shadow: 0 0 12px rgba(255, 149, 0, 0.18);
+  box-shadow: var(--gloss-inset);
+}
+
+#curve-source-default.active {
+  background: var(--gloss-steady);
+  border-color: rgba(45, 120, 220, 0.7);
+  color: var(--btn-on-dark);
+  box-shadow: 0 0 14px var(--glow-steady), var(--gloss-inset);
+}
+
+#curve-source-custom.active {
+  background: var(--gloss-action);
+  border-color: rgba(255, 67, 101, 0.75);
+  color: var(--btn-on-light);
+  box-shadow: 0 0 14px var(--glow-action), var(--gloss-inset);
 }
 
 .curve-inputs-table.is-readonly input {
-  opacity: 0.72;
   cursor: default;
 }
 
@@ -1309,21 +1573,21 @@ input:checked + .slider:before {
 }
 
 .curve-legend-item.cpu {
-  color: var(--cpu-color);
+  color: var(--cpu-text);
 }
 
 .curve-legend-item.cpu i {
-  background: var(--cpu-color);
-  box-shadow: 0 0 6px var(--cpu-glow);
+  background: var(--cpu-hi);
+  box-shadow: 0 0 8px var(--cpu-glow);
 }
 
 .curve-legend-item.gpu {
-  color: var(--gpu-color);
+  color: var(--gpu-text);
 }
 
 .curve-legend-item.gpu i {
-  background: var(--gpu-color);
-  box-shadow: 0 0 6px var(--gpu-glow);
+  background: var(--gpu-hi);
+  box-shadow: 0 0 8px var(--gpu-glow);
 }
 
 .curve-card {
@@ -1368,20 +1632,20 @@ input:checked + .slider:before {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 6px;
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--font-heading);
   letter-spacing: 0.5px;
-  color: var(--text-sub);
+  color: var(--text-muted);
   padding: 0 2px;
   font-weight: 700;
 }
 
 .table-head .col-cpu {
-  color: var(--cpu-color);
+  color: var(--cpu-text);
 }
 
 .table-head .col-gpu {
-  color: var(--gpu-color);
+  color: var(--gpu-text);
 }
 
 .table-row {
@@ -1409,8 +1673,8 @@ input:checked + .slider:before {
 /* CPU inputs — Intel blue */
 .curve-temp.curve-cpu,
 .curve-speed.curve-cpu {
-  color: var(--cpu-color);
-  border-color: rgba(0, 113, 197, 0.35);
+  color: var(--cpu-text);
+  border-color: rgba(61, 207, 255, 0.4);
 }
 
 .curve-temp.curve-cpu:focus,
@@ -1422,8 +1686,8 @@ input:checked + .slider:before {
 /* GPU inputs — NVIDIA green */
 .curve-temp.curve-gpu,
 .curve-speed.curve-gpu {
-  color: var(--gpu-color);
-  border-color: rgba(118, 185, 0, 0.35);
+  color: var(--gpu-text);
+  border-color: rgba(200, 255, 58, 0.4);
 }
 
 .curve-temp.curve-gpu:focus,
@@ -1460,9 +1724,9 @@ input:checked + .slider:before {
 }
 
 .chart-btn.active {
-  background: var(--cpu-color);
-  color: #fff;
-  box-shadow: 0 2px 8px var(--cpu-glow);
+  background: rgba(45, 226, 230, 0.16);
+  color: #b8fbff;
+  box-shadow: inset 0 0 0 1px rgba(45, 226, 230, 0.75);
 }
 
 .history-card {
@@ -1484,13 +1748,13 @@ input:checked + .slider:before {
 /* Footer Status Bar */
 .status-bar {
   height: 32px;
-  background-color: rgba(10, 11, 17, 0.95);
+  background-color: var(--bg-chrome);
   border-top: 1px solid var(--border-glass);
   padding: 0 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -1518,7 +1782,7 @@ input:checked + .slider:before {
 .status-select {
   width: auto;
   padding: 2px 22px 2px 8px;
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--font-mono);
   height: 22px;
   line-height: 18px;
@@ -1530,7 +1794,7 @@ input:checked + .slider:before {
 
 .app-version-badge {
   font-family: var(--font-mono);
-  color: var(--text-sub);
+  color: var(--text-muted);
 }
 
 /* Status Popover Menu */
@@ -1547,7 +1811,7 @@ input:checked + .slider:before {
   border-radius: 4px;
   color: var(--text-main);
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
   height: 22px;
   transition: var(--transition-fast);
@@ -1563,7 +1827,7 @@ input:checked + .slider:before {
   bottom: 28px;
   right: 0;
   width: 210px;
-  background: rgba(18, 21, 33, 0.96);
+  background: var(--bg-card);
   backdrop-filter: blur(16px);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
@@ -1581,6 +1845,133 @@ input:checked + .slider:before {
 
 .settings-dropdown {
   width: 280px;
+}
+
+.settings-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 6px;
+}
+
+.settings-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+.settings-tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.settings-tab.active {
+  background: var(--gloss-auto);
+  color: var(--btn-on-light);
+  box-shadow: 0 2px 10px var(--glow-auto), var(--gloss-inset);
+}
+
+.settings-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-tab-panel.hidden {
+  display: none !important;
+}
+
+.theme-hint {
+  margin: 2px 2px 8px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-sub);
+}
+
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
+  border-radius: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition-fast);
+}
+
+.theme-card:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.theme-card.active {
+  border-color: var(--pal-sky);
+  box-shadow: 0 0 0 1px var(--pal-sky), var(--gloss-inset);
+  color: var(--text-main);
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.theme-swatches span {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.theme-card-name {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.theme-card-desc {
+  font-size: 11px;
+  color: var(--text-sub);
+}
+
+.settings-dropdown .dropdown-header {
+  font-size: 10px;
+}
+
+.settings-dropdown .dropdown-section-label {
+  font-size: 11px;
+}
+
+.settings-dropdown .kbd-status,
+.settings-dropdown .kbd-level-btn,
+.settings-dropdown .kbd-timeout-label,
+.settings-dropdown .kbd-timeout-control .mode-segment-btn {
+  font-size: 11px;
+}
+
+.settings-dropdown .settings-select,
+.settings-dropdown .dropdown-item,
+.settings-dropdown .settings-tab,
+.settings-dropdown .theme-hint,
+.settings-dropdown .theme-card-desc {
+  font-size: 12px;
 }
 
 .dropdown-section-label {
@@ -1819,7 +2210,7 @@ input:checked + .slider:before {
 .defaults-edited-text svg {
   flex-shrink: 0;
   margin-top: 1px;
-  color: #ff9500;
+  color: var(--color-orange);
 }
 
 .defaults-restore-btn {
@@ -1865,9 +2256,25 @@ input:checked + .slider:before {
 }
 
 .defaults-profile-tab.active {
-  background: rgba(255, 149, 0, 0.16);
-  color: #ff9500;
-  box-shadow: 0 0 12px rgba(255, 149, 0, 0.16);
+  box-shadow: var(--gloss-inset);
+}
+
+.defaults-profile-tab[data-profile="Silent"].active {
+  background: var(--gloss-quiet);
+  color: var(--btn-on-dark);
+  box-shadow: 0 0 14px var(--glow-quiet), var(--gloss-inset);
+}
+
+.defaults-profile-tab[data-profile="Balanced"].active {
+  background: var(--gloss-steady);
+  color: var(--btn-on-dark);
+  box-shadow: 0 0 14px var(--glow-steady), var(--gloss-inset);
+}
+
+.defaults-profile-tab[data-profile="Turbo"].active {
+  background: var(--gloss-heat);
+  color: var(--btn-on-light);
+  box-shadow: 0 0 14px var(--glow-heat), var(--gloss-inset);
 }
 
 /* Siatka: wykres | tabela temperatur — oba zawsze widoczne */
@@ -1955,12 +2362,13 @@ input:checked + .slider:before {
 }
 
 .modal-btn.primary {
-  background: var(--accent-blue);
-  color: #fff;
+  background: var(--gloss-cta);
+  color: var(--btn-on-light);
+  box-shadow: 0 4px 14px var(--glow-cta), var(--gloss-inset);
 }
 
 .modal-btn.primary:hover {
-  filter: brightness(1.15);
+  filter: brightness(1.08);
 }
 
 .modal-btn.secondary {
@@ -1974,8 +2382,9 @@ input:checked + .slider:before {
 }
 
 .modal-btn.danger {
-  background: #ff3b30;
+  background: var(--gloss-red);
   color: #fff;
+  box-shadow: 0 4px 14px rgba(255, 75, 66, 0.45), var(--gloss-inset);
 }
 
 .modal-btn.danger:hover {
@@ -2012,7 +2421,7 @@ input:checked + .slider:before {
 .close-confirm-checkbox input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: var(--accent-blue, #0066ff);
+  accent-color: var(--color-blue);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -2044,8 +2453,8 @@ input:checked + .slider:before {
   margin-bottom: 8px;
 }
 
-.summary-card-title.cpu { color: var(--cpu-color); }
-.summary-card-title.gpu { color: var(--gpu-color); }
+.summary-card-title.cpu { color: var(--cpu-text); }
+.summary-card-title.gpu { color: var(--gpu-text); }
 .summary-card-title.general { color: var(--accent-cyan); }
 
 .summary-row {
@@ -2106,6 +2515,6 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-.toast-dot.success { background: #30d158; box-shadow: 0 0 8px rgba(48, 209, 88, 0.6); }
+.toast-dot.success { background: var(--color-green); box-shadow: 0 0 10px rgba(62, 230, 110, 0.7); }
 .toast-dot.info { background: var(--gpu-color); box-shadow: 0 0 8px var(--gpu-glow); }
 .toast-dot.warning { background: var(--cpu-color); box-shadow: 0 0 8px var(--cpu-glow); }

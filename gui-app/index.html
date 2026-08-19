@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acer Nitro Perfect Fan</title>
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('perfect-fan-theme');
+                document.documentElement.setAttribute('data-theme', t === 'outrun' ? 'outrun' : 'nitro');
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'nitro');
+            }
+        })();
+    </script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,8 +53,8 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-section">
-                <div class="section-title" id="profiles-title">PROFILE STEROWANIA</div>
-                <div class="profile-buttons">
+                <div class="section-title" id="profiles-title">PROFIL PRĘDKOŚCI</div>
+                <div class="sidebar-box profile-buttons">
                     <button class="profile-btn active" data-profile="Silent">
                         <div class="btn-glow"></div>
                         <svg class="profile-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -96,10 +106,6 @@
                             <span class="power-profile-name" id="power-performance-name">Max</span>
                         </button>
                     </div>
-                    <p class="power-profile-hint" id="power-profile-hint"></p>
-                    <button type="button" class="power-license-credit" id="power-license-credit">
-                        Profile CPU przez DAMX (GPL-3.0)
-                    </button>
                 </div>
             </div>
 
@@ -115,13 +121,21 @@
                         </button>
                     </div>
                     <input type="checkbox" id="mode-toggle" style="display: none;">
-                    <p class="mode-desc" id="mode-label">Tryb Auto (Krzywa EC)</p>
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <div class="section-title" id="resources-title">OBCIĄŻENIE ZASOBÓW</div>
+                <div class="section-title" id="resources-title">OBCIĄŻENIE SPRZĘTU</div>
                 <div class="resources-card">
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-label cpu-text" id="cpu-clock-label">TAKTOWANIE</span>
+                            <span class="resource-val" id="cpu-clock-text">—</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill cpu-fill" id="cpu-clock-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
                     <div class="resource-item">
                         <div class="resource-header">
                             <span class="resource-label cpu-text">CPU</span>
@@ -162,12 +176,12 @@
             </div>
 
             <div class="sidebar-section sidebar-temps">
-                <div class="section-title" id="other-sensors-title">TEMPERATURA</div>
+                <div class="section-title" id="other-sensors-title">TEMPERATURY</div>
                 <div class="resources-card" id="other-sensors-container">
                     <!-- Sensors will be injected here via JS -->
                     <div class="resource-item">
                         <div class="resource-header">
-                            <span class="resource-label" id="loading-sensors" style="font-size: 0.8rem; color: #636b83;">Ładowanie danych...</span>
+                            <span class="resource-label" id="loading-sensors">Ładowanie danych...</span>
                         </div>
                     </div>
                 </div>
@@ -191,8 +205,9 @@
                     <div class="card-body">
                         <div class="gauge-wrapper">
                             <svg class="gauge-svg" viewBox="0 0 160 160">
-                                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
-                                <circle class="gauge-progress cpu-progress" id="cpu-gauge-circle" cx="80" cy="80" r="70"></circle>
+                                <circle class="gauge-inner" cx="80" cy="80" r="62"></circle>
+                                <circle class="gauge-bg" cx="80" cy="80" r="68"></circle>
+                                <circle class="gauge-progress cpu-progress" id="cpu-gauge-circle" cx="80" cy="80" r="68"></circle>
                             </svg>
                             <div class="gauge-center">
                                 <span class="gauge-rpm-val" id="cpu-rpm">0</span>
@@ -289,8 +304,9 @@
                     <div class="card-body">
                         <div class="gauge-wrapper">
                             <svg class="gauge-svg" viewBox="0 0 160 160">
-                                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
-                                <circle class="gauge-progress gpu-progress" id="gpu-gauge-circle" cx="80" cy="80" r="70"></circle>
+                                <circle class="gauge-inner" cx="80" cy="80" r="62"></circle>
+                                <circle class="gauge-bg" cx="80" cy="80" r="68"></circle>
+                                <circle class="gauge-progress gpu-progress" id="gpu-gauge-circle" cx="80" cy="80" r="68"></circle>
                             </svg>
                             <div class="gauge-center">
                                 <span class="gauge-rpm-val" id="gpu-rpm">0</span>
@@ -477,6 +493,11 @@
                     </svg>
                 </button>
                 <div id="settings-menu-dropdown" class="status-dropdown settings-dropdown hidden">
+                    <div class="settings-tabs" role="tablist" aria-label="Ustawienia">
+                        <button type="button" class="settings-tab active" id="settings-tab-general" data-settings-tab="general" role="tab" aria-selected="true">Ustawienia</button>
+                        <button type="button" class="settings-tab" id="settings-tab-theme" data-settings-tab="theme" role="tab" aria-selected="false">Motyw</button>
+                    </div>
+                    <div class="settings-tab-panel" id="settings-panel-general" data-settings-panel="general" role="tabpanel">
                     <div class="dropdown-header">
                         <span id="settings-header-title">USTAWIENIA</span>
                     </div>
@@ -526,6 +547,12 @@
                         </svg>
                         <span id="settings-licenses-label">Licencje</span>
                     </button>
+                    <button type="button" id="settings-github-btn" class="dropdown-item action-item" data-url="https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan" title="https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.36 1.12 2.94.85.09-.67.35-1.12.63-1.37-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.84c.85.01 1.71.12 2.51.34 1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.04 10.04 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/>
+                        </svg>
+                        <span id="settings-github-label">Repozytorium na GitHubie</span>
+                    </button>
                     <button id="settings-show-disclaimer-btn" class="dropdown-item action-item">
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
@@ -541,6 +568,32 @@
                         </svg>
                         <span id="settings-reset-close-label">Resetuj pytanie przy zamykaniu</span>
                     </button>
+                    </div>
+                    <div class="settings-tab-panel hidden" id="settings-panel-theme" data-settings-panel="theme" role="tabpanel" hidden>
+                        <p class="theme-hint" id="theme-hint">Wybierz kolorystykę interfejsu. Motyw zapamiętuje się po restarcie.</p>
+                        <button type="button" class="theme-card active" id="theme-card-nitro" data-theme="nitro">
+                            <div class="theme-swatches" aria-hidden="true">
+                                <span style="background:#171c2b"></span>
+                                <span style="background:#00e5ff"></span>
+                                <span style="background:#b4ff2c"></span>
+                                <span style="background:#540D6E"></span>
+                                <span style="background:#F6019D"></span>
+                            </div>
+                            <span class="theme-card-name" id="theme-nitro-name">Nitro</span>
+                            <span class="theme-card-desc" id="theme-nitro-desc">Obecna kolorystyka</span>
+                        </button>
+                        <button type="button" class="theme-card" id="theme-card-outrun" data-theme="outrun">
+                            <div class="theme-swatches" aria-hidden="true">
+                                <span style="background:#FF6C11"></span>
+                                <span style="background:#FF3864"></span>
+                                <span style="background:#2DE2E6"></span>
+                                <span style="background:#261447"></span>
+                                <span style="background:#0D0221"></span>
+                            </div>
+                            <span class="theme-card-name" id="theme-outrun-name">OutRun</span>
+                            <span class="theme-card-desc" id="theme-outrun-desc">Neony z palety OutRun</span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <select id="language-select" class="custom-select status-select" title="Zmień język / Change language">
@@ -550,7 +603,7 @@
                 <option value="de">DE</option>
                 <option value="cs">CS</option>
             </select>
-            <span class="app-version-badge" id="app-version">v1.0</span>
+            <span class="app-version-badge" id="app-version">v1.1</span>
         </div>
     </footer>
     </div>

@@ -97,6 +97,45 @@ class ManualSpeedSaveTests(unittest.TestCase):
         self.assertGreaterEqual(saved["manual_speeds"]["0"], 30.0)
 
 
+class CpuFreqTests(unittest.TestCase):
+    def _ctl(self, tmp):
+        cfg = os.path.join(tmp, "config.json")
+        Path(cfg).write_text("{}")
+        with mock.patch.object(api, "detect_from_config", side_effect=RuntimeError("no hwmon")):
+            return api.NBFCController(config_path=cfg, fallback_config_path=cfg)
+
+    def test_average_mhz_from_sysfs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ctl = self._ctl(tmp)
+            names = ["cpu0", "cpu1", "cpu10", "cpufreq", "cpu0online"]
+
+            def fake_listdir(path):
+                if path == "/sys/devices/system/cpu":
+                    return names
+                raise FileNotFoundError(path)
+
+            def fake_read(path):
+                mapping = {
+                    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "2500000",
+                    "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq": "4500000",
+                    "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq": "1500000",
+                    "/sys/devices/system/cpu/cpu1/cpufreq/cpuinfo_max_freq": "4500000",
+                    "/sys/devices/system/cpu/cpu10/cpufreq/scaling_cur_freq": "2000000",
+                    "/sys/devices/system/cpu/cpu10/cpufreq/cpuinfo_max_freq": "4500000",
+                }
+                return mapping.get(path)
+
+            with mock.patch.object(os, "listdir", side_effect=fake_listdir):
+                with mock.patch.object(ctl, "_read_file_content", side_effect=fake_read):
+                    self.assertEqual(ctl._get_cpu_freq_mhz(), (2000.0, 4500.0))
+
+    def test_missing_sysfs_returns_none(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ctl = self._ctl(tmp)
+            with mock.patch.object(os, "listdir", side_effect=OSError("no cpu")):
+                self.assertEqual(ctl._get_cpu_freq_mhz(), (None, None))
+
+
 class SensorDisplayTests(unittest.TestCase):
     def test_get_fan_status_does_not_max_stuck_ec_gpu(self):
         with tempfile.TemporaryDirectory() as tmp:

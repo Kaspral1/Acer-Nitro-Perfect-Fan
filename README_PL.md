@@ -4,13 +4,19 @@
 [![Python](https://img.shields.io/badge/Backend-Python%203-blue.svg)](https://www.python.org/)
 [![Electron](https://img.shields.io/badge/GUI-Electron-47848F.svg)](https://www.electronjs.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.0-informational.svg)](gui-app/package.json)
+[![Version](https://img.shields.io/badge/version-v1.1-informational.svg)](gui-app/package.json)
 [![CI](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml)
 
 **Acer Nitro Perfect Fan** — sterowanie wentylatorami na **Linuxie + systemd** dla **Acer Nitro 5**.  
 Zweryfikowane na **AN515-54**. Demon systemd → wspólny JSON → most Python → dashboard Electron.
 
-![Panel Acer Nitro Perfect Fan](assets/Screenshot.png)
+Motyw **Nitro** (domyślny):
+
+![Acer Nitro Perfect Fan — motyw Nitro](assets/Screenshot.png)
+
+Motyw **OutRun** (Ustawienia → Motyw):
+
+![Acer Nitro Perfect Fan — motyw OutRun](assets/Screenshot-outrun.png)
 
 | Zacznij tutaj | |
 |---------------|---|
@@ -26,11 +32,32 @@ Windows i macOS **nie są** obsługiwane.
 
 ## Funkcje
 
+**Wentylatory** (daemon — startuje z systemem, okienko nie musi być otwarte)
+
 - Profile: Cichy / Normalny / Turbo z osobnymi krzywymi CPU i GPU
 - Edytor krzywych: temperatura (°C) → obroty (%) z podglądem
 - Manualne PWM: master + osobne suwaki (CPU min. 30%, GPU w dynamic może 0%)
 - Histereza Zero-RPM GPU: stop poniżej ~40°C, start powyżej ~48°C
-- Wygładzanie EMA, zasobnik systemowy, i18n (PL / EN / ES / DE / CS)
+- Wygładzanie EMA
+
+**Profil zasilania CPU** (sidebar — Eco / Cichy / Balans / Sport / Max)
+
+- Zmienia turbo i limity procesora przez osobno zainstalowany daemon [DAMX](https://github.com/PXDiv/Div-Acer-Manager-Max), niezależnie od krzywych wentylatorów
+- Wystarczy wybrać **raz**. DAMX zapamiętuje wybór i wgrywa go przy starcie systemu — tego programu nie trzeba wtedy uruchamiać
+- Bez DAMX reszta panelu działa; te pięć przycisków zostaje offline
+
+**Podświetlanie klawiatury** (Ustawienia, **AN515-54** + `acer-nitro-ec`)
+
+- Poziomy **Off / 25 / 50 / 75 / 100** oraz opcjonalne gaśnięcie po 30 s
+- Zapis idzie wprost do Embedded Controllera. Ustawiasz raz; **zostaje po restarcie** przy zamkniętym programie
+- Na zwykłym Linuksie BIOS dawał tylko wyłączenie albo timeout 30 s, a **każdy start wracał na 100%**. Ten panel to brakujące „zostaw mój poziom”
+
+![Ustawienia — podświetlanie klawiatury Off / 25 / 50 / 75 / 100](assets/Screenshot-settings.png)
+
+**Interfejs**
+
+- Dwa motywy: **Nitro** (domyślny) i **OutRun** — Ustawienia → Motyw, zapamiętywane po restarcie
+- Zasobnik systemowy, i18n (PL / EN / ES / DE / CS)
 - Opcjonalne logi CSV + modal podsumowania
 - Badge połączenia: online / offline
 

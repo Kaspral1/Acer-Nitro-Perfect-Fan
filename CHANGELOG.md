@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.1 (2026)
+
+- Version shown as **v1.1** (package semver `1.1.0`).
+- Two color themes: **Nitro** (default) and **OutRun** (Settings → Theme), remembered after restart. Screenshots: `assets/Screenshot.png`, `assets/Screenshot-outrun.png`.
+- Sidebar copy: **Profil prędkości**, **Obciążenie sprzętu**, **Temperatury**. DAMX credit lives in Settings only.
+- CPU clock (**TAKTOWANIE**) in the load card, same style as CPU / GPU / RAM / VRAM.
+- Power-profile descriptions on hover only (Eco / Cichy: turbo off with 40% / 55% caps; Balans / Sport / Max: turbo on).
+- Section titles centered over their cards; app title uses the system UI font.
+- Contrast: CPU labels use a lighter blue (`#4DB3F5`, WCAG AA); history-chart axis ticks and empty-sensor copy raised to readable greys. High-temp badge is warning amber, not Intel blue.
+- Docs: keyboard backlight **Off / 25 / 50 / 75 / 100** is an EC write — set once, survives reboot with the GUI closed. CPU power profile is the same idea via the DAMX daemon at boot. Fan daemon was already persistent.
+
 ## v1.0 (2026)
 
 Project / GitHub name: **Acer Nitro Perfect Fan** (repository `Kaspral1/Acer-Nitro-Perfect-Fan`).

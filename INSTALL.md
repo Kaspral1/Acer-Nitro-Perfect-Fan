@@ -32,8 +32,8 @@ You want something like `Nitro AN515-54`.
 
 Two pieces. You need both.
 
-1. **Background service (daemon)** — starts with the computer, even with no window open. This is what actually writes fan speeds.
-2. **Window (GUI)** — sliders, Silent / Balanced / Turbo, charts. CPU power profiles (Eco / Quiet / Balanced / Sport / Max) need a separately installed **DAMX** daemon (Div Acer Manager Max, **GPL-3.0**). This project does not ship or install DAMX. The rest of the panel works without it.
+1. **Background service (daemon)** — starts with the computer, even with no window open. This is what actually writes fan speeds. Pick Silent / Balanced / Turbo once; the service keeps using that profile.
+2. **Window (GUI)** — sliders, fan profiles, charts, two color themes (Nitro / OutRun). On AN515-54, Settings also has keyboard backlight **Off / 25 / 50 / 75 / 100** (and optional 30 s timeout) through `acer-nitro-ec` — **not** DAMX. That level is stored in the EC, so it survives reboot with the window closed. CPU power profiles (Eco / Quiet / Balanced / Sport / Max) need a separately installed **DAMX** daemon (Div Acer Manager Max, **GPL-3.0**). Pick a CPU profile once; DAMX reapplies it at boot. This project does not ship or install DAMX. The rest of the panel works without it.
 
 An AppImage **does not replace** the service. Always run `install.sh` first.
 
@@ -116,10 +116,16 @@ grep -H . /sys/class/hwmon/hwmon*/name | grep acer_nitro_ec
 - **No output** → install / patch the DKMS module:
 
 ```bash
-sudo ./acer-nitro-ec/apply.sh
+sudo ./acer-nitro-ec/install-kbd-backlight.sh
 ```
 
-Then re-run the `grep`. Models not on the DMI list (Nitro V, most Predators) will **not** appear after this patch. Use 6b or another tool.
+(`apply.sh` is the same installer.) This is the fan driver **and**, on AN515-54, the keyboard backlight sysfs. Then re-run the `grep`. You should also have:
+
+```bash
+cat /sys/devices/platform/acer-nitro-ec/kbd_backlight
+```
+
+Models not on the DMI list (Nitro V, most Predators) will **not** appear after this patch. Use 6b or another tool.
 
 ### 6b. Fallback: NBFC
 
@@ -169,7 +175,10 @@ The first `npm install` downloads Electron and needs the network.
 You want an **ONLINE** badge, not a red OFFLINE.
 
 - **MANUAL** — sliders write PWM.
-- **AUTO** — Silent / Balanced / Turbo curves.
+- **AUTO** — Silent / Balanced / Turbo **fan** curves (this is not the CPU power profile).
+- **POWER PROFILE** (Eco / Quiet / Balanced / Sport / Max) — CPU turbo/caps via DAMX. Set once; DAMX applies it in the background at boot. The GUI can stay closed.
+- **Settings** — keyboard backlight Off / 25 / 50 / 75 / 100 and “turn off after 30 s”. Set once; the EC keeps it. Stock Linux always came back at max brightness on boot.
+- **Settings → Theme** — Nitro or OutRun.
 
 Next day:
 
@@ -216,6 +225,8 @@ Change a profile or move the master slider in MANUAL. RPM in `sensors` should mo
 | Sliders do nothing | `systemctl status acer-nitro-perfect-fan.service`. Another fan tool must not write the EC. |
 | Fans oscillate | Two controllers. Keep **one**: this daemon **or** standalone NBFC. |
 | Too loud / too hot | **Restore auto** in the GUI, or the command below. |
+| Keyboard backlight greyed out | Need AN515-54 + this tree's `acer-nitro-ec`. `sudo ./acer-nitro-ec/install-kbd-backlight.sh`, then `cat /sys/devices/platform/acer-nitro-ec/kbd_backlight`. |
+| CPU Eco/Quiet/… buttons offline | DAMX is not running. `sudo systemctl start damx-daemon` (install DAMX separately). |
 
 Hand control back to firmware:
 

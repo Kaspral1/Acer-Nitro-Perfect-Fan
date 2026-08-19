@@ -919,6 +919,44 @@ class NBFCController:
                 break
         return 0.0
 
+    def _get_cpu_freq_mhz(self) -> Tuple[Optional[float], Optional[float]]:
+        """Średnie bieżące i maksymalne taktowanie CPU w MHz."""
+        cpu_root = '/sys/devices/system/cpu'
+        try:
+            names = os.listdir(cpu_root)
+        except OSError:
+            return None, None
+
+        freqs_khz = []
+        max_khz = 0
+        for name in names:
+            if not name.startswith('cpu') or not name[3:].isdigit():
+                continue
+            raw = self._read_file_content(
+                os.path.join(cpu_root, name, 'cpufreq', 'scaling_cur_freq')
+            )
+            if raw:
+                try:
+                    khz = int(raw)
+                except ValueError:
+                    khz = 0
+                if khz > 0:
+                    freqs_khz.append(khz)
+            max_raw = self._read_file_content(
+                os.path.join(cpu_root, name, 'cpufreq', 'cpuinfo_max_freq')
+            )
+            if max_raw:
+                try:
+                    mkhz = int(max_raw)
+                except ValueError:
+                    mkhz = 0
+                if mkhz > max_khz:
+                    max_khz = mkhz
+
+        current = round((sum(freqs_khz) / len(freqs_khz)) / 1000.0, 0) if freqs_khz else None
+        maximum = round(max_khz / 1000.0, 0) if max_khz > 0 else None
+        return current, maximum
+
     def _get_ram_usage(self) -> Tuple[float, float]:
         """Reads /proc/meminfo to return (used_gb, total_gb)."""
         content = self._read_file_content('/proc/meminfo')
@@ -1026,6 +1064,7 @@ class NBFCController:
                         preview_speed = self.calculate_dynamic_speed(temps)
 
                 cpu_load = self._get_cpu_load()
+                cpu_freq_mhz, cpu_freq_max_mhz = self._get_cpu_freq_mhz()
                 ram_used, ram_total = self._get_ram_usage()
                 gpu_load, vram_used, vram_total = self._get_gpu_load()
                     
@@ -1082,6 +1121,8 @@ class NBFCController:
                     "has_custom_curve": self.current_profile in self.custom_curves,
                     "resources": {
                         "cpu_load": cpu_load,
+                        "cpu_freq_mhz": cpu_freq_mhz,
+                        "cpu_freq_max_mhz": cpu_freq_max_mhz,
                         "ram_used": ram_used,
                         "ram_total": ram_total,
                         "gpu_load": gpu_load,

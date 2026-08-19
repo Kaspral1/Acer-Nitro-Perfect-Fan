@@ -4,13 +4,19 @@
 [![Python](https://img.shields.io/badge/Backend-Python%203-blue.svg)](https://www.python.org/)
 [![Electron](https://img.shields.io/badge/GUI-Electron-47848F.svg)](https://www.electronjs.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.0-informational.svg)](gui-app/package.json)
+[![Version](https://img.shields.io/badge/version-v1.1-informational.svg)](gui-app/package.json)
 [![CI](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml)
 
 **Acer Nitro Perfect Fan** — Linux + systemd fan control for **Acer Nitro 5**. Verified on **AN515-54**.  
 systemd daemon → shared JSON → Python stdio bridge → Electron dashboard.
 
-![Acer Nitro Perfect Fan dashboard](assets/Screenshot.png)
+**Nitro** theme (default):
+
+![Acer Nitro Perfect Fan — Nitro theme](assets/Screenshot.png)
+
+**OutRun** theme (Settings → Theme):
+
+![Acer Nitro Perfect Fan — OutRun theme](assets/Screenshot-outrun.png)
 
 | Start here | |
 |------------|---|
@@ -26,11 +32,31 @@ Windows and macOS are **not** supported.
 
 ## Features
 
+**Fans** (daemon — starts at boot, GUI not required afterwards)
+
 - Cooling profiles: Silent / Balanced / Turbo with independent CPU & GPU curves
 - Custom curve editor: temperature (°C) → speed (%) with live preview
 - Manual PWM: master + per-fan sliders (CPU floor 30%, GPU may go to 0% in dynamic mode)
 - GPU Zero-RPM hysteresis: stop below ~40°C, restart above ~48°C
 - EMA smoothing: fast ramp-up, slow spin-down
+
+**CPU power profile** (sidebar — Eco / Quiet / Balanced / Sport / Max)
+
+- Changes CPU turbo and power caps through a separately installed [DAMX](https://github.com/PXDiv/Div-Acer-Manager-Max) daemon, independent of fan curves
+- Pick it **once**. DAMX stores it and reapplies it at login/boot — you do not need to leave this window open
+- Without DAMX the rest of the panel still works; those five buttons stay offline
+
+**Keyboard backlight** (Settings, **AN515-54** + `acer-nitro-ec`)
+
+- Levels **Off / 25 / 50 / 75 / 100**, plus optional “turn off after 30 s”
+- Written straight to the Embedded Controller. Set it once; it **stays after reboot** with this program closed
+- On stock Linux the firmware only offered BIOS-off or a 30 s timeout, and **every boot came back at 100%**. This panel is the missing “keep my level” control
+
+![Settings — keyboard backlight Off / 25 / 50 / 75 / 100](assets/Screenshot-settings.png)
+
+**Interface**
+
+- Two color themes: **Nitro** (default) and **OutRun** — Settings → Theme, remembered after restart
 - System tray, i18n (PL / EN / ES / DE / CS)
 - Optional CSV telemetry + in-app summary
 - Connection badge: online / offline when the Python bridge is silent

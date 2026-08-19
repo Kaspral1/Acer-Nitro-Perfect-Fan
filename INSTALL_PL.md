@@ -32,8 +32,8 @@ Powinno pojawić się coś w stylu `Nitro AN515-54`.
 
 Program ma **dwie części**. Obie są potrzebne.
 
-1. **Usługa w tle (daemon)** — działa po starcie systemu, nawet bez otwartego okna. To ona naprawdę kręci wentylatorami.
-2. **Okienko (GUI)** — suwaki, profile Silent / Normalny / Turbo, wykresy. Na AN515-54 także jasność czerwonej klawiatury i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**). Profile zasilania CPU (Eco / Cichy / Balans / Sport / Max) wymagają osobno zainstalowanego **DAMX** (Div Acer Manager Max, **GPL-3.0**) — ten program go nie instaluje i nie zawiera jego kodu. Bez DAMX reszta panelu działa.
+1. **Usługa w tle (daemon)** — działa po starcie systemu, nawet bez otwartego okna. To ona naprawdę kręci wentylatorami. Profil Cichy / Normalny / Turbo wystarczy wybrać raz.
+2. **Okienko (GUI)** — suwaki, profile wentylatorów, wykresy, dwa motywy (Nitro / OutRun). Na AN515-54 w Ustawieniach jest jasność czerwonej klawiatury **Off / 25 / 50 / 75 / 100** i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**). Zapis idzie do EC: ustawiasz raz i **zostaje po restarcie** przy zamkniętym programie. Na zwykłym Linuksie BIOS dawał tylko wyłączenie albo timeout 30 s, a laptop zawsze wstawał na 100%. Profile zasilania CPU (Eco / Cichy / Balans / Sport / Max) wymagają osobno zainstalowanego **DAMX** (Div Acer Manager Max, **GPL-3.0**) — ten program go nie instaluje. Wystarczy wybrać profil raz; DAMX wgrywa go przy starcie. Bez DAMX reszta panelu działa.
 
 Sama paczka AppImage **nie zastępuje** usługi. Najpierw zawsze `install.sh`.
 
@@ -185,7 +185,10 @@ Powinno otworzyć się okno **Acer Nitro Perfect Fan**.
 
 - Badge w górze ma być **ONLINE** (nie czerwony OFFLINE).
 - Suwaki ruszają wentylatory dopiero w trybie **MANUAL**.
-- W trybie **AUTO** działają krzywe (Silent / Normalny / Turbo).
+- W trybie **AUTO** działają krzywe wentylatorów (Cichy / Normalny / Turbo) — to **nie** jest profil procesora.
+- **PROFIL ZASILANIA** (Eco / Cichy / Balans / Sport / Max) — turbo i limity CPU przez DAMX. Wybierasz raz; DAMX wgrywa to w tle przy starcie. Okienka nie trzeba wtedy otwierać.
+- **Ustawienia** — podświetlanie klawiatury Off / 25 / 50 / 75 / 100 i „gaśnięcie po 30 s”. Ustawiasz raz; EC to trzyma. Bez tego Linux zawsze wracał na max po starcie.
+- **Ustawienia → Motyw** — Nitro albo OutRun.
 
 Żeby uruchomić panel kolejnego dnia:
 
@@ -237,6 +240,8 @@ W GUI zmień profil albo wejdź w MANUAL i rusz masterem. Obroty w `sensors` pow
 | Wentylatory ignorują suwaki | `systemctl status acer-nitro-perfect-fan.service`. Drugi program (NitroSense, inne NBFC) nie może pisać do EC w tym samym czasie. |
 | Wentylatory „skaczą” | Dwa kontrolery naraz. Zostaw **jeden**: albo ten daemon, albo samo NBFC. |
 | Laptop za głośny / za gorący | Przycisk **PRZYWRÓĆ AUTO** w GUI albo komenda poniżej. |
+| Podświetlanie klawiatury wyszarzone | Potrzebny AN515-54 i ten `acer-nitro-ec`. `sudo ./acer-nitro-ec/install-kbd-backlight.sh`, potem `cat /sys/devices/platform/acer-nitro-ec/kbd_backlight`. |
+| Przyciski Eco / Cichy / … offline | DAMX nie działa. `sudo systemctl start damx-daemon` (DAMX instalujesz osobno). |
 | Zły model / `unsupported model` | Skopiuj wynik `./check-system.sh` i otwórz zgłoszenie. Nie dokładaj modelu „na ślepo”. |
 
 Natychmiast oddaj sterowanie płycie (firmware auto):

@@ -7,15 +7,94 @@ const ChartLib = typeof Chart !== 'undefined' ? Chart : null;
 const MIN_PCT_CPU = 30;
 const MIN_PCT_GPU = 30;
 const MIN_PCT_MASTER = 30;
+const CHART_CPU = { stroke: '#00d4ff', fillTop: 'rgba(0, 212, 255, 0.34)', fillBottom: 'rgba(0, 212, 255, 0.0)' };
+const CHART_GPU = { stroke: '#b4ff2c', fillTop: 'rgba(180, 255, 44, 0.28)', fillBottom: 'rgba(180, 255, 44, 0.0)' };
+const THEME_STORAGE_KEY = 'perfect-fan-theme';
+const CHART_PALETTES = {
+    nitro: {
+        cpu: { stroke: '#00d4ff', fillTop: 'rgba(0, 212, 255, 0.34)', fillBottom: 'rgba(0, 212, 255, 0.0)' },
+        gpu: { stroke: '#b4ff2c', fillTop: 'rgba(180, 255, 44, 0.28)', fillBottom: 'rgba(180, 255, 44, 0.0)' },
+    },
+    outrun: {
+        cpu: { stroke: '#2DE2E6', fillTop: 'rgba(45, 226, 230, 0.34)', fillBottom: 'rgba(45, 226, 230, 0.0)' },
+        gpu: { stroke: '#F9C80E', fillTop: 'rgba(249, 200, 14, 0.28)', fillBottom: 'rgba(249, 200, 14, 0.0)' },
+    },
+};
+
+function getSavedTheme() {
+    try {
+        return localStorage.getItem(THEME_STORAGE_KEY) === 'outrun' ? 'outrun' : 'nitro';
+    } catch (err) {
+        return 'nitro';
+    }
+}
+
+function paintChartPalette(theme) {
+    const palette = CHART_PALETTES[theme] || CHART_PALETTES.nitro;
+    Object.assign(CHART_CPU, palette.cpu);
+    Object.assign(CHART_GPU, palette.gpu);
+    if (temperatureChart) {
+        const cpuDs = temperatureChart.data.datasets[0];
+        const gpuDs = temperatureChart.data.datasets[1];
+        const ctx = temperatureChart.ctx;
+        const cpuG = ctx.createLinearGradient(0, 0, 0, 200);
+        cpuG.addColorStop(0, CHART_CPU.fillTop);
+        cpuG.addColorStop(1, CHART_CPU.fillBottom);
+        const gpuG = ctx.createLinearGradient(0, 0, 0, 200);
+        gpuG.addColorStop(0, CHART_GPU.fillTop);
+        gpuG.addColorStop(1, CHART_GPU.fillBottom);
+        cpuDs.borderColor = CHART_CPU.stroke;
+        cpuDs.backgroundColor = cpuG;
+        gpuDs.borderColor = CHART_GPU.stroke;
+        gpuDs.backgroundColor = gpuG;
+        temperatureChart.update('none');
+    }
+    if (typeof drawCurvePreview === 'function') {
+        try { drawCurvePreview(); } catch (err) { /* preview may not be ready */ }
+    }
+}
+
+function applyTheme(id, { persist = true, silent = false } = {}) {
+    const theme = id === 'outrun' ? 'outrun' : 'nitro';
+    document.documentElement.setAttribute('data-theme', theme);
+    if (persist) {
+        try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch (err) { /* ignore quota */ }
+    }
+    document.querySelectorAll('.theme-card').forEach((card) => {
+        card.classList.toggle('active', card.dataset.theme === theme);
+    });
+    paintChartPalette(theme);
+    if (!silent) {
+        const key = theme === 'outrun' ? 'theme_outrun_name' : 'theme_nitro_name';
+        const name = (currentTranslations && currentTranslations[key]) || (theme === 'outrun' ? 'OutRun' : 'Nitro');
+        const tpl = (currentTranslations && currentTranslations.toast_theme_applied) || 'Motyw: {theme}';
+        showToast(tpl.replace('{theme}', name), 'info');
+    }
+}
+
+function setSettingsTab(tabId) {
+    const next = tabId === 'theme' ? 'theme' : 'general';
+    document.querySelectorAll('.settings-tab').forEach((tab) => {
+        const on = tab.dataset.settingsTab === next;
+        tab.classList.toggle('active', on);
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.settings-tab-panel').forEach((panel) => {
+        const on = panel.dataset.settingsPanel === next;
+        panel.classList.toggle('hidden', !on);
+        if (on) panel.removeAttribute('hidden');
+        else panel.setAttribute('hidden', '');
+    });
+}
 const SPEED_OFFSET_MIN = -50;
 const SPEED_OFFSET_MAX = 50;
 const DATA_STALE_MS = 5000;
 
-/** package.json is 1.0.0 (semver); UI / docs always show v1.0 */
+/** package.json is 1.1.0 (semver); UI / docs show v1.1 */
 function formatAppVersionLabel(raw) {
-    const parts = String(raw || '1.0').replace(/^v/i, '').split('.');
+    const parts = String(raw || '1.1').replace(/^v/i, '').split('.');
     const major = parts[0] || '1';
-    const minor = parts[1] || '0';
+    const minor = parts[1] || '1';
     return `v${major}.${minor}`;
 }
 
@@ -37,7 +116,7 @@ let currentTranslations = {};
 let lastFanDataAt = 0;
 let backendAlive = false;
 let connectionOnline = false;
-let appVersion = '1.0';
+let appVersion = '1.1';
 let speedOffset = 0; // + = boost CPU, − = boost GPU (from master base)
 let isUserEditingOffset = false;
 let isUserDraggingFanSlider = false;
@@ -122,6 +201,13 @@ function clampCurveSpeed(val) {
     return Math.max(MIN_PCT_CPU, Math.min(100, n));
 }
 
+function formatCpuClockMhz(mhz) {
+    const n = Number(mhz);
+    if (!Number.isFinite(n) || n <= 0) return '—';
+    if (n >= 1000) return `${(n / 1000).toFixed(2)} GHz`;
+    return `${Math.round(n)} MHz`;
+}
+
 // DOM Elements
 const cpuTemp = document.getElementById('cpu-temp');
 const cpuRpm = document.getElementById('cpu-rpm');
@@ -135,6 +221,8 @@ const gpuGaugeCircle = document.getElementById('gpu-gauge-circle');
 
 const cpuLoadBar = document.getElementById('cpu-load-bar');
 const cpuLoadText = document.getElementById('cpu-load-text');
+const cpuClockText = document.getElementById('cpu-clock-text');
+const cpuClockBar = document.getElementById('cpu-clock-bar');
 const gpuLoadBar = document.getElementById('gpu-load-bar');
 const gpuLoadText = document.getElementById('gpu-load-text');
 const ramLoadBar = document.getElementById('ram-load-bar');
@@ -185,7 +273,6 @@ function setManualControlsEnabled(enabled) {
 const statusValue = document.getElementById('status-value');
 const daemonDot = document.getElementById('daemon-dot');
 const modeToggle = document.getElementById('mode-toggle');
-const modeLabel = document.getElementById('mode-label');
 const activeModeDisplay = document.getElementById('active-mode-display');
 const profileButtons = document.querySelectorAll('.profile-btn');
 const chartButtons = document.querySelectorAll('.chart-btn');
@@ -407,6 +494,30 @@ function fansFromBase(base) {
     return { base: b, cpu: clampCpuSpeed(b), gpu: clampGpuSpeed(b) };
 }
 
+function getProfileDisplayName(profile) {
+    const p = profile || currentProfile || 'Silent';
+    const keyMap = {
+        Silent: 'profile_silent_name',
+        Balanced: 'profile_balanced_name',
+        Turbo: 'profile_turbo_name',
+    };
+    const fallbacks = {
+        Silent: 'Cichy',
+        Balanced: 'Normalny',
+        Turbo: 'Turbo',
+    };
+    const key = keyMap[p] || keyMap.Silent;
+    return currentTranslations[key] || fallbacks[p] || fallbacks.Silent;
+}
+
+function formatWorkingModeStatus(isManual, profile) {
+    if (isManual) {
+        return currentTranslations['mode_manual_desc'] || 'Sterowanie ręczne';
+    }
+    const tpl = currentTranslations['mode_auto_status'] || 'Auto ({profile})';
+    return tpl.replace('{profile}', getProfileDisplayName(profile));
+}
+
 function getCurveProfileLabel(profile) {
     const p = profile || currentProfile || 'Silent';
     const keyMap = {
@@ -524,14 +635,13 @@ function initChart() {
     }
     const ctx = document.getElementById('temp-chart').getContext('2d');
 
-    // Intel blue / NVIDIA green (match gauges & resource bars)
     const cpuGradient = ctx.createLinearGradient(0, 0, 0, 200);
-    cpuGradient.addColorStop(0, 'rgba(0, 113, 197, 0.35)');
-    cpuGradient.addColorStop(1, 'rgba(0, 113, 197, 0.0)');
+    cpuGradient.addColorStop(0, CHART_CPU.fillTop);
+    cpuGradient.addColorStop(1, CHART_CPU.fillBottom);
 
     const gpuGradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gpuGradient.addColorStop(0, 'rgba(118, 185, 0, 0.35)');
-    gpuGradient.addColorStop(1, 'rgba(118, 185, 0, 0.0)');
+    gpuGradient.addColorStop(0, CHART_GPU.fillTop);
+    gpuGradient.addColorStop(1, CHART_GPU.fillBottom);
 
     temperatureChart = new ChartLib(ctx, {
         type: 'line',
@@ -540,7 +650,7 @@ function initChart() {
             datasets: [{
                 label: 'CPU Temp (°C)',
                 data: [],
-                borderColor: '#0071c5',
+                borderColor: CHART_CPU.stroke,
                 backgroundColor: cpuGradient,
                 borderWidth: 2,
                 pointRadius: 0,
@@ -549,7 +659,7 @@ function initChart() {
             }, {
                 label: 'GPU Temp (°C)',
                 data: [],
-                borderColor: '#76b900',
+                borderColor: CHART_GPU.stroke,
                 backgroundColor: gpuGradient,
                 borderWidth: 2,
                 pointRadius: 0,
@@ -570,7 +680,7 @@ function initChart() {
                     position: 'top',
                     align: 'end',
                     labels: {
-                        color: '#8e95ab',
+                        color: '#d7dde8',
                         font: { family: 'Outfit', size: 11 },
                         boxWidth: 12,
                         padding: 10,
@@ -593,13 +703,13 @@ function initChart() {
             scales: {
                 x: {
                     grid: { color: 'rgba(255, 255, 255, 0.04)', drawBorder: false },
-                    ticks: { color: '#636b83', font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 0, maxTicksLimit: 8 }
+                    ticks: { color: '#d7dde8', font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 0, maxTicksLimit: 8 }
                 },
                 y: {
                     min: 30,
                     max: 100,
                     grid: { color: 'rgba(255, 255, 255, 0.04)', drawBorder: false },
-                    ticks: { color: '#636b83', font: { family: 'JetBrains Mono', size: 10 }, stepSize: 10 }
+                    ticks: { color: '#d7dde8', font: { family: 'JetBrains Mono', size: 10 }, stepSize: 10 }
                 }
             }
         }
@@ -729,17 +839,8 @@ function drawCurvePreview() {
     const gpuPoints = readCurveFromInputs('gpu');
 
     // GPU first (under), then CPU on top for readability
-    paintCurveOnCanvas(ctx, gpuPoints, {
-        stroke: '#76b900',
-        fillTop: 'rgba(118, 185, 0, 0.22)',
-        fillBottom: 'rgba(118, 185, 0, 0.0)',
-    }, mapX, mapY, h);
-
-    paintCurveOnCanvas(ctx, cpuPoints, {
-        stroke: '#0071c5',
-        fillTop: 'rgba(0, 113, 197, 0.28)',
-        fillBottom: 'rgba(0, 113, 197, 0.0)',
-    }, mapX, mapY, h);
+    paintCurveOnCanvas(ctx, gpuPoints, CHART_GPU, mapX, mapY, h);
+    paintCurveOnCanvas(ctx, cpuPoints, CHART_CPU, mapX, mapY, h);
 }
 
 // Update circular gauges
@@ -747,9 +848,11 @@ function updateGauge(circle, rpm) {
     if (!circle) return;
     const maxRpm = maxRpmBaseline;
     const pct = Math.min(1.0, Math.max(0.0, rpm / maxRpm));
-    const circumference = 440;
-    const offset = circumference - (pct * circumference);
-    circle.style.strokeDashoffset = offset;
+    const r = Number(circle.getAttribute('r')) || 68;
+    const circumference = 2 * Math.PI * r;
+    const offset = circumference * (1 - pct);
+    circle.style.strokeDasharray = String(circumference);
+    circle.style.strokeDashoffset = String(offset);
 }
 
 // Load both CPU & GPU curves into dual 4-column inputs
@@ -1020,17 +1123,8 @@ function drawDefaultsCurvePreview() {
     const cpuPoints = readDefaultsCurveFromInputs('cpu');
     const gpuPoints = readDefaultsCurveFromInputs('gpu');
 
-    paintCurveOnCanvas(ctx, gpuPoints, {
-        stroke: '#76b900',
-        fillTop: 'rgba(118, 185, 0, 0.22)',
-        fillBottom: 'rgba(118, 185, 0, 0.0)',
-    }, mapX, mapY, h);
-
-    paintCurveOnCanvas(ctx, cpuPoints, {
-        stroke: '#0071c5',
-        fillTop: 'rgba(0, 113, 197, 0.28)',
-        fillBottom: 'rgba(0, 113, 197, 0.0)',
-    }, mapX, mapY, h);
+    paintCurveOnCanvas(ctx, gpuPoints, CHART_GPU, mapX, mapY, h);
+    paintCurveOnCanvas(ctx, cpuPoints, CHART_CPU, mapX, mapY, h);
 }
 
 function stashDefaultsInputsToCache() {
@@ -1194,12 +1288,7 @@ function saveDefaultsModal() {
     // Snapshot = stan po zapisie (kolejne Anuluj nie cofnie zapisanego)
     defaultsModalSnapshot = cloneAllProfileDefaults(profileDefaultsCache);
 
-    const labels = {
-        Silent: currentTranslations['profile_silent_name'] || 'Cichy',
-        Balanced: currentTranslations['profile_balanced_name'] || 'Normalny',
-        Turbo: currentTranslations['profile_turbo_name'] || 'Turbo',
-    };
-    const list = savedNames.map((p) => labels[p] || p).join(', ');
+    const list = savedNames.map((p) => getProfileDisplayName(p)).join(', ');
 
     updateDefaultsEditedBanner();
     showToast(
@@ -1266,7 +1355,7 @@ Zakres: Od ${stats.start_time} Do ${stats.end_time}
 
             <div class="summary-card">
                 <div class="summary-card-title cpu">💻 PROCESOR (CPU)</div>
-                <div class="summary-row"><span class="summary-label">Średnia temperatura:</span><span class="summary-value" style="color:var(--cpu-color);">${c.avg_temp}°C</span></div>
+                <div class="summary-row"><span class="summary-label">Średnia temperatura:</span><span class="summary-value" style="color:var(--cpu-text);">${c.avg_temp}°C</span></div>
                 <div class="summary-row"><span class="summary-label">Maksymalna temperatura:</span><span class="summary-value" style="color:#ff3b30;">${c.max_temp}°C</span></div>
                 <div class="summary-row"><span class="summary-label">Minimalna temperatura:</span><span class="summary-value">${c.min_temp}°C</span></div>
                 <div class="summary-row"><span class="summary-label">Czas przy max temp.:</span><span class="summary-value">${fmtSec(c.time_at_max_sec)}</span></div>
@@ -1276,7 +1365,7 @@ Zakres: Od ${stats.start_time} Do ${stats.end_time}
 
             <div class="summary-card">
                 <div class="summary-card-title gpu">🎮 KARTA GRAFICZNA (GPU)</div>
-                <div class="summary-row"><span class="summary-label">Średnia temperatura:</span><span class="summary-value" style="color:var(--gpu-color);">${g.avg_temp}°C</span></div>
+                <div class="summary-row"><span class="summary-label">Średnia temperatura:</span><span class="summary-value" style="color:var(--gpu-text);">${g.avg_temp}°C</span></div>
                 <div class="summary-row"><span class="summary-label">Maksymalna temperatura:</span><span class="summary-value" style="color:#ff3b30;">${g.max_temp}°C</span></div>
                 <div class="summary-row"><span class="summary-label">Minimalna temperatura:</span><span class="summary-value">${g.min_temp}°C</span></div>
                 <div class="summary-row"><span class="summary-label">Czas przy max temp.:</span><span class="summary-value">${fmtSec(g.time_at_max_sec)}</span></div>
@@ -1299,7 +1388,19 @@ function updateUI(data) {
 
     // Update Resource Load Progress Bars
     if (data.resources) {
-        const { cpu_load, ram_used, ram_total, gpu_load, vram_used, vram_total } = data.resources;
+        const { cpu_load, ram_used, ram_total, gpu_load, vram_used, vram_total, cpu_freq_mhz, cpu_freq_max_mhz } = data.resources;
+
+        if (cpuClockText) {
+            cpuClockText.textContent = formatCpuClockMhz(cpu_freq_mhz);
+        }
+        if (cpuClockBar) {
+            const cur = Number(cpu_freq_mhz);
+            const max = Number(cpu_freq_max_mhz);
+            const pct = (Number.isFinite(cur) && Number.isFinite(max) && max > 0)
+                ? Math.min(100, Math.max(0, (cur / max) * 100))
+                : 0;
+            cpuClockBar.style.width = `${pct}%`;
+        }
 
         if (cpu_load !== undefined && cpuLoadBar && cpuLoadText) {
             const cpuPct = Math.min(100, Math.max(0, cpu_load));
@@ -1468,19 +1569,16 @@ function updateUI(data) {
             processedSensors.forEach((sensor) => {
                 const item = document.createElement('div');
                 item.className = 'resource-item';
-                item.style.marginBottom = '6px';
                 
                 const header = document.createElement('div');
                 header.className = 'resource-header';
                 
                 const label = document.createElement('span');
                 label.className = 'resource-label';
-                label.style.fontSize = '0.75rem';
                 label.textContent = sensor.displayName;
                 
                 const value = document.createElement('span');
                 value.className = 'resource-val';
-                value.style.fontSize = '0.75rem';
                 value.textContent = sensor.displayVal;
                 
                 header.appendChild(label);
@@ -1489,7 +1587,7 @@ function updateUI(data) {
                 otherSensorsContainer.appendChild(item);
             });
         } else {
-            otherSensorsContainer.innerHTML = `<div class="resource-item"><span class="resource-label" style="font-size: 0.75rem; color: #636b83;">${currentTranslations['no_sensors'] || 'Brak dodatkowych czujników'}</span></div>`;
+            otherSensorsContainer.innerHTML = `<div class="resource-item"><span class="resource-label">${currentTranslations['no_sensors'] || 'Brak dodatkowych czujników'}</span></div>`;
         }
     }
 
@@ -1659,9 +1757,7 @@ function updateUI(data) {
             : (currentTranslations['connected'] || 'Połączono');
     }
     if (activeModeDisplay) {
-        activeModeDisplay.textContent = isFixed
-            ? (currentTranslations['mode_manual_desc'] || 'Sterowanie ręczne')
-            : `Dynamic Auto (${data.profile || 'Silent'})`;
+        activeModeDisplay.textContent = formatWorkingModeStatus(isFixed, data.profile || currentProfile);
     }
 
     // Refresh mode description under AUTO/MANUAL
@@ -1815,6 +1911,53 @@ function updatePowerProfileHint(profile) {
         : '';
 }
 
+function powerProfileHintText(profile) {
+    const meta = POWER_PROFILE_META.find((item) => item.id === profile);
+    if (!meta) return '';
+    return currentTranslations[meta.hintKey] || '';
+}
+
+function getPowerProfileTooltipEl() {
+    let tip = document.getElementById('power-profile-tooltip');
+    if (!tip) {
+        tip = document.createElement('div');
+        tip.id = 'power-profile-tooltip';
+        tip.className = 'power-profile-tooltip';
+        tip.hidden = true;
+        document.body.appendChild(tip);
+    }
+    return tip;
+}
+
+function hidePowerProfileTooltip() {
+    const tip = document.getElementById('power-profile-tooltip');
+    if (tip) tip.hidden = true;
+}
+
+function showPowerProfileTooltip(btn) {
+    const text = powerProfileHintText(btn && btn.dataset.powerProfile);
+    if (!text) {
+        hidePowerProfileTooltip();
+        return;
+    }
+    const tip = getPowerProfileTooltipEl();
+    tip.textContent = text;
+    tip.hidden = false;
+    const rect = btn.getBoundingClientRect();
+    const pad = 8;
+    const width = tip.offsetWidth || 220;
+    let left = rect.left;
+    if (left + width > window.innerWidth - pad) {
+        left = Math.max(pad, window.innerWidth - width - pad);
+    }
+    let top = rect.bottom + 6;
+    if (top + tip.offsetHeight > window.innerHeight - pad) {
+        top = Math.max(pad, rect.top - tip.offsetHeight - 6);
+    }
+    tip.style.left = `${Math.round(left)}px`;
+    tip.style.top = `${Math.round(top)}px`;
+}
+
 function updatePowerProfileStatusBar(profile) {
     const valueEl = document.getElementById('power-status-value');
     if (!valueEl) return;
@@ -1923,6 +2066,10 @@ function setupEventListeners() {
     });
 
     document.querySelectorAll('.power-profile-btn').forEach((btn) => {
+        btn.addEventListener('mouseenter', () => showPowerProfileTooltip(btn));
+        btn.addEventListener('mousemove', () => showPowerProfileTooltip(btn));
+        btn.addEventListener('mouseleave', hidePowerProfileTooltip);
+        btn.addEventListener('blur', hidePowerProfileTooltip);
         btn.addEventListener('click', async () => {
             if (!api.setThermalProfile || powerProfileBusy) return;
             const profile = btn.dataset.powerProfile;
@@ -2120,7 +2267,7 @@ function setupEventListeners() {
             api.applyProfile(currentProfile);
             updateCurveEditorTitle(currentProfile);
             applyTranslations();
-            showToast((currentTranslations['toast_profile_activated'] || 'Aktywowano profil chłodzenia: {profile}').replace('{profile}', currentProfile), 'success');
+            showToast((currentTranslations['toast_profile_activated'] || 'Aktywowano profil chłodzenia: {profile}').replace('{profile}', getProfileDisplayName(currentProfile)), 'success');
         });
     });
 
@@ -2223,6 +2370,21 @@ function setupEventListeners() {
             }
         });
     }
+
+    document.querySelectorAll('.settings-tab').forEach((tab) => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setSettingsTab(tab.dataset.settingsTab);
+        });
+    });
+    document.querySelectorAll('.theme-card').forEach((card) => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            applyTheme(card.dataset.theme);
+        });
+    });
 
     document.addEventListener('click', (e) => {
         const inStats = statusDropdown && statusMenuBtn
@@ -2328,6 +2490,16 @@ function setupEventListeners() {
             e.preventDefault();
             e.stopPropagation();
             openLicenseModal();
+        });
+    }
+    const settingsGithubBtn = document.getElementById('settings-github-btn');
+    if (settingsGithubBtn) {
+        settingsGithubBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeAllStatusDropdowns();
+            const url = settingsGithubBtn.dataset.url;
+            if (url && api.openExternal) api.openExternal(url);
         });
     }
     if (powerLicenseCredit) {
@@ -2651,6 +2823,7 @@ function applyTranslations() {
     setText('settings-close-label', 'settings_close_label');
     setText('settings-edit-defaults-label', 'settings_edit_defaults');
     setText('settings-licenses-label', 'settings_licenses');
+    setText('settings-github-label', 'settings_github');
     setText('settings-show-disclaimer-label', 'settings_show_disclaimer');
     setText('power-license-credit', 'power_license_credit');
     setText('license-modal-title', 'license_modal_title');
@@ -2664,6 +2837,13 @@ function applyTranslations() {
     setText('license-ec-body', 'license_ec_body');
     setText('license-btn-close', 'btn_close');
     setText('settings-reset-close-label', 'settings_reset_close');
+    setText('settings-tab-general', 'settings_tab_general');
+    setText('settings-tab-theme', 'settings_tab_theme');
+    setText('theme-hint', 'theme_hint');
+    setText('theme-nitro-name', 'theme_nitro_name');
+    setText('theme-nitro-desc', 'theme_nitro_desc');
+    setText('theme-outrun-name', 'theme_outrun_name');
+    setText('theme-outrun-desc', 'theme_outrun_desc');
 
     // Settings select options (i18n)
     const closeAsk = document.getElementById('settings-close-ask');
@@ -2698,6 +2878,7 @@ function applyTranslations() {
     }
 
     setText('resources-title', 'resources_title');
+    setText('cpu-clock-label', 'cpu_clock_label');
     setText('other-sensors-title', 'other_sensors_title');
     setText('kbd-backlight-title', 'kbd_backlight_title');
     setText('kbd-timeout-label', 'kbd_timeout_label');
@@ -2713,8 +2894,10 @@ function applyTranslations() {
     setText('power-status-label', 'power_status_label');
     document.querySelectorAll('.power-profile-btn').forEach((btn) => {
         const meta = POWER_PROFILE_META.find((item) => item.id === btn.dataset.powerProfile);
-        if (meta && currentTranslations[meta.hintKey]) {
-            btn.title = currentTranslations[meta.hintKey];
+        const hint = meta ? (currentTranslations[meta.hintKey] || '') : '';
+        if (hint) {
+            btn.setAttribute('aria-label', `${btn.textContent.trim()}. ${hint}`);
+            btn.removeAttribute('title');
         }
     });
     updatePowerProfileHint(currentPowerProfile);
@@ -2765,13 +2948,9 @@ function applyTranslations() {
 
     const activeModeDisplayEl = document.getElementById('active-mode-display');
     if (activeModeDisplayEl) {
-        if (!isManualMode) {
-            const activeBtn = document.querySelector('.profile-btn.active');
-            const profileName = activeBtn ? activeBtn.dataset.profile : 'Silent';
-            activeModeDisplayEl.textContent = `Dynamic Auto (${profileName})`;
-        } else {
-            activeModeDisplayEl.textContent = currentTranslations['mode_manual_desc'] || 'Sterowanie ręczne';
-        }
+        const activeBtn = document.querySelector('.profile-btn.active');
+        const profile = currentProfile || (activeBtn && activeBtn.dataset.profile) || 'Silent';
+        activeModeDisplayEl.textContent = formatWorkingModeStatus(isManualMode, profile);
     }
 
     const versionEl = document.getElementById('app-version');
@@ -2800,6 +2979,7 @@ function setupAutoRefresh() {
 }
 
 async function initialize() {
+    applyTheme(getSavedTheme(), { persist: false, silent: true });
     initChart();
 
     // Version badge from package.json via main process
