@@ -1299,13 +1299,36 @@ function saveDefaultsModal() {
 }
 
 let lastSummaryRawText = "";
+let lastSummaryStats = null;
 
-function renderLogSummaryModal(stats) {
+function tr(key, fallback) {
+    return (currentTranslations && currentTranslations[key]) || fallback;
+}
+
+function formatSummaryDuration(sec) {
+    const hoursU = tr('summary_unit_hours', 'h');
+    const minU = tr('summary_unit_minutes', 'min');
+    const secU = tr('summary_unit_seconds', 's');
+    if (!sec) return `0 ${secU}`;
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = Math.floor(sec % 60);
+    const res = [];
+    if (h > 0) res.push(`${h} ${hoursU}`);
+    if (m > 0 || h > 0) res.push(`${m} ${minU}`);
+    res.push(`${s} ${secU}`);
+    return res.join(' ');
+}
+
+function renderLogSummaryModal(stats, options = {}) {
     const modal = document.getElementById('summary-modal');
     const content = document.getElementById('summary-modal-content');
-    if (!modal || !content) return;
+    if (!modal || !content || !stats) return;
 
-    modal.classList.remove('hidden');
+    lastSummaryStats = stats;
+    if (options.show !== false) {
+        modal.classList.remove('hidden');
+    }
 
     if (stats.error) {
         content.innerHTML = `<div class="summary-error" style="color:#ff3b30; padding: 20px; text-align: center; font-size: 13px;">❌ ${stats.error}</div>`;
@@ -1315,62 +1338,59 @@ function renderLogSummaryModal(stats) {
 
     const c = stats.cpu || {};
     const g = stats.gpu || {};
+    const fanVal = (avg, max) => tr('summary_fan_value', '{avg}% (max {max}%)')
+        .replace('{avg}', avg)
+        .replace('{max}', max);
+    const sampleInterval = tr('summary_sample_interval', '(read every ~{sec}s)')
+        .replace('{sec}', stats.sample_interval_sec);
+    const reportTemps = (src) => tr('summary_report_temps', 'Avg temp: {avg}°C | Max: {max}°C | Min: {min}°C')
+        .replace('{avg}', src.avg_temp)
+        .replace('{max}', src.max_temp)
+        .replace('{min}', src.min_temp);
 
-    const fmtSec = (sec) => {
-        if (!sec) return '0 sek.';
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = Math.floor(sec % 60);
-        let res = [];
-        if (h > 0) res.push(`${h} godz.`);
-        if (m > 0 || h > 0) res.push(`${m} min`);
-        res.push(`${s} sek.`);
-        return res.join(' ');
-    };
+    lastSummaryRawText = `${tr('summary_report_title', '=== TELEMETRY & LOG SUMMARY ===')}
+${tr('summary_report_runtime', 'Runtime:')} ${formatSummaryDuration(stats.total_runtime_seconds)} ${tr('summary_report_samples', '({n} samples)').replace('{n}', stats.total_samples)}
+${tr('summary_report_range', 'Range: From {start} To {end}').replace('{start}', stats.start_time).replace('{end}', stats.end_time)}
 
-    lastSummaryRawText = `=== PODSUMOWANIE TELEMETRII I LOGÓW ===
-Czas działania: ${fmtSec(stats.total_runtime_seconds)} (${stats.total_samples} pomiarów)
-Zakres: Od ${stats.start_time} Do ${stats.end_time}
+${tr('summary_report_cpu', '[PROCESSOR CPU]')}
+• ${reportTemps(c)}
+• ${tr('summary_report_time_at_max', 'Time at max temp:')} ${formatSummaryDuration(c.time_at_max_sec)}
+• ${tr('summary_report_fan', 'Average fan speed:')} ${fanVal(c.avg_speed, c.max_speed)}
+• ${tr('summary_report_load', 'Average load:')} ${c.avg_load}%
 
-[PROCESOR CPU]
-• Średnia temp: ${c.avg_temp}°C | Max: ${c.max_temp}°C | Min: ${c.min_temp}°C
-• Czas trwania przy max temp: ${fmtSec(c.time_at_max_sec)}
-• Średnie obroty wiatraka: ${c.avg_speed}% (max ${c.max_speed}%)
-• Średnie obciążenie: ${c.avg_load}%
-
-[KARTA GRAFICZNA GPU]
-• Średnia temp: ${g.avg_temp}°C | Max: ${g.max_temp}°C | Min: ${g.min_temp}°C
-• Czas trwania przy max temp: ${fmtSec(g.time_at_max_sec)}
-• Średnie obroty wiatraka: ${g.avg_speed}% (max ${g.max_speed}%)
-• Tryb Cichy Zero-RPM (0%): ${fmtSec(g.zero_rpm_sec)} (${g.zero_rpm_pct}%)`;
+${tr('summary_report_gpu', '[GRAPHICS CARD GPU]')}
+• ${reportTemps(g)}
+• ${tr('summary_report_time_at_max', 'Time at max temp:')} ${formatSummaryDuration(g.time_at_max_sec)}
+• ${tr('summary_report_fan', 'Average fan speed:')} ${fanVal(g.avg_speed, g.max_speed)}
+• ${tr('summary_report_zero_rpm', 'Silent Zero-RPM mode (0%):')} ${formatSummaryDuration(g.zero_rpm_sec)} (${g.zero_rpm_pct}%)`;
 
     content.innerHTML = `
         <div class="summary-grid">
             <div class="summary-card" style="grid-column: 1 / -1;">
-                <div class="summary-card-title general">ℹ️ OGÓLNE PARAMETRY SESJI</div>
-                <div class="summary-row"><span class="summary-label">Czas działania programu:</span><span class="summary-value">${fmtSec(stats.total_runtime_seconds)}</span></div>
-                <div class="summary-row"><span class="summary-label">Liczba próbek pomiarowych:</span><span class="summary-value">${stats.total_samples} (odczyt co ~${stats.sample_interval_sec}s)</span></div>
-                <div class="summary-row"><span class="summary-label">Zakres czasowy logów:</span><span class="summary-value">${stats.start_time} — ${stats.end_time}</span></div>
+                <div class="summary-card-title general">ℹ️ ${tr('summary_session_title', 'GENERAL SESSION PARAMETERS')}</div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_runtime', 'Program runtime:')}</span><span class="summary-value">${formatSummaryDuration(stats.total_runtime_seconds)}</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_samples', 'Measurement samples:')}</span><span class="summary-value">${stats.total_samples} ${sampleInterval}</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_log_range', 'Log time range:')}</span><span class="summary-value">${stats.start_time} — ${stats.end_time}</span></div>
             </div>
 
             <div class="summary-card">
-                <div class="summary-card-title cpu">💻 PROCESOR (CPU)</div>
-                <div class="summary-row"><span class="summary-label">Średnia temperatura:</span><span class="summary-value" style="color:var(--cpu-text);">${c.avg_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">Maksymalna temperatura:</span><span class="summary-value" style="color:#ff3b30;">${c.max_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">Minimalna temperatura:</span><span class="summary-value">${c.min_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">Czas przy max temp.:</span><span class="summary-value">${fmtSec(c.time_at_max_sec)}</span></div>
-                <div class="summary-row"><span class="summary-label">Średnie obroty wiatraka:</span><span class="summary-value">${c.avg_speed}% (max ${c.max_speed}%)</span></div>
-                <div class="summary-row"><span class="summary-label">Średnie obciążenie CPU:</span><span class="summary-value">${c.avg_load}%</span></div>
+                <div class="summary-card-title cpu">💻 ${tr('summary_cpu_title', 'PROCESSOR (CPU)')}</div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_avg_temp', 'Average temperature:')}</span><span class="summary-value" style="color:var(--cpu-text);">${c.avg_temp}°C</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_max_temp', 'Maximum temperature:')}</span><span class="summary-value" style="color:#ff3b30;">${c.max_temp}°C</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_min_temp', 'Minimum temperature:')}</span><span class="summary-value">${c.min_temp}°C</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_time_at_max', 'Time at max temp.:')}</span><span class="summary-value">${formatSummaryDuration(c.time_at_max_sec)}</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_avg_fan', 'Average fan speed:')}</span><span class="summary-value">${fanVal(c.avg_speed, c.max_speed)}</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_avg_cpu_load', 'Average CPU load:')}</span><span class="summary-value">${c.avg_load}%</span></div>
             </div>
 
             <div class="summary-card">
-                <div class="summary-card-title gpu">🎮 KARTA GRAFICZNA (GPU)</div>
-                <div class="summary-row"><span class="summary-label">Średnia temperatura:</span><span class="summary-value" style="color:var(--gpu-text);">${g.avg_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">Maksymalna temperatura:</span><span class="summary-value" style="color:#ff3b30;">${g.max_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">Minimalna temperatura:</span><span class="summary-value">${g.min_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">Czas przy max temp.:</span><span class="summary-value">${fmtSec(g.time_at_max_sec)}</span></div>
-                <div class="summary-row"><span class="summary-label">Średnie obroty wiatraka:</span><span class="summary-value">${g.avg_speed}% (max ${g.max_speed}%)</span></div>
-                <div class="summary-row"><span class="summary-label">Tryb Cichy Zero-RPM:</span><span class="summary-value" style="color:#34c759;">${fmtSec(g.zero_rpm_sec)} (${g.zero_rpm_pct}%)</span></div>
+                <div class="summary-card-title gpu">🎮 ${tr('summary_gpu_title', 'GRAPHICS CARD (GPU)')}</div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_avg_temp', 'Average temperature:')}</span><span class="summary-value" style="color:var(--gpu-text);">${g.avg_temp}°C</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_max_temp', 'Maximum temperature:')}</span><span class="summary-value" style="color:#ff3b30;">${g.max_temp}°C</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_min_temp', 'Minimum temperature:')}</span><span class="summary-value">${g.min_temp}°C</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_time_at_max', 'Time at max temp.:')}</span><span class="summary-value">${formatSummaryDuration(g.time_at_max_sec)}</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_avg_fan', 'Average fan speed:')}</span><span class="summary-value">${fanVal(g.avg_speed, g.max_speed)}</span></div>
+                <div class="summary-row"><span class="summary-label">${tr('summary_zero_rpm', 'Silent Zero-RPM mode:')}</span><span class="summary-value" style="color:#34c759;">${formatSummaryDuration(g.zero_rpm_sec)} (${g.zero_rpm_pct}%)</span></div>
             </div>
         </div>
     `;
@@ -2551,7 +2571,7 @@ function setupEventListeners() {
             closeAllStatusDropdowns();
             if (summaryModal) {
                 const content = document.getElementById('summary-modal-content');
-                if (content) content.innerHTML = '<div class="summary-loading">Ładowanie statystyk...</div>';
+                if (content) content.innerHTML = `<div class="summary-loading">${tr('summary_loading', 'Loading statistics...')}</div>`;
                 summaryModal.classList.remove('hidden');
             }
             api.getLogSummary();
@@ -2854,6 +2874,7 @@ function applyTranslations() {
     if (closeQuit && currentTranslations['settings_close_quit']) closeQuit.textContent = currentTranslations['settings_close_quit'];
     syncSettingsCloseSelect();
     setText('summary-modal-title', 'summary_modal_title');
+    setText('summary-loading-text', 'summary_loading');
     setText('btn-copy-report', 'btn_copy_report');
     setText('btn-close', 'btn_close');
     setText('defaults-modal-title', 'defaults_modal_title');
@@ -2956,6 +2977,10 @@ function applyTranslations() {
     const versionEl = document.getElementById('app-version');
     if (versionEl) {
         versionEl.textContent = formatAppVersionLabel(appVersion);
+    }
+
+    if (lastSummaryStats) {
+        renderLogSummaryModal(lastSummaryStats, { show: false });
     }
 }
 
