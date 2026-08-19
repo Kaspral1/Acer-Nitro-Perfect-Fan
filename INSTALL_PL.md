@@ -33,7 +33,7 @@ Powinno pojawić się coś w stylu `Nitro AN515-54`.
 Program ma **dwie części**. Obie są potrzebne.
 
 1. **Usługa w tle (daemon)** — działa po starcie systemu, nawet bez otwartego okna. To ona naprawdę kręci wentylatorami.
-2. **Okienko (GUI)** — suwaki, profile Silent / Normalny / Turbo, wykresy.
+2. **Okienko (GUI)** — suwaki, profile Silent / Normalny / Turbo, wykresy. Na AN515-54 także jasność czerwonej klawiatury i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**).
 
 Sama paczka AppImage **nie zastępuje** usługi. Najpierw zawsze `install.sh`.
 
@@ -118,10 +118,14 @@ grep -H . /sys/class/hwmon/hwmon*/name | grep acer_nitro_ec
 - **Nie ma nic** → zainstaluj / rozszerz sterownik:
 
 ```bash
-sudo ./acer-nitro-ec/apply.sh
+sudo ./acer-nitro-ec/install-kbd-backlight.sh
 ```
 
-Skrypt pobierze źródła (jeśli trzeba), nałoży listę modeli i przebuduje DKMS. Potem ponów `grep` z góry.
+To ten sam sterownik co w `install.sh`: wentylatory **oraz** (na AN515-54) podświetlenie klawiatury. Potem ponów `grep` z góry. Powinno też być:
+
+```bash
+cat /sys/devices/platform/acer-nitro-ec/kbd_backlight
+```
 
 Modele spoza listy (np. nowszy Nitro V) **nie ożyją** po tym patchu. Zostaje ścieżka 6b albo inny program.
 

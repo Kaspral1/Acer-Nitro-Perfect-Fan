@@ -18,6 +18,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   resetDefaultCurves: (profile) => ipcRenderer.send('reset-default-curves', profile),
   setSpeedOffset: (offset) => ipcRenderer.send('set-speed-offset', offset),
   requestFanStatus: () => ipcRenderer.send('request-fan-status'),
+  getKbdBacklight: () => ipcRenderer.invoke('get-kbd-backlight'),
+  setKbdBacklight: (level) => ipcRenderer.invoke('set-kbd-backlight', level),
+  setKbdTimeout: (enabled) => ipcRenderer.invoke('set-kbd-timeout', enabled),
+  getThermalProfile: () => ipcRenderer.invoke('get-thermal-profile'),
+  setThermalProfile: (profile) => ipcRenderer.invoke('set-thermal-profile', profile),
 
   // Window controls
   windowMinimize: () => ipcRenderer.send('window-minimize'),

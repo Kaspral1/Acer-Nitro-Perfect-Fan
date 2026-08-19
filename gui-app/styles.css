@@ -285,17 +285,112 @@ body {
   min-height: 0;
 }
 
-/* Last section (POZOSTAŁE CZUJNIKI) fills remaining height — bottom aligns with tools row */
-.sidebar-section:last-child {
+/* Temperatures fill leftover sidebar height. */
+.sidebar-section.sidebar-temps {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-.sidebar-section:last-child .resources-card {
+.sidebar-section.sidebar-temps .resources-card {
   flex: 1;
   min-height: 0;
+}
+
+.settings-kbd {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 0 2px;
+}
+
+.settings-kbd .dropdown-section-label {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.kbd-status {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.35;
+  color: #ffb020;
+  padding: 0 2px;
+}
+
+.settings-kbd.is-offline .kbd-level-btn,
+.settings-kbd.is-offline .kbd-timeout-control {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.kbd-level-row {
+  display: flex;
+  margin-bottom: 0;
+  gap: 2px;
+}
+
+.kbd-level-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 0;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  color: #aab4cc;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.kbd-level-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.kbd-level-btn:active {
+  transform: scale(0.96);
+}
+
+.kbd-level-btn.active {
+  background: var(--color-red);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(255, 59, 48, 0.4);
+}
+
+.kbd-timeout-row {
+  margin-top: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kbd-timeout-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-sub);
+  line-height: 1.25;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.kbd-timeout-control {
+  flex: 0 0 92px;
+  width: 92px;
+  margin-bottom: 0;
+}
+
+.kbd-timeout-control .mode-segment-btn {
+  padding: 6px 4px;
+  font-size: 10px;
+  letter-spacing: 0;
 }
 
 .section-title {
@@ -373,6 +468,82 @@ body {
   font-size: 10px;
   color: var(--text-sub);
   margin-top: 2px;
+}
+
+/* CPU / DAMX power profiles — distinct from fan curve profiles */
+.power-profile-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+
+.power-profile-status {
+  margin: 0 0 8px;
+  font-size: 10px;
+  line-height: 1.35;
+  color: #ffb020;
+}
+
+.power-profile-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.power-profile-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 7px 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: var(--transition-fast);
+  text-align: center;
+}
+
+.power-profile-btn.power-profile-wide {
+  grid-column: 1 / -1;
+}
+
+.power-profile-name {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.power-profile-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-main);
+}
+
+.power-profile-btn.active {
+  background: rgba(0, 113, 197, 0.2);
+  border-color: rgba(0, 113, 197, 0.55);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 113, 197, 0.22);
+}
+
+.power-profile-btn.active .power-profile-name {
+  font-weight: 700;
+}
+
+.power-profile-hint {
+  margin: 8px 2px 0;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--text-sub);
+  min-height: 1.35em;
+}
+
+.power-profile-card.is-offline .power-profile-btn {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.power-profile-card.is-offline .power-profile-hint {
+  display: none;
 }
 
 /* Mode Switch Card */
@@ -1341,7 +1512,7 @@ input:checked + .slider:before {
 }
 
 .settings-dropdown {
-  width: 260px;
+  width: 280px;
 }
 
 .dropdown-section-label {

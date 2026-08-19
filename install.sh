@@ -89,23 +89,35 @@ install -o root -g root -m 755 "$SRC/nitro_fan_daemon.py" "$LIB/nitro_fan_daemon
 install -o root -g root -m 644 "$SRC/fan_backend.py"      "$LIB/fan_backend.py"
 install -o root -g root -m 755 "$SRC/restore-auto.sh"     "$LIB/restore-auto.sh"
 
-# --- Reguła udev: zapis do PWM bez roota -------------------------------------
+# --- Sterownik EC + podświetlenie klawiatury (bez DAMX) ----------------------
+# Buduje acer-nitro-ec z LED 0–4 i timeout 30 s, zdejmuje stary .ko z updates/.
+if [ -x "$SRC/acer-nitro-ec/install-kbd-backlight.sh" ]; then
+    echo ">>> Sterownik acer-nitro-ec (wentylatory + klawiatura)"
+    bash "$SRC/acer-nitro-ec/install-kbd-backlight.sh"
+    HAS_EC=0
+    grep -qs '^acer_nitro_ec$' /sys/class/hwmon/hwmon*/name 2>/dev/null && HAS_EC=1
+fi
+
+# --- Reguła udev: zapis do PWM i LED bez roota --------------------------------
 echo ">>> Reguła udev w $UDEV_RULE"
 install -o root -g root -m 644 "$SRC/99-acer-nitro-ec.rules" "$UDEV_RULE"
 udevadm control --reload
-# Powtórz zdarzenia "add" dla hwmon — reguła załapie na już załadowany moduł.
 udevadm trigger --subsystem-match=hwmon --action=add || true
-# Fallback na wypadek, gdyby trigger nie zadziałał — uprawnienia na już teraz.
+udevadm trigger --subsystem-match=leds --action=add || true
 for h in /sys/class/hwmon/hwmon*; do
     [ "$(cat "$h/name" 2>/dev/null)" = "acer_nitro_ec" ] || continue
     chgrp "$SVC_USER" "$h"/pwm1 "$h"/pwm1_enable "$h"/pwm2 "$h"/pwm2_enable
     chmod g+w "$h"/pwm1 "$h"/pwm1_enable "$h"/pwm2 "$h"/pwm2_enable
 done
+if [ -e /sys/devices/platform/acer-nitro-ec/kbd_backlight ]; then
+    chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_backlight || true
+    [ -e /sys/devices/platform/acer-nitro-ec/kbd_timeout ] && chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_timeout || true
+fi
 
 if [ "$HAS_EC" -eq 0 ] && [ "$HAS_NBFC" -eq 0 ]; then
     echo "!!! UWAGA: nie wykryto ani acer_nitro_ec, ani nbfc_service."
     echo "    Usługa będzie się restartować, dopóki nie pojawi się backend."
-    echo "    Sterownik:  sudo ./acer-nitro-ec/apply.sh"
+    echo "    Sterownik:  sudo ./acer-nitro-ec/install-kbd-backlight.sh"
     echo "    albo NBFC:  sudo ./nbfc/install-nbfc-config.sh && sudo systemctl enable --now nbfc_service"
     echo
 fi

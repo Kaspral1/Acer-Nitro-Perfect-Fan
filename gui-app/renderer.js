@@ -1767,7 +1767,200 @@ function debounce(func, wait) {
 }
 
 // Event Listeners setup
+function setKbdButtonsActive(level) {
+    document.querySelectorAll('.kbd-level-btn').forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.kbdLevel) === Number(level));
+    });
+}
+
+function setKbdTimeoutActive(enabled) {
+    const onBtn = document.getElementById('kbd-timeout-on');
+    const offBtn = document.getElementById('kbd-timeout-off');
+    if (onBtn) onBtn.classList.toggle('active', enabled === true);
+    if (offBtn) offBtn.classList.toggle('active', enabled === false);
+}
+
+const POWER_PROFILE_META = [
+    { id: 'low-power', nameKey: 'power_low_power', hintKey: 'power_hint_low_power' },
+    { id: 'quiet', nameKey: 'power_quiet', hintKey: 'power_hint_quiet' },
+    { id: 'balanced', nameKey: 'power_balanced', hintKey: 'power_hint_balanced' },
+    { id: 'balanced-performance', nameKey: 'power_sport', hintKey: 'power_hint_sport' },
+    { id: 'performance', nameKey: 'power_performance', hintKey: 'power_hint_performance' },
+];
+
+let currentPowerProfile = null;
+let powerProfileAvailable = false;
+let powerProfileBusy = false;
+
+function powerProfileLabel(id) {
+    const meta = POWER_PROFILE_META.find((item) => item.id === id);
+    if (!meta) return id || '—';
+    return currentTranslations[meta.nameKey] || id;
+}
+
+function setPowerProfileButtonsActive(profile) {
+    document.querySelectorAll('.power-profile-btn').forEach((btn) => {
+        const active = btn.dataset.powerProfile === profile;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+}
+
+function updatePowerProfileHint(profile) {
+    const hintEl = document.getElementById('power-profile-hint');
+    if (!hintEl) return;
+    const meta = POWER_PROFILE_META.find((item) => item.id === profile);
+    hintEl.textContent = meta
+        ? (currentTranslations[meta.hintKey] || '')
+        : '';
+}
+
+function updatePowerProfileStatusBar(profile) {
+    const valueEl = document.getElementById('power-status-value');
+    if (!valueEl) return;
+    valueEl.textContent = profile ? powerProfileLabel(profile) : '—';
+}
+
+function applyPowerProfileState(state) {
+    const section = document.getElementById('power-profile-section');
+    const statusEl = document.getElementById('power-profile-status');
+    if (!section) return;
+
+    powerProfileAvailable = !!(state && state.available);
+    currentPowerProfile = state && state.current ? state.current : currentPowerProfile;
+
+    const known = new Set(Array.isArray(state && state.choices) ? state.choices : POWER_PROFILE_META.map((p) => p.id));
+    document.querySelectorAll('.power-profile-btn').forEach((btn) => {
+        btn.hidden = !known.has(btn.dataset.powerProfile);
+    });
+
+    if (!powerProfileAvailable) {
+        section.classList.add('is-offline');
+        if (statusEl) {
+            statusEl.hidden = false;
+            statusEl.textContent = currentTranslations['power_offline']
+                || 'Brak połączenia z DAMX. sudo systemctl start damx-daemon';
+        }
+    } else {
+        section.classList.remove('is-offline');
+        if (statusEl) {
+            statusEl.hidden = true;
+            statusEl.textContent = '';
+        }
+    }
+
+    setPowerProfileButtonsActive(currentPowerProfile);
+    updatePowerProfileHint(currentPowerProfile);
+    updatePowerProfileStatusBar(currentPowerProfile);
+}
+
+async function refreshPowerProfileUi() {
+    if (!api.getThermalProfile) return;
+    try {
+        const state = await api.getThermalProfile();
+        applyPowerProfileState(state);
+    } catch (err) {
+        console.warn('thermal profile status failed', err);
+        applyPowerProfileState({ available: false, current: currentPowerProfile, choices: [] });
+    }
+}
+
+async function refreshKbdBacklightUi() {
+    const section = document.getElementById('kbd-backlight-section');
+    const statusEl = document.getElementById('kbd-status');
+    if (!section) return;
+    try {
+        const state = api.getKbdBacklight ? await api.getKbdBacklight() : { available: false };
+        if (!state || !state.available) {
+            section.classList.add('is-offline');
+            if (statusEl) {
+                statusEl.hidden = false;
+                statusEl.textContent = currentTranslations['kbd_driver_missing']
+                    || 'Brak sterownika klawiatury. sudo ./acer-nitro-ec/install-kbd-backlight.sh';
+            }
+            return;
+        }
+        section.classList.remove('is-offline');
+        if (statusEl) {
+            statusEl.hidden = true;
+            statusEl.textContent = '';
+        }
+        setKbdButtonsActive(state.level);
+        if (state.timeout === true || state.timeout === false) {
+            setKbdTimeoutActive(state.timeout);
+        }
+    } catch (err) {
+        console.warn('kbd backlight status failed', err);
+        section.classList.add('is-offline');
+        if (statusEl) {
+            statusEl.hidden = false;
+            statusEl.textContent = currentTranslations['kbd_driver_missing']
+                || 'Brak sterownika klawiatury. sudo ./acer-nitro-ec/install-kbd-backlight.sh';
+        }
+    }
+}
+
 function setupEventListeners() {
+    document.querySelectorAll('.kbd-level-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const level = Number(btn.dataset.kbdLevel);
+            if (!api.setKbdBacklight) return;
+            const state = await api.setKbdBacklight(level);
+            if (state && state.available) {
+                setKbdButtonsActive(state.level);
+            }
+        });
+    });
+    document.querySelectorAll('[data-kbd-timeout]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            if (!api.setKbdTimeout) return;
+            const enabled = btn.dataset.kbdTimeout === '1';
+            const state = await api.setKbdTimeout(enabled);
+            if (state && state.available && (state.timeout === true || state.timeout === false)) {
+                setKbdTimeoutActive(state.timeout);
+            }
+        });
+    });
+
+    document.querySelectorAll('.power-profile-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            if (!api.setThermalProfile || powerProfileBusy) return;
+            const profile = btn.dataset.powerProfile;
+            if (!profile) return;
+            powerProfileBusy = true;
+            setPowerProfileButtonsActive(profile);
+            updatePowerProfileHint(profile);
+            try {
+                const state = await api.setThermalProfile(profile);
+                applyPowerProfileState(state);
+                if (state && state.available) {
+                    const name = powerProfileLabel(state.current || profile);
+                    showToast(
+                        (currentTranslations['toast_power_profile'] || 'Ustawiono profil zasilania: {profile}')
+                            .replace('{profile}', name),
+                        'success'
+                    );
+                } else {
+                    showToast(
+                        currentTranslations['toast_power_profile_fail']
+                            || 'Nie udało się zmienić profilu zasilania (DAMX)',
+                        'warning'
+                    );
+                }
+            } catch (err) {
+                console.warn('set thermal profile failed', err);
+                showToast(
+                    currentTranslations['toast_power_profile_fail']
+                        || 'Nie udało się zmienić profilu zasilania (DAMX)',
+                    'warning'
+                );
+                refreshPowerProfileUi();
+            } finally {
+                powerProfileBusy = false;
+            }
+        });
+    });
+
     const sendMasterSpeed = debounce((val) => {
         lockManualUi();
         api.setFanSpeed({ speed: clampMasterSpeed(val) });
@@ -2026,6 +2219,7 @@ function setupEventListeners() {
             if (willOpen) {
                 syncSettingsCloseSelect();
                 settingsDropdown.classList.remove('hidden');
+                refreshKbdBacklightUi();
             }
         });
     }
@@ -2449,6 +2643,26 @@ function applyTranslations() {
 
     setText('resources-title', 'resources_title');
     setText('other-sensors-title', 'other_sensors_title');
+    setText('kbd-backlight-title', 'kbd_backlight_title');
+    setText('kbd-timeout-label', 'kbd_timeout_label');
+    setText('kbd-timeout-off-text', 'kbd_timeout_no');
+    setText('kbd-timeout-on-text', 'kbd_timeout_yes');
+    refreshKbdBacklightUi();
+    setText('power-profiles-title', 'power_profiles_title');
+    setText('power-low-power-name', 'power_low_power');
+    setText('power-quiet-name', 'power_quiet');
+    setText('power-balanced-name', 'power_balanced');
+    setText('power-sport-name', 'power_sport');
+    setText('power-performance-name', 'power_performance');
+    setText('power-status-label', 'power_status_label');
+    document.querySelectorAll('.power-profile-btn').forEach((btn) => {
+        const meta = POWER_PROFILE_META.find((item) => item.id === btn.dataset.powerProfile);
+        if (meta && currentTranslations[meta.hintKey]) {
+            btn.title = currentTranslations[meta.hintKey];
+        }
+    });
+    updatePowerProfileHint(currentPowerProfile);
+    updatePowerProfileStatusBar(currentPowerProfile);
     
     setText('cpu-header', 'cpu_header');
     setText('gpu-header', 'gpu_header');
@@ -2514,6 +2728,7 @@ function setupAutoRefresh() {
     if (updateInterval) clearInterval(updateInterval);
     updateInterval = setInterval(() => {
         api.requestFanStatus();
+        if (!powerProfileBusy) refreshPowerProfileUi();
     }, CHART_POLL_MS);
 
     if (connectionWatchInterval) clearInterval(connectionWatchInterval);
@@ -2557,6 +2772,8 @@ async function initialize() {
     }
 
     setupEventListeners();
+    refreshKbdBacklightUi();
+    refreshPowerProfileUi();
     setupCloseConfirmModal();
     setupAutoRefresh();
 

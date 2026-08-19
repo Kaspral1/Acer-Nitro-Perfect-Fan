@@ -76,6 +76,31 @@
             </div>
 
             <div class="sidebar-section">
+                <div class="section-title" id="power-profiles-title">PROFIL ZASILANIA</div>
+                <div class="power-profile-card" id="power-profile-section">
+                    <p class="power-profile-status" id="power-profile-status" hidden></p>
+                    <div class="power-profile-buttons" role="group" aria-labelledby="power-profiles-title">
+                        <button type="button" class="power-profile-btn" data-power-profile="low-power">
+                            <span class="power-profile-name" id="power-low-power-name">Eco</span>
+                        </button>
+                        <button type="button" class="power-profile-btn" data-power-profile="quiet">
+                            <span class="power-profile-name" id="power-quiet-name">Cichy</span>
+                        </button>
+                        <button type="button" class="power-profile-btn" data-power-profile="balanced">
+                            <span class="power-profile-name" id="power-balanced-name">Balans</span>
+                        </button>
+                        <button type="button" class="power-profile-btn" data-power-profile="balanced-performance">
+                            <span class="power-profile-name" id="power-sport-name">Sport</span>
+                        </button>
+                        <button type="button" class="power-profile-btn power-profile-wide" data-power-profile="performance">
+                            <span class="power-profile-name" id="power-performance-name">Max</span>
+                        </button>
+                    </div>
+                    <p class="power-profile-hint" id="power-profile-hint"></p>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
                 <div class="section-title" id="working-mode-title">TRYB PRACY</div>
                 <div class="mode-card">
                     <div class="mode-segmented-control">
@@ -133,7 +158,7 @@
                 </div>
             </div>
 
-            <div class="sidebar-section">
+            <div class="sidebar-section sidebar-temps">
                 <div class="section-title" id="other-sensors-title">TEMPERATURA</div>
                 <div class="resources-card" id="other-sensors-container">
                     <!-- Sensors will be injected here via JS -->
@@ -396,6 +421,9 @@
             <div class="status-pill">
                 <span id="working-mode-label">Tryb pracy: </span><strong id="active-mode-display">Dynamic EC</strong>
             </div>
+            <div class="status-pill" id="power-status-pill">
+                <span id="power-status-label">Zasilanie: </span><strong id="power-status-value">—</strong>
+            </div>
         </div>
         <div class="status-right">
             <div class="status-menu-container">
@@ -449,6 +477,29 @@
                     <div class="dropdown-header">
                         <span id="settings-header-title">USTAWIENIA</span>
                     </div>
+                    <div class="settings-kbd" id="kbd-backlight-section">
+                        <div class="dropdown-section-label" id="kbd-backlight-title">Podświetlanie klawiatury</div>
+                        <p class="kbd-status" id="kbd-status" hidden></p>
+                        <div class="mode-segmented-control kbd-level-row" role="group" aria-labelledby="kbd-backlight-title">
+                            <button type="button" class="kbd-level-btn" data-kbd-level="0">Off</button>
+                            <button type="button" class="kbd-level-btn" data-kbd-level="1">25</button>
+                            <button type="button" class="kbd-level-btn" data-kbd-level="2">50</button>
+                            <button type="button" class="kbd-level-btn" data-kbd-level="3">75</button>
+                            <button type="button" class="kbd-level-btn" data-kbd-level="4">100</button>
+                        </div>
+                        <div class="kbd-timeout-row">
+                            <span class="kbd-timeout-label" id="kbd-timeout-label">Gaśnięcie po 30 s</span>
+                            <div class="mode-segmented-control kbd-timeout-control" role="group" aria-labelledby="kbd-timeout-label">
+                                <button type="button" id="kbd-timeout-off" class="mode-segment-btn" data-kbd-timeout="0">
+                                    <span id="kbd-timeout-off-text">Nie</span>
+                                </button>
+                                <button type="button" id="kbd-timeout-on" class="mode-segment-btn" data-kbd-timeout="1">
+                                    <span id="kbd-timeout-on-text">Tak</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
                     <div class="dropdown-section-label" id="settings-close-label">Przycisk X (zamknięcie)</div>
                     <select id="settings-close-action" class="settings-select" title="Zachowanie przycisku X">
                         <option value="ask" id="settings-close-ask">Pytaj za każdym razem</option>

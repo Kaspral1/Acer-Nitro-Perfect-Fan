@@ -24,6 +24,11 @@ const REQUIRED_KEYS = [
   "mode_manual_desc",
   "resources_title",
   "other_sensors_title",
+  "kbd_backlight_title",
+  "kbd_timeout_label",
+  "kbd_timeout_no",
+  "kbd_timeout_yes",
+  "kbd_driver_missing",
   "loading_sensors",
   "no_sensors",
   "cpu_header",
@@ -99,7 +104,22 @@ const REQUIRED_KEYS = [
   "defaults_btn_restore",
   "toast_defaults_saved",
   "toast_defaults_restored",
-  "toast_defaults_need_points"
+  "toast_defaults_need_points",
+  "power_profiles_title",
+  "power_low_power",
+  "power_quiet",
+  "power_balanced",
+  "power_sport",
+  "power_performance",
+  "power_hint_low_power",
+  "power_hint_quiet",
+  "power_hint_balanced",
+  "power_hint_sport",
+  "power_hint_performance",
+  "power_offline",
+  "power_status_label",
+  "toast_power_profile",
+  "toast_power_profile_fail"
 ];
 
 const LANGUAGES = ['pl', 'en', 'es', 'de', 'cs'];
