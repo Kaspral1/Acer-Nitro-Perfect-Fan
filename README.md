@@ -1,3 +1,5 @@
+<a href="https://www.buymeacoffee.com/Kaspral" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me a Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
 # Acer Nitro Perfect Fan
 
 [![Linux](https://img.shields.io/badge/OS-Linux-orange.svg)](https://www.kernel.org/)
