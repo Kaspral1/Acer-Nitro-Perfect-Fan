@@ -1,8 +1,4 @@
-<p align="right">
-  <a href="https://www.buymeacoffee.com/Kaspral" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me a Coffee" height="36"></a>
-</p>
-
-# Acer Nitro Perfect Fan
+# Acer Nitro Perfect Fan <a href="https://www.buymeacoffee.com/Kaspral" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me a Coffee" align="right" height="36"></a>
 
 [![Linux](https://img.shields.io/badge/OS-Linux-orange.svg)](https://www.kernel.org/)
 [![Python](https://img.shields.io/badge/Backend-Python%203-blue.svg)](https://www.python.org/)
