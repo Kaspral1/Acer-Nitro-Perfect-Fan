@@ -8,7 +8,8 @@
 [![CI](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml)
 
 **Acer Nitro Perfect Fan** — sterowanie wentylatorami na **Linuxie + systemd** dla **Acer Nitro 5**.  
-Zweryfikowane na **AN515-54**. Demon systemd → wspólny JSON → most Python → dashboard Electron.
+Zweryfikowane na **Acer Nitro 5 AN515-54**. Demon systemd → wspólny JSON → most Python → dashboard Electron.  
+**Inne laptopy:** zainstaluj [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) i pasujący profil — zobacz [Inne laptopy (NBFC)](#inne-laptopy-nbfc).
 
 Motyw **Nitro** (domyślny):
 
@@ -78,20 +79,49 @@ Daemon na starcie wybiera backend (`backend` w `/etc/nitro-fan/config.json`, dom
 |-------|--------|
 | **Acer Nitro 5 AN515-54** | Pełne testy (maszyna deweloperska) |
 
-### Ta sama mapa EC co AN515-54 (wymaga spatchowanego `acer-nitro-ec`)
+### Ta sama mapa EC co Acer Nitro 5 AN515-54 (wymaga spatchowanego `acer-nitro-ec`)
 
-Upstream DKMS ładuje się tylko na 44/46/54/56/57/58 i AN517-55. Tutaj można dodać **AN515-51, AN515-55, AN517-51, AN517-54** (`regs_an515_46` — **nie** w pełni zweryfikowane):
+Upstream DKMS ładuje się tylko na:
+
+| Model |
+|-------|
+| Acer Nitro 5 AN515-44 |
+| Acer Nitro 5 AN515-46 |
+| Acer Nitro 5 AN515-54 |
+| Acer Nitro 5 AN515-56 |
+| Acer Nitro 5 AN515-57 |
+| Acer Nitro 5 AN515-58 |
+| Acer Nitro 5 AN517-55 |
+
+Tutaj można dodać te dodatkowe modele (`regs_an515_46` — **nie** w pełni zweryfikowane):
+
+| Model |
+|-------|
+| Acer Nitro 5 AN515-51 |
+| Acer Nitro 5 AN515-55 |
+| Acer Nitro 5 AN517-51 |
+| Acer Nitro 5 AN517-54 |
 
 ```bash
 sudo ./acer-nitro-ec/apply.sh
 ./check-system.sh
 ```
 
-### Fallback NBFC
+### Inne laptopy (NBFC)
 
-Laptop z działającym konfigiem nbfc-linux może używać krzywych tego daemona. Zobacz [NBFC](#nbfc-alternatywny-backend).
+**Inne laptopy też mogą używać tego programu** — to samo okienko, te same krzywe. Musisz sam zainstalować [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux), a Twój model musi już mieć działający profil NBFC. Ten program **nie** wymyśla sterowania wentylatorami dla nieznanego sprzętu.
 
-**Nie obiecujemy:** Predator, Helios, Nitro V (inny EC albo WMI). Nie dopisuj ich do listy DMI bez mapy rejestrów z żywego sprzętu.
+| Twój komputer | Co jest potrzebne |
+|---------------|-------------------|
+| **Acer Nitro 5 AN515-54** (oraz lista powyżej) | Wystarczy `acer_nitro_ec`. NBFC jest opcjonalne. |
+| **Inny laptop** z listy `nbfc config -l` | Zainstaluj nbfc-linux, uruchom `nbfc_service`, wybierz **swój** profil, ustaw `"backend": "nbfc"`. nbfc-linux ma ok. 180 konfigów. |
+| Laptop **spoza** tej listy, desktop, Windows, macOS | **Nieobsługiwane.** |
+
+**Nie** wgrywaj profilu `Acer Nitro AN515-54.json` z tego repo na inny model. Wybierz profil zgodny z nazwą DMI (`nbfc config -l`).
+
+**Nie obiecujemy** dla modułu jądra: Predator, Helios, Nitro V (inny EC albo WMI). Tutaj zadziałają **tylko**, jeśli nbfc-linux już ma konfig dokładnie dla tego modelu.
+
+Komendy: [NBFC](#nbfc-alternatywny-backend).
 
 ---
 
@@ -198,15 +228,24 @@ Awaryjnie: `./restore-auto.sh` albo `sudo systemctl stop acer-nitro-perfect-fan.
 
 ## NBFC (alternatywny backend)
 
-[NoteBook FanControl](https://github.com/nbfc-linux/nbfc-linux) gada z EC **bezpośrednio**. Tak działa pokrewne GUI [keizenx/nitro-fan-control](https://github.com/keizenx/nitro-fan-control).
+[NoteBook FanControl](https://github.com/nbfc-linux/nbfc-linux) gada z Embedded Controllerem laptopa **bezpośrednio**. Dzięki temu ten program może sterować **innymi laptopami**, nie tylko Acer Nitro 5: krzywe liczy ta aplikacja, zapis do EC robi `nbfc_service`.
 
-W repo jest przetestowany profil **AN515-54**:
+**Na innym laptopie** (nie AN515-54):
+
+1. Zainstaluj [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux).
+2. Sprawdź, czy Twój model jest na liście: `nbfc config -l` (ok. 180 profili). Jeśli go nie ma — stop; ten program nie pomoże.
+3. Wybierz **swój** profil (`nbfc config -a "Dokładna nazwa z listy"`), potem `sudo systemctl enable --now nbfc_service`.
+4. Ustaw `"backend": "nbfc"` w `/etc/nitro-fan/config.json` i uruchom `sudo ./install.sh`.
+
+Pokrewne GUI [keizenx/nitro-fan-control](https://github.com/keizenx/nitro-fan-control) używa tej samej ścieżki NBFC (i działa też na Windowsie).
+
+W repo jest przetestowany profil **Acer Nitro 5 AN515-54** (tylko na ten model):
 
 - [`nbfc/Acer Nitro AN515-54.json`](nbfc/Acer%20Nitro%20AN515-54.json)
 - [`nbfc/nbfc.json`](nbfc/nbfc.json)
 - [`nbfc/README.md`](nbfc/README.md)
 
-**Z daemonem tego projektu:**
+**Z daemonem tego projektu na Acer Nitro 5 AN515-54:**
 
 ```bash
 sudo systemctl disable --now acer-nitro-perfect-fan.service
