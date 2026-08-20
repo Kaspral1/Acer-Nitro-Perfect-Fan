@@ -12,11 +12,16 @@ import json
 import os
 import shutil
 import socket
+import stat
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Dict, Optional, Tuple
+
+# GUI i daemon czytają ten sam plik; 256 KB z dużym zapasem na krzywe (kilka punktów).
+CONFIG_MAX_BYTES = 256 * 1024
 
 BACKEND_AUTO = "auto"
 BACKEND_EC = "acer_nitro_ec"
@@ -70,6 +75,50 @@ def nbfc_socket_path() -> Optional[Path]:
     return None
 
 
+def read_json_limited(path: Path, max_bytes: int = CONFIG_MAX_BYTES) -> dict:
+    """Wczytuje obiekt JSON z limitem rozmiaru — chroni daemona przed bombą."""
+    data = Path(path).read_bytes()
+    if len(data) > max_bytes:
+        raise ValueError(f"config too large: {len(data)} bytes (max {max_bytes})")
+    parsed = json.loads(data.decode("utf-8"))
+    if not isinstance(parsed, dict):
+        raise ValueError("config is not a JSON object")
+    return parsed
+
+
+def atomic_write_json(path: Path, payload: dict) -> None:
+    """Zapis JSON przez plik tymczasowy w tym samym katalogu + os.replace.
+
+    Zachowuje tryb istniejącego pliku (np. 664), żeby daemon nadal mógł czytać
+    /etc/nitro-fan/config.json. os.replace jest atomowy na tym samym FS.
+    """
+    dest = Path(path)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=f".{dest.name}.",
+        suffix=".tmp",
+        dir=str(dest.parent),
+    )
+    tmp_path = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=4)
+            handle.flush()
+            os.fsync(handle.fileno())
+        try:
+            mode = stat.S_IMODE(dest.stat().st_mode)
+        except OSError:
+            mode = 0o664
+        os.chmod(tmp_path, mode)
+        os.replace(tmp_path, dest)
+    except Exception:
+        try:
+            tmp_path.unlink()
+        except OSError:
+            pass
+        raise
+
+
 def read_config_backend(config_path: Optional[Path] = None) -> str:
     """Odczyt pola backend z configu; nieznane / brak → auto."""
     candidates = []
@@ -85,7 +134,7 @@ def read_config_backend(config_path: Optional[Path] = None) -> str:
         try:
             if not path.is_file():
                 continue
-            raw = json.loads(path.read_text())
+            raw = read_json_limited(path)
             value = str(raw.get("backend") or BACKEND_AUTO).strip().lower()
             if value in VALID_BACKENDS:
                 return value

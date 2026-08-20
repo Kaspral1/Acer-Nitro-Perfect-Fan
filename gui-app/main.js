@@ -12,6 +12,17 @@ const pythonExecutable = 'python3';
 const MIN_PCT_CPU = 30;
 const MIN_PCT_GPU = 30;
 const MIN_PCT_MASTER = 30;
+const PYTHON_PROFILES = new Set(['Silent', 'Balanced', 'Turbo']);
+const MAX_CURVE_TOKENS = 64;
+
+const EXTERNAL_URLS = new Set([
+  'https://github.com/PXDiv/Div-Acer-Manager-Max',
+  'https://github.com/PXDiv/Div-Linuwu-Sense',
+  'https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan',
+  'https://github.com/keizenx/nitro-fan-control',
+  'https://www.gnu.org/licenses/gpl-3.0.html',
+  'https://opensource.org/licenses/MIT',
+]);
 
 let pythonScriptPath;
 if (appIsPackaged) {
@@ -32,8 +43,29 @@ let mainWindow;
 let tray = null;
 let pythonProcess = null;
 let appIsQuitting = false;
+let quitInProgress = false;
 /** Preferencja przycisku X / zamknięcia okna: null = pytaj, 'minimize' | 'quit' */
 let closeActionPref = null;
+
+function reallyQuit() {
+  if (appIsQuitting) return;
+  appIsQuitting = true;
+  quitInProgress = false;
+  stopPythonBackend();
+  app.quit();
+}
+
+/** Pokaż okno i daj rendererowi szansę na ostrzeżenie trybu ręcznego. */
+function requestRendererQuit() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    reallyQuit();
+    return;
+  }
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+  mainWindow.webContents.send('quit-requested');
+}
 
 function clampManualSpeed(fanId, speed) {
   let s = Math.max(0, Math.min(100, Number(speed) || 0));
@@ -44,6 +76,37 @@ function clampManualSpeed(fanId, speed) {
     return Math.max(MIN_PCT_CPU, s);
   }
   return Math.max(MIN_PCT_GPU, s);
+}
+
+/** Jedna linia do stdin Pythona — odrzuca whitespace / newline w tokenach. */
+function isSafePythonToken(value) {
+  const s = String(value);
+  return s.length > 0 && s.length < 48 && !/[\s\r\n\0]/.test(s);
+}
+
+function sendPython(...tokens) {
+  if (!pythonProcess || !pythonProcess.stdin || !pythonProcess.stdin.writable) {
+    return false;
+  }
+  if (!tokens.every(isSafePythonToken)) {
+    console.warn('[Main] blocked python command:', tokens);
+    return false;
+  }
+  pythonProcess.stdin.write(`${tokens.join(' ')}\n`);
+  return true;
+}
+
+function numericTokens(values) {
+  if (!Array.isArray(values) || values.length < 2 || values.length > MAX_CURVE_TOKENS) {
+    return null;
+  }
+  const out = [];
+  for (const value of values) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return null;
+    out.push(String(n));
+  }
+  return out;
 }
 
 function sendBackendStatus(connected, detail) {
@@ -78,6 +141,25 @@ function createWindow() {
   console.log(`[Main] Loading HTML from: ${indexPath}`);
   mainWindow.loadFile(indexPath);
 
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    const target = String(url || '').trim();
+    if (EXTERNAL_URLS.has(target)) {
+      shell.openExternal(target).catch((err) => {
+        console.error('[Main] window-open external failed:', err.message);
+      });
+    } else {
+      console.warn('[Main] blocked window-open:', target);
+    }
+    return { action: 'deny' };
+  });
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    const current = mainWindow.webContents.getURL();
+    if (url !== current) {
+      event.preventDefault();
+      console.warn('[Main] blocked navigate:', url);
+    }
+  });
+
   mainWindow.once('ready-to-show', () => {
     // Blokada zoomu (Ctrl+/- / gesty) — wyglądało jak „okno o połowę mniejsze”
     try {
@@ -102,9 +184,8 @@ function createWindow() {
     // żeby respektować ustawienie: pytaj / tray / wyjście.
     event.preventDefault();
     if (closeActionPref === 'quit') {
-      appIsQuitting = true;
-      stopPythonBackend();
-      app.quit();
+      // Renderer pokaże ostrzeżenie, gdy PWM jest ręczne — nie przywracamy auto w kernelu.
+      requestRendererQuit();
       return;
     }
     if (closeActionPref === 'minimize') {
@@ -147,9 +228,7 @@ function createTray() {
     {
       label: labels.quit,
       click: () => {
-        appIsQuitting = true;
-        stopPythonBackend();
-        app.quit();
+        requestRendererQuit();
       },
     },
   ]);
@@ -257,15 +336,6 @@ app.on('activate', () => {
 // --- IPC ---
 
 ipcMain.handle('get-app-version', () => app.getVersion());
-
-const EXTERNAL_URLS = new Set([
-  'https://github.com/PXDiv/Div-Acer-Manager-Max',
-  'https://github.com/PXDiv/Div-Linuwu-Sense',
-  'https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan',
-  'https://github.com/keizenx/nitro-fan-control',
-  'https://www.gnu.org/licenses/gpl-3.0.html',
-  'https://opensource.org/licenses/MIT',
-]);
 
 ipcMain.handle('open-external', async (_event, url) => {
   const target = String(url || '').trim();
@@ -456,38 +526,38 @@ ipcMain.on('set-fan-speed', (event, data) => {
     sendBackendStatus(false, 'dead');
     return;
   }
+  if (!data || typeof data !== 'object') return;
 
   if (data.fanId !== undefined && data.fanId !== null) {
-    const speed = clampManualSpeed(data.fanId, data.speed);
-    console.log(`[Main] set_fan_speed ${data.fanId} ${speed}`);
-    pythonProcess.stdin.write(`set_fan_speed ${data.fanId} ${speed}\n`);
+    const fanId = Number(data.fanId);
+    if (fanId !== 0 && fanId !== 1) return;
+    const speed = clampManualSpeed(fanId, data.speed);
+    console.log(`[Main] set_fan_speed ${fanId} ${speed}`);
+    sendPython('set_fan_speed', fanId, speed);
   } else {
     // Master base: set_all so API stores shared base (offset applied by daemon)
     const speed = clampManualSpeed(null, data.speed);
     console.log(`[Main] set_all_fans_speed ${speed}`);
-    pythonProcess.stdin.write(`set_all_fans_speed ${speed}\n`);
+    sendPython('set_all_fans_speed', speed);
   }
 });
 
 ipcMain.on('set-mode', (event, mode) => {
-  const isDynamic = mode === 'auto';
-  if (!pythonProcess) return;
-  pythonProcess.stdin.write(`set_mode ${isDynamic ? 'dynamic' : 'fixed'}\n`);
+  if (mode !== 'auto' && mode !== 'manual') return;
+  sendPython('set_mode', mode === 'auto' ? 'dynamic' : 'fixed');
 });
 
 ipcMain.on('apply-profile', (event, profile) => {
-  if (!pythonProcess) return;
-  pythonProcess.stdin.write(`apply_profile ${profile}\n`);
+  if (!PYTHON_PROFILES.has(String(profile))) return;
+  sendPython('apply_profile', profile);
 });
 
 ipcMain.on('set-auto-logging', (event, enabled) => {
-  if (!pythonProcess) return;
-  pythonProcess.stdin.write(`set_auto_logging ${enabled}\n`);
+  sendPython('set_auto_logging', enabled ? 'true' : 'false');
 });
 
 ipcMain.on('get-log-summary', () => {
-  if (!pythonProcess) return;
-  pythonProcess.stdin.write('get_log_summary\n');
+  sendPython('get_log_summary');
 });
 
 ipcMain.on('open-log-file', () => {
@@ -505,50 +575,45 @@ ipcMain.on('open-log-file', () => {
 });
 
 ipcMain.on('set-fan-curve', (event, curveData) => {
-  if (!pythonProcess) return;
-  const flatData = Array.isArray(curveData) ? curveData.flat() : [];
-  pythonProcess.stdin.write(`set_curve ${flatData.join(' ')}\n`);
+  const flatData = numericTokens(Array.isArray(curveData) ? curveData.flat() : []);
+  if (!flatData) return;
+  sendPython('set_curve', ...flatData);
 });
 
 ipcMain.on('set-curve-source', (event, source) => {
-  if (!pythonProcess) return;
-  const src = (source === 'custom') ? 'custom' : 'default';
-  pythonProcess.stdin.write(`set_curve_source ${src}\n`);
+  sendPython('set_curve_source', source === 'custom' ? 'custom' : 'default');
 });
 
 // set_default_curve <Profile> <cpu|gpu|all> t s t s ...
 ipcMain.on('set-default-curve', (event, payload) => {
-  if (!pythonProcess) return;
   if (!payload || typeof payload !== 'object') return;
   const profile = String(payload.profile || '').trim();
   const fan = String(payload.fan || 'all').toLowerCase();
   const points = Array.isArray(payload.points) ? payload.points : [];
-  if (!profile || !['cpu', 'gpu', 'all'].includes(fan) || points.length < 2) {
+  if (!PYTHON_PROFILES.has(profile) || !['cpu', 'gpu', 'all'].includes(fan) || points.length < 2) {
     console.error('[Main] set-default-curve: invalid payload', payload);
     return;
   }
-  const flat = points.flat();
-  pythonProcess.stdin.write(`set_default_curve ${profile} ${fan} ${flat.join(' ')}\n`);
+  const flat = numericTokens(points.flat());
+  if (!flat) return;
+  sendPython('set_default_curve', profile, fan, ...flat);
 });
 
 // reset_default_curves [Profile] — bez profilu = fabryczne dla wszystkich
 ipcMain.on('reset-default-curves', (event, profile) => {
-  if (!pythonProcess) return;
   if (profile && typeof profile === 'string' && profile.trim()) {
-    pythonProcess.stdin.write(`reset_default_curves ${profile.trim()}\n`);
-  } else {
-    pythonProcess.stdin.write('reset_default_curves\n');
+    const name = profile.trim();
+    if (!PYTHON_PROFILES.has(name)) return;
+    sendPython('reset_default_curves', name);
+    return;
   }
+  sendPython('reset_default_curves');
 });
 
 ipcMain.on('set-speed-offset', (event, offset) => {
-  if (!pythonProcess) {
-    console.error('[Main] set-speed-offset: Python backend is not running.');
-    return;
-  }
   const val = Math.max(-50, Math.min(50, Math.round(Number(offset) || 0)));
   console.log(`[Main] set_speed_offset ${val}`);
-  pythonProcess.stdin.write(`set_speed_offset ${val}\n`);
+  sendPython('set_speed_offset', val);
 });
 
 ipcMain.on('window-minimize', () => {
@@ -574,10 +639,21 @@ ipcMain.on('window-hide', () => {
   if (mainWindow) mainWindow.hide();
 });
 
-ipcMain.on('window-quit', () => {
-  appIsQuitting = true;
-  stopPythonBackend();
-  app.quit();
+ipcMain.on('window-quit', (_event, opts) => {
+  if (appIsQuitting || quitInProgress) return;
+  const restoreAuto = !!(opts && opts.restoreAuto);
+  if (restoreAuto && pythonProcess && pythonProcess.stdin && pythonProcess.stdin.writable) {
+    quitInProgress = true;
+    try {
+      sendPython('set_mode', 'dynamic');
+    } catch (err) {
+      console.error('[Main] set_mode dynamic before quit failed:', err.message);
+    }
+    // Daj API czas na zapis config.json — systemd daemon czyta mtime, nie ginie z GUI.
+    setTimeout(reallyQuit, 450);
+    return;
+  }
+  reallyQuit();
 });
 
 // Renderer synchronizuje preferencję zamykania (localStorage → main)

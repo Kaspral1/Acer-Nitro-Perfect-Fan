@@ -2431,6 +2431,38 @@ input:checked + .slider:before {
   justify-content: flex-end;
 }
 
+.close-manual-icon {
+  color: var(--color-orange);
+  flex-shrink: 0;
+}
+
+.close-manual-text {
+  margin-bottom: 0;
+}
+
+.close-manual-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.close-manual-footer .modal-btn {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.35;
+  padding: 10px 14px;
+  min-height: 44px;
+}
+
+.close-manual-keep-btn {
+  border-color: rgba(255, 176, 32, 0.45);
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

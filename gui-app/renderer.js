@@ -354,12 +354,17 @@ function showSafetyDisclaimer() {
     }
 }
 
+function isModalVisible(id) {
+    const modal = document.getElementById(id);
+    return !!(modal && !modal.classList.contains('hidden'));
+}
+
 function applyCloseAction(action) {
     if (action === 'quit') {
-        api.windowQuit();
-    } else {
-        api.windowHide();
+        requestQuit();
+        return;
     }
+    api.windowHide();
 }
 
 function showCloseConfirmModal() {
@@ -378,10 +383,35 @@ function hideCloseConfirmModal() {
     if (modal) modal.classList.add('hidden');
 }
 
+function showManualCloseModal() {
+    hideCloseConfirmModal();
+    const modal = document.getElementById('close-manual-modal');
+    if (!modal) {
+        api.windowQuit();
+        return;
+    }
+    modal.classList.remove('hidden');
+    const autoBtn = document.getElementById('close-manual-auto');
+    if (autoBtn) autoBtn.focus();
+}
+
+function hideManualCloseModal() {
+    const modal = document.getElementById('close-manual-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+/** Wyjście z GUI. Daemon systemd zostaje — przy ręcznym PWM ostrzegamy, auto EC nie wraca samo. */
+function requestQuit() {
+    if (isManualMode) {
+        showManualCloseModal();
+        return;
+    }
+    api.windowQuit();
+}
+
 function handleCloseRequest() {
     // Unikaj podwójnego modalu (np. X + close-requested z main)
-    const modal = document.getElementById('close-confirm-modal');
-    if (modal && !modal.classList.contains('hidden')) return;
+    if (isModalVisible('close-confirm-modal') || isModalVisible('close-manual-modal')) return;
 
     const pref = getClosePreference();
     if (pref) {
@@ -389,6 +419,11 @@ function handleCloseRequest() {
         return;
     }
     showCloseConfirmModal();
+}
+
+function handleQuitRequest() {
+    if (isModalVisible('close-manual-modal')) return;
+    requestQuit();
 }
 
 document.getElementById('close-btn').addEventListener('click', (e) => {
@@ -426,6 +461,42 @@ function setupCloseConfirmModal() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
             hideCloseConfirmModal();
+        }
+    });
+}
+
+function setupManualCloseModal() {
+    const modal = document.getElementById('close-manual-modal');
+    if (!modal) return;
+
+    const keepBtn = document.getElementById('close-manual-keep');
+    const autoBtn = document.getElementById('close-manual-auto');
+    const dismissBtn = document.getElementById('close-manual-dismiss');
+
+    const leaveAndQuit = () => {
+        hideManualCloseModal();
+        api.windowQuit();
+    };
+    const autoAndQuit = () => {
+        hideManualCloseModal();
+        isManualMode = false;
+        if (modeToggle) modeToggle.checked = false;
+        syncModeSegmentUI(false);
+        setManualControlsEnabled(false);
+        api.windowQuit({ restoreAuto: true });
+    };
+
+    if (keepBtn) keepBtn.addEventListener('click', leaveAndQuit);
+    if (autoBtn) autoBtn.addEventListener('click', autoAndQuit);
+    if (dismissBtn) dismissBtn.addEventListener('click', hideManualCloseModal);
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) hideManualCloseModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+            hideManualCloseModal();
         }
     });
 }
@@ -602,6 +673,13 @@ function setConnectionStatus(online, reason) {
     }
 }
 
+function makeEl(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = String(text);
+    return node;
+}
+
 // Toast Notification Helper
 function showToast(message, type = 'info') {
     let container = document.getElementById('toast-container');
@@ -613,10 +691,8 @@ function showToast(message, type = 'info') {
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-        <span class="toast-dot ${type}"></span>
-        <span class="toast-msg">${message}</span>
-    `;
+    toast.appendChild(makeEl('span', `toast-dot ${type}`));
+    toast.appendChild(makeEl('span', 'toast-msg', message));
 
     container.appendChild(toast);
     setTimeout(() => toast.classList.add('show'), 10);
@@ -1331,7 +1407,10 @@ function renderLogSummaryModal(stats, options = {}) {
     }
 
     if (stats.error) {
-        content.innerHTML = `<div class="summary-error" style="color:#ff3b30; padding: 20px; text-align: center; font-size: 13px;">❌ ${stats.error}</div>`;
+        content.replaceChildren();
+        const err = makeEl('div', 'summary-error', `❌ ${stats.error}`);
+        err.style.cssText = 'color:#ff3b30; padding: 20px; text-align: center; font-size: 13px;';
+        content.appendChild(err);
         lastSummaryRawText = stats.error;
         return;
     }
@@ -1364,36 +1443,49 @@ ${tr('summary_report_gpu', '[GRAPHICS CARD GPU]')}
 • ${tr('summary_report_fan', 'Average fan speed:')} ${fanVal(g.avg_speed, g.max_speed)}
 • ${tr('summary_report_zero_rpm', 'Silent Zero-RPM mode (0%):')} ${formatSummaryDuration(g.zero_rpm_sec)} (${g.zero_rpm_pct}%)`;
 
-    content.innerHTML = `
-        <div class="summary-grid">
-            <div class="summary-card" style="grid-column: 1 / -1;">
-                <div class="summary-card-title general">ℹ️ ${tr('summary_session_title', 'GENERAL SESSION PARAMETERS')}</div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_runtime', 'Program runtime:')}</span><span class="summary-value">${formatSummaryDuration(stats.total_runtime_seconds)}</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_samples', 'Measurement samples:')}</span><span class="summary-value">${stats.total_samples} ${sampleInterval}</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_log_range', 'Log time range:')}</span><span class="summary-value">${stats.start_time} — ${stats.end_time}</span></div>
-            </div>
+    const summaryRow = (label, value, valueStyle) => {
+        const row = makeEl('div', 'summary-row');
+        row.appendChild(makeEl('span', 'summary-label', label));
+        const val = makeEl('span', 'summary-value', value);
+        if (valueStyle) val.style.cssText = valueStyle;
+        row.appendChild(val);
+        return row;
+    };
+    const summaryCard = (titleClass, title, rows, extraStyle) => {
+        const card = makeEl('div', 'summary-card');
+        if (extraStyle) card.style.cssText = extraStyle;
+        card.appendChild(makeEl('div', `summary-card-title ${titleClass}`, title));
+        rows.forEach((row) => card.appendChild(row));
+        return card;
+    };
 
-            <div class="summary-card">
-                <div class="summary-card-title cpu">💻 ${tr('summary_cpu_title', 'PROCESSOR (CPU)')}</div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_avg_temp', 'Average temperature:')}</span><span class="summary-value" style="color:var(--cpu-text);">${c.avg_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_max_temp', 'Maximum temperature:')}</span><span class="summary-value" style="color:#ff3b30;">${c.max_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_min_temp', 'Minimum temperature:')}</span><span class="summary-value">${c.min_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_time_at_max', 'Time at max temp.:')}</span><span class="summary-value">${formatSummaryDuration(c.time_at_max_sec)}</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_avg_fan', 'Average fan speed:')}</span><span class="summary-value">${fanVal(c.avg_speed, c.max_speed)}</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_avg_cpu_load', 'Average CPU load:')}</span><span class="summary-value">${c.avg_load}%</span></div>
-            </div>
-
-            <div class="summary-card">
-                <div class="summary-card-title gpu">🎮 ${tr('summary_gpu_title', 'GRAPHICS CARD (GPU)')}</div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_avg_temp', 'Average temperature:')}</span><span class="summary-value" style="color:var(--gpu-text);">${g.avg_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_max_temp', 'Maximum temperature:')}</span><span class="summary-value" style="color:#ff3b30;">${g.max_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_min_temp', 'Minimum temperature:')}</span><span class="summary-value">${g.min_temp}°C</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_time_at_max', 'Time at max temp.:')}</span><span class="summary-value">${formatSummaryDuration(g.time_at_max_sec)}</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_avg_fan', 'Average fan speed:')}</span><span class="summary-value">${fanVal(g.avg_speed, g.max_speed)}</span></div>
-                <div class="summary-row"><span class="summary-label">${tr('summary_zero_rpm', 'Silent Zero-RPM mode:')}</span><span class="summary-value" style="color:#34c759;">${formatSummaryDuration(g.zero_rpm_sec)} (${g.zero_rpm_pct}%)</span></div>
-            </div>
-        </div>
-    `;
+    const grid = makeEl('div', 'summary-grid');
+    grid.appendChild(summaryCard('general', `ℹ️ ${tr('summary_session_title', 'GENERAL SESSION PARAMETERS')}`, [
+        summaryRow(tr('summary_runtime', 'Program runtime:'), formatSummaryDuration(stats.total_runtime_seconds)),
+        summaryRow(tr('summary_samples', 'Measurement samples:'), `${stats.total_samples} ${sampleInterval}`),
+        summaryRow(tr('summary_log_range', 'Log time range:'), `${stats.start_time} — ${stats.end_time}`),
+    ], 'grid-column: 1 / -1;'));
+    grid.appendChild(summaryCard('cpu', `💻 ${tr('summary_cpu_title', 'PROCESSOR (CPU)')}`, [
+        summaryRow(tr('summary_avg_temp', 'Average temperature:'), `${c.avg_temp}°C`, 'color:var(--cpu-text);'),
+        summaryRow(tr('summary_max_temp', 'Maximum temperature:'), `${c.max_temp}°C`, 'color:#ff3b30;'),
+        summaryRow(tr('summary_min_temp', 'Minimum temperature:'), `${c.min_temp}°C`),
+        summaryRow(tr('summary_time_at_max', 'Time at max temp.:'), formatSummaryDuration(c.time_at_max_sec)),
+        summaryRow(tr('summary_avg_fan', 'Average fan speed:'), fanVal(c.avg_speed, c.max_speed)),
+        summaryRow(tr('summary_avg_cpu_load', 'Average CPU load:'), `${c.avg_load}%`),
+    ]));
+    grid.appendChild(summaryCard('gpu', `🎮 ${tr('summary_gpu_title', 'GRAPHICS CARD (GPU)')}`, [
+        summaryRow(tr('summary_avg_temp', 'Average temperature:'), `${g.avg_temp}°C`, 'color:var(--gpu-text);'),
+        summaryRow(tr('summary_max_temp', 'Maximum temperature:'), `${g.max_temp}°C`, 'color:#ff3b30;'),
+        summaryRow(tr('summary_min_temp', 'Minimum temperature:'), `${g.min_temp}°C`),
+        summaryRow(tr('summary_time_at_max', 'Time at max temp.:'), formatSummaryDuration(g.time_at_max_sec)),
+        summaryRow(tr('summary_avg_fan', 'Average fan speed:'), fanVal(g.avg_speed, g.max_speed)),
+        summaryRow(
+            tr('summary_zero_rpm', 'Silent Zero-RPM mode:'),
+            `${formatSummaryDuration(g.zero_rpm_sec)} (${g.zero_rpm_pct}%)`,
+            'color:#34c759;'
+        ),
+    ]));
+    content.replaceChildren(grid);
 }
 
 // Update UI elements based on backend data
@@ -1490,7 +1582,7 @@ function updateUI(data) {
 
     // Temperature list: CPU, GPU, NVMe 1/2, PCH, motherboard, power section
     if (otherSensorsContainer && (data.sensor_data || data.cpu || data.gpu)) {
-        otherSensorsContainer.innerHTML = '';
+        otherSensorsContainer.replaceChildren();
 
         const formatSignedTemp = (celsius) => {
             const n = Number(celsius);
@@ -1607,7 +1699,9 @@ function updateUI(data) {
                 otherSensorsContainer.appendChild(item);
             });
         } else {
-            otherSensorsContainer.innerHTML = `<div class="resource-item"><span class="resource-label">${currentTranslations['no_sensors'] || 'Brak dodatkowych czujników'}</span></div>`;
+            const empty = makeEl('div', 'resource-item');
+            empty.appendChild(makeEl('span', 'resource-label', currentTranslations['no_sensors'] || 'Brak dodatkowych czujników'));
+            otherSensorsContainer.appendChild(empty);
         }
     }
 
@@ -2571,7 +2665,9 @@ function setupEventListeners() {
             closeAllStatusDropdowns();
             if (summaryModal) {
                 const content = document.getElementById('summary-modal-content');
-                if (content) content.innerHTML = `<div class="summary-loading">${tr('summary_loading', 'Loading statistics...')}</div>`;
+                if (content) {
+                    content.replaceChildren(makeEl('div', 'summary-loading', tr('summary_loading', 'Loading statistics...')));
+                }
                 summaryModal.classList.remove('hidden');
             }
             api.getLogSummary();
@@ -2958,6 +3054,15 @@ function applyTranslations() {
     setText('close-btn-cancel', 'close_btn_cancel');
     setText('close-btn-minimize', 'close_btn_minimize');
     setText('close-btn-quit', 'close_btn_quit');
+    setText('close-manual-title', 'close_manual_title');
+    setText('close-manual-text', 'close_manual_text');
+    setText('close-manual-keep-label', 'close_manual_keep');
+    setText('close-manual-auto-label', 'close_manual_auto');
+    const closeManualDismiss = document.getElementById('close-manual-dismiss');
+    if (closeManualDismiss) {
+        closeManualDismiss.title = currentTranslations['close_btn_cancel'] || 'Anuluj';
+        closeManualDismiss.setAttribute('aria-label', currentTranslations['close_btn_cancel'] || 'Anuluj');
+    }
     updateOffsetUI(speedOffset);
 
     // Refresh connection-related labels without forcing wrong online state
@@ -3031,11 +3136,15 @@ async function initialize() {
     if (api && typeof api.onCloseRequested === 'function') {
         api.onCloseRequested(() => handleCloseRequest());
     }
+    if (api && typeof api.onQuitRequested === 'function') {
+        api.onQuitRequested(() => handleQuitRequest());
+    }
 
     setupEventListeners();
     refreshKbdBacklightUi();
     refreshPowerProfileUi();
     setupCloseConfirmModal();
+    setupManualCloseModal();
     setupAutoRefresh();
 
     // Initial UI: offline until first telemetry; mode/sliders filled from first packet

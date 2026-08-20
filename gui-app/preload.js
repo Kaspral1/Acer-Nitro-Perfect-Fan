@@ -30,7 +30,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   windowMaximize: () => ipcRenderer.send('window-maximize'),
   windowClose: () => ipcRenderer.send('window-close'),
   windowHide: () => ipcRenderer.send('window-hide'),
-  windowQuit: () => ipcRenderer.send('window-quit'),
+  /** opts.restoreAuto: najpierw set_mode dynamic, potem wyjście (daemon zostaje) */
+  windowQuit: (opts) => ipcRenderer.send('window-quit', opts || {}),
   /** Synchronizuje preferencję X z main (null/'ask' | 'minimize' | 'quit') */
   setCloseActionPref: (action) => ipcRenderer.send('set-close-action-pref', action),
 
@@ -52,5 +53,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const handler = () => callback();
     ipcRenderer.on('close-requested', handler);
     return () => ipcRenderer.removeListener('close-requested', handler);
+  },
+  /** X z ustawieniem „zawsze zamykaj” albo Zakończ z tacki — renderer może pokazać ostrzeżenie manual. */
+  onQuitRequested: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('quit-requested', handler);
+    return () => ipcRenderer.removeListener('quit-requested', handler);
   },
 });

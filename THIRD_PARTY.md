@@ -32,3 +32,19 @@ backlight (`kbd_backlight` 0–4, `kbd_timeout` 0/1). The GUI writes those
 sysfs files; the EC keeps the last level after reboot without userspace.
 Shipping this tree does not change the MIT license of the userspace
 daemon or Electron GUI.
+
+## Bundled GUI fonts
+
+**Path:** [`gui-app/assets/fonts/`](gui-app/assets/fonts/)  
+**License:** SIL Open Font License 1.1  
+**Files:** variable woff2, latin + latin-ext (Polish diacritics), from
+[@fontsource-variable](https://fontsource.org/) 5.2.6.
+
+| Family | Upstream |
+|--------|----------|
+| Inter | [rsms/inter](https://github.com/rsms/inter) |
+| Outfit | [Outfit Font Project](https://github.com/Outfitio/Outfit-Fonts) |
+| JetBrains Mono | [JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono) |
+
+The Electron UI used to load these from Google Fonts at runtime. They are
+now shipped so the dashboard works offline and does not contact Google.

@@ -18,14 +18,18 @@ Konfiguracja: /etc/nitro-fan/config.json, a gdy brak — nbfc_config.json
 obok skryptu (ten sam plik edytuje GUI projektu); zmiany łapane po mtime.
 """
 
-import json
 import signal
 import sys
 import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fan_backend import detect_from_config, read_chip_temps, valid_chip_temp  # noqa: E402
+from fan_backend import (  # noqa: E402
+    detect_from_config,
+    read_chip_temps,
+    read_json_limited,
+    valid_chip_temp,
+)
 
 CONFIG_PRIMARY = Path("/etc/nitro-fan/config.json")
 CONFIG_FALLBACK = Path(__file__).resolve().parent / "nbfc_config.json"
@@ -231,7 +235,7 @@ def load_config(mtime_cache={}):
     try:
         mtime = path.stat().st_mtime
         if mtime_cache.get("path") != path or mtime_cache.get("t") != mtime:
-            cfg = json.loads(path.read_text())
+            cfg = read_json_limited(path)
             curves = cfg.get("curves")
             if isinstance(curves, dict):
                 curve_cpu = clean_curve(curves.get("cpu"), CURVE_CPU)

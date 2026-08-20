@@ -3,6 +3,7 @@
 
 import json
 import os
+import stat
 import tempfile
 import unittest
 from pathlib import Path
@@ -29,6 +30,31 @@ class DetectTests(unittest.TestCase):
             path = Path(tmp) / "config.json"
             path.write_text(json.dumps({"backend": "wmi"}))
             self.assertEqual(fb.read_config_backend(path), fb.BACKEND_AUTO)
+
+    def test_oversized_config_is_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "config.json"
+            path.write_bytes(b'{"backend":"nbfc","pad":"' + (b"x" * (fb.CONFIG_MAX_BYTES)) + b'"}')
+            self.assertEqual(fb.read_config_backend(path), fb.BACKEND_AUTO)
+
+    def test_read_json_limited_rejects_huge_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "config.json"
+            path.write_bytes(b"{" + (b"a" * (fb.CONFIG_MAX_BYTES + 1)) + b"}")
+            with self.assertRaises(ValueError):
+                fb.read_json_limited(path)
+
+    def test_atomic_write_replaces_without_tmp_leftovers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "config.json"
+            path.write_text('{"old": true}')
+            os.chmod(path, 0o664)
+            fb.atomic_write_json(path, {"mode": "dynamic", "profile": "Silent"})
+            saved = json.loads(path.read_text())
+            self.assertEqual(saved["mode"], "dynamic")
+            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o664)
+            leftovers = [p for p in Path(tmp).iterdir() if p.suffix == ".tmp"]
+            self.assertEqual(leftovers, [])
 
     def test_detect_prefers_ec_over_nbfc(self):
         ec = Path("/sys/class/hwmon/hwmon6")

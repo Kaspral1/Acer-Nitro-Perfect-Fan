@@ -17,7 +17,12 @@ import os
 from typing import Dict, List, Optional, Tuple, Any
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from fan_backend import detect_from_config, read_chip_temps  # noqa: E402
+from fan_backend import (  # noqa: E402
+    atomic_write_json,
+    detect_from_config,
+    read_chip_temps,
+    read_json_limited,
+)
 
 # Configure logging to stderr to avoid polluting stdout (where JSON is expected)
 logging.basicConfig(
@@ -212,8 +217,7 @@ class NBFCController:
         if not os.path.exists(path):
             return
         try:
-            with open(path, 'r') as f:
-                config = json.load(f)
+            config = read_json_limited(path)
 
             self.dynamic_mode = config.get('mode', 'dynamic') == 'dynamic'
             self.auto_logging = config.get('auto_logging', True)
@@ -359,13 +363,11 @@ class NBFCController:
         if self.backend_pref:
             payload['backend'] = self.backend_pref
         try:
-            with open(self.config_path, 'w') as f:
-                json.dump(payload, f, indent=4)
+            atomic_write_json(self.config_path, payload)
         except (PermissionError, OSError) as e:
             logger.warning(f"Brak dostępu do {self.config_path} ({e}); zapisuję lokalnie do {self.fallback_config_path}")
             try:
-                with open(self.fallback_config_path, 'w') as f:
-                    json.dump(payload, f, indent=4)
+                atomic_write_json(self.fallback_config_path, payload)
             except Exception as e2:
                 logger.error(f"Error saving fallback config: {e2}")
         except Exception as e:

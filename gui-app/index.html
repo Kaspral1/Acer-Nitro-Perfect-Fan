@@ -14,10 +14,7 @@
             }
         })();
     </script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/fonts.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -815,6 +812,36 @@
                 </button>
                 <button type="button" id="close-confirm-quit" class="modal-btn danger">
                     <span id="close-btn-quit">Zamknij całkowicie</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual PWM still active — closing the GUI does not restore firmware auto -->
+    <div id="close-manual-modal" class="modal-backdrop hidden" role="alertdialog" aria-modal="true" aria-labelledby="close-manual-title" aria-describedby="close-manual-text">
+        <div class="modal-card close-confirm-card close-manual-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon close-manual-icon" aria-hidden="true">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <h3 id="close-manual-title">Tryb ręczny jest włączony</h3>
+                </div>
+                <button type="button" id="close-manual-dismiss" class="modal-close-btn" title="Anuluj">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="close-confirm-text close-manual-text" id="close-manual-text">
+                    Prędkość wentylatorów w trybie manualnym. Zamknięcie programu nie wyłącza tej opcji. Ryzyko przegrzania sprzętu pod dużym obciążeniem.
+                </p>
+            </div>
+            <div class="modal-footer close-manual-footer">
+                <button type="button" id="close-manual-keep" class="modal-btn secondary close-manual-keep-btn">
+                    <span id="close-manual-keep-label">Zostaw prędkości wentylatorów i zamknij</span>
+                </button>
+                <button type="button" id="close-manual-auto" class="modal-btn primary close-manual-auto-btn">
+                    <span id="close-manual-auto-label">Ustaw automatyczną prędkość wentylatorów i zamknij</span>
                 </button>
             </div>
         </div>

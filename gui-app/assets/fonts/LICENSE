@@ -1,0 +1,9 @@
+These variable fonts are redistributed under the SIL Open Font License 1.1
+(https://scripts.sil.org/OFL).
+
+- Inter: Copyright (c) 2016-2020 The Inter Project Authors (https://github.com/rsms/inter)
+- Outfit: Copyright (c) 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+- JetBrains Mono: Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
+
+See ../../../THIRD_PARTY.md for project attribution.
+This copy was taken from @fontsource-variable 5.2.6 (latin + latin-ext, wght axis).
