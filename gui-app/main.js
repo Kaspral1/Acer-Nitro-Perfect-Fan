@@ -487,7 +487,11 @@ function readKbdBacklight() {
 ipcMain.handle('get-kbd-backlight', () => readKbdBacklight());
 
 ipcMain.handle('set-kbd-backlight', (_event, level) => {
-  const n = Math.max(0, Math.min(4, Number(level) || 0));
+  const num = Number(level);
+  if (!Number.isFinite(num)) {
+    return { available: false, level: 0, timeout: null, error: 'invalid-level' };
+  }
+  const n = Math.max(0, Math.min(4, Math.floor(num)));
   try {
     if (!fs.existsSync(KBD_LED_BRIGHTNESS)) {
       return { available: false, level: 0, timeout: null };
@@ -501,7 +505,7 @@ ipcMain.handle('set-kbd-backlight', (_event, level) => {
 });
 
 ipcMain.handle('set-kbd-timeout', (_event, enabled) => {
-  const on = enabled ? 1 : 0;
+  const on = Boolean(enabled) ? 1 : 0;
   try {
     if (!fs.existsSync(KBD_LED_TIMEOUT)) {
       return { available: false, timeout: null };

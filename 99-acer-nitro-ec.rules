@@ -6,4 +6,4 @@ ACTION=="add", SUBSYSTEM=="hwmon", ATTR{name}=="acer_nitro_ec", \
 
 # Czerwone podświetlenie (EC 0x31) — atrybuty na urządzeniu platformy.
 ACTION=="add", SUBSYSTEM=="platform", KERNEL=="acer-nitro-ec", \
-    RUN+="/bin/sh -c 'chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_backlight /sys/devices/platform/acer-nitro-ec/kbd_timeout 2>/dev/null || true'"
+    RUN+="/bin/sh -c 'chgrp acer_nitro_perfect_fan /sys/devices/platform/acer-nitro-ec/kbd_backlight /sys/devices/platform/acer-nitro-ec/kbd_timeout 2>/dev/null && chmod 0664 /sys/devices/platform/acer-nitro-ec/kbd_backlight /sys/devices/platform/acer-nitro-ec/kbd_timeout 2>/dev/null || true'"

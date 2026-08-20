@@ -94,8 +94,12 @@ install_udev_and_check_kbd() {
     local model
     model="$(cat /sys/class/dmi/id/product_name 2>/dev/null || true)"
     if [ -e "$kbd" ]; then
-        chmod 0666 "$kbd" || true
-        [ -e "$kto" ] && chmod 0666 "$kto" || true
+        chgrp acer_nitro_perfect_fan "$kbd" 2>/dev/null || true
+        chmod 0664 "$kbd" || true
+        if [ -e "$kto" ]; then
+            chgrp acer_nitro_perfect_fan "$kto" 2>/dev/null || true
+            chmod 0664 "$kto" || true
+        fi
         echo ">>> KBD OK: level=$(cat "$kbd") timeout=$(cat "$kto" 2>/dev/null || echo n/a)"
     elif echo "$model" | grep -q 'AN515-54'; then
         echo "!!! Brak $kbd na $model"

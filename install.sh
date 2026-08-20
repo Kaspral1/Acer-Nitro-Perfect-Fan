@@ -110,8 +110,12 @@ for h in /sys/class/hwmon/hwmon*; do
     chmod g+w "$h"/pwm1 "$h"/pwm1_enable "$h"/pwm2 "$h"/pwm2_enable
 done
 if [ -e /sys/devices/platform/acer-nitro-ec/kbd_backlight ]; then
-    chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_backlight || true
-    [ -e /sys/devices/platform/acer-nitro-ec/kbd_timeout ] && chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_timeout || true
+    chgrp "$SVC_USER" /sys/devices/platform/acer-nitro-ec/kbd_backlight || true
+    chmod 0664 /sys/devices/platform/acer-nitro-ec/kbd_backlight || true
+    if [ -e /sys/devices/platform/acer-nitro-ec/kbd_timeout ]; then
+        chgrp "$SVC_USER" /sys/devices/platform/acer-nitro-ec/kbd_timeout || true
+        chmod 0664 /sys/devices/platform/acer-nitro-ec/kbd_timeout || true
+    fi
 fi
 
 if [ "$HAS_EC" -eq 0 ] && [ "$HAS_NBFC" -eq 0 ]; then

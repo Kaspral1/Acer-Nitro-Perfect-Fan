@@ -373,13 +373,16 @@ class NBFCController:
         except Exception as e:
             logger.error(f"Error saving config: {e}")
             
-    def _run_command(self, cmd: List[str]) -> Optional[str]:
-        """Execute a system command and return the result stdout"""
+    def _run_command(self, cmd: List[str], timeout: float = 3.0) -> Optional[str]:
+        """Execute a system command safely with a timeout and return stdout"""
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=timeout)
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
             logger.debug(f"Error executing {' '.join(cmd)}: {e}")
+            return None
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Command timed out after {timeout}s: {' '.join(cmd)}")
             return None
         except FileNotFoundError:
             logger.debug(f"Command not found: {cmd[0]}")
@@ -1148,7 +1151,7 @@ class NBFCController:
                 time.sleep(1)
 
 def handle_command(controller: NBFCController, command: str) -> None:
-    """Handle commands from standard input"""
+    """Handle commands from standard input with strict validation and error handling"""
     parts = command.strip().split()
     if not parts:
         return
@@ -1157,20 +1160,31 @@ def handle_command(controller: NBFCController, command: str) -> None:
     
     try:
         if cmd == "set_fan_speed" and len(parts) >= 3:
-            fan_id = int(parts[1])
-            speed = float(parts[2])
-            controller.set_fan_speed(fan_id, speed)
+            try:
+                fan_id = int(parts[1])
+                speed = float(parts[2])
+                if fan_id in (0, 1):
+                    controller.set_fan_speed(fan_id, speed)
+            except ValueError:
+                logger.warning(f"Invalid parameters for set_fan_speed: {parts[1:]}")
         elif cmd == "set_all_fans_speed" and len(parts) >= 2:
-            speed = float(parts[1])
-            controller.set_all_fans_speed(speed)
+            try:
+                speed = float(parts[1])
+                controller.set_all_fans_speed(speed)
+            except ValueError:
+                logger.warning(f"Invalid speed for set_all_fans_speed: {parts[1]}")
         elif cmd == "set_mode" and len(parts) >= 2:
-            is_dynamic = parts[1].lower() == "dynamic"
+            is_dynamic = parts[1].lower() in ("dynamic", "auto", "true", "1")
             controller.set_mode(is_dynamic)
         elif cmd == "set_auto_logging" and len(parts) >= 2:
             enabled = parts[1].lower() in ("true", "1", "yes", "on")
             controller.set_auto_logging(enabled)
         elif cmd == "set_speed_offset" and len(parts) >= 2:
-            controller.set_speed_offset(float(parts[1]))
+            try:
+                offset = float(parts[1])
+                controller.set_speed_offset(offset)
+            except ValueError:
+                logger.warning(f"Invalid offset for set_speed_offset: {parts[1]}")
         elif cmd == "get_log_summary":
             try:
                 from nitro_log_summary import find_log_file, analyze_logs
@@ -1185,7 +1199,10 @@ def handle_command(controller: NBFCController, command: str) -> None:
                 logger.error(f"Error executing log summary: {err}")
         elif cmd == "apply_profile" and len(parts) >= 2:
             profile = parts[1]
-            controller.apply_profile(profile)
+            if profile in controller.profiles:
+                controller.apply_profile(profile)
+            else:
+                logger.warning(f"Unknown profile in apply_profile: {profile}")
         elif cmd == "set_curve_source" and len(parts) >= 2:
             try:
                 controller.set_curve_source(parts[1])
@@ -1202,7 +1219,9 @@ def handle_command(controller: NBFCController, command: str) -> None:
                 raw_pairs = parts[arg_offset:]
                 points = []
                 for i in range(0, len(raw_pairs) - 1, 2):
-                    points.append((float(raw_pairs[i]), float(raw_pairs[i+1])))
+                    t = float(raw_pairs[i])
+                    s = float(raw_pairs[i+1])
+                    points.append((t, s))
                 
                 if not points:
                     raise ValueError("brak par wartości temperatura-prędkość")
@@ -1216,13 +1235,17 @@ def handle_command(controller: NBFCController, command: str) -> None:
         elif cmd == "set_default_curve" and len(parts) >= 4:
             try:
                 profile = parts[1]
+                if profile not in controller.profiles:
+                    raise ValueError(f"nieznany profil {profile!r}")
                 target_fan = parts[2].lower()
                 if target_fan not in ("cpu", "gpu", "all"):
                     raise ValueError(f"fan musi być cpu/gpu/all, dostano {parts[2]!r}")
                 raw_pairs = parts[3:]
                 points = []
                 for i in range(0, len(raw_pairs) - 1, 2):
-                    points.append((float(raw_pairs[i]), float(raw_pairs[i + 1])))
+                    t = float(raw_pairs[i])
+                    s = float(raw_pairs[i + 1])
+                    points.append((t, s))
                 if not points:
                     raise ValueError("brak par wartości temperatura-prędkość")
                 if target_fan in ("cpu", "all"):
@@ -1235,6 +1258,8 @@ def handle_command(controller: NBFCController, command: str) -> None:
             try:
                 # reset_default_curves [Profile] — bez argumentu = wszystkie profile
                 prof = parts[1] if len(parts) >= 2 else None
+                if prof and prof not in controller.profiles:
+                    raise ValueError(f"nieznany profil {prof!r}")
                 controller.reset_default_curves(prof)
             except Exception as err:
                 logger.error(f"Invalid reset_default_curves: {err}")
