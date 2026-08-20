@@ -8,7 +8,18 @@
 [![CI](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml)
 
 **Acer Nitro Perfect Fan** — sterowanie wentylatorami na **Linuxie + systemd** dla **Acer Nitro 5**.  
-Zweryfikowane na **Acer Nitro 5 AN515-54**. Demon systemd → wspólny JSON → most Python → dashboard Electron.  
+Demon systemd → wspólny JSON → most Python → dashboard Electron.
+
+**Obsługiwane modele** (ta sama mapa EC, upstream `acer-nitro-ec`):
+
+- Acer Nitro 5 AN515-44
+- Acer Nitro 5 AN515-46
+- Acer Nitro 5 AN515-54 — **w pełni przetestowany** (maszyna deweloperska)
+- Acer Nitro 5 AN515-56
+- Acer Nitro 5 AN515-57
+- Acer Nitro 5 AN515-58
+- Acer Nitro 5 AN517-55
+
 **Inne laptopy:** zainstaluj [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) i pasujący profil — zobacz [Inne laptopy (NBFC)](#inne-laptopy-nbfc).
 
 Motyw **Nitro** (domyślny):

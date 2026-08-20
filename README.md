@@ -7,8 +7,19 @@
 [![Version](https://img.shields.io/badge/version-v1.1-informational.svg)](gui-app/package.json)
 [![CI](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml)
 
-**Acer Nitro Perfect Fan** — Linux + systemd fan control for **Acer Nitro 5**. Verified on **Acer Nitro 5 AN515-54**.  
-systemd daemon → shared JSON → Python stdio bridge → Electron dashboard.  
+**Acer Nitro Perfect Fan** — Linux + systemd fan control for **Acer Nitro 5**.  
+systemd daemon → shared JSON → Python stdio bridge → Electron dashboard.
+
+**Supported models** (same EC map, upstream `acer-nitro-ec`):
+
+- Acer Nitro 5 AN515-44
+- Acer Nitro 5 AN515-46
+- Acer Nitro 5 AN515-54 — **fully tested** (development machine)
+- Acer Nitro 5 AN515-56
+- Acer Nitro 5 AN515-57
+- Acer Nitro 5 AN515-58
+- Acer Nitro 5 AN517-55
+
 **Other laptops:** install [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) and a matching profile — see [Other laptops (NBFC)](#other-laptops-nbfc).
 
 **Nitro** theme (default):
