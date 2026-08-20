@@ -5,7 +5,6 @@
 [![Electron](https://img.shields.io/badge/GUI-Electron-47848F.svg)](https://www.electronjs.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-v1.1-informational.svg)](gui-app/package.json)
-[![CI](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/actions/workflows/ci.yml)
 
 **Acer Nitro Perfect Fan** — Linux + systemd fan control for **Acer Nitro 5**.  
 systemd daemon → shared JSON → Python stdio bridge → Electron dashboard.
