@@ -1558,9 +1558,8 @@ function renderLogSummaryModal(stats, options = {}) {
         modal.classList.remove('hidden');
     }
     syncSummaryTitle();
-    syncSummaryDayNav(stats);
-
     const view = currentViewStats(stats);
+    syncSummaryDayNav(stats);
     if (!view || view.error) {
         content.replaceChildren();
         const message = (view && view.error) || stats.error || tr('daily_report_empty', 'Brak danych dziennych w logach.');
