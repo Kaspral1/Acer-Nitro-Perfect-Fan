@@ -55,6 +55,12 @@ sudo systemctl enable --now nbfc_service
 Następnie ustaw `"backend": "nbfc"` w `/etc/nitro-fan/config.json`. Nie uruchamiaj
 jednocześnie dwóch programów sterujących tym samym EC.
 
+### Pełna lista profili NBFC
+
+Pełna lista nazw modeli wykrytych poleceniem `nbfc config -l` znajduje się w
+[angielskiej wersji tego pliku](COMPATIBLE-MODELS.md). Nazwy laptopów są nazwami
+własnymi profili NBFC i pozostają niezmienione w obu wersjach językowych.
+
 ## Nieobsługiwane
 
 - Windows i macOS
