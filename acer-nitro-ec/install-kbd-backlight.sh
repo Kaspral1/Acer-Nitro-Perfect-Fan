@@ -165,10 +165,6 @@ fi
 echo ">>> dkms install acer-nitro-ec/$VERSION"
 dkms install "acer-nitro-ec/$VERSION"
 
-# Stary plik z lipca w updates/ (poza dkms/) wygrywa z nowym — kasuj oba warianty.
-echo ">>> Usuwam ewentualny stary updates/acer-nitro-ec.ko"
-rm -f "/lib/modules/$KVER/updates/acer-nitro-ec.ko" \
-      "/lib/modules/$KVER/updates/acer-nitro-ec.ko.zst"
 "$DEPMOD" -a "$KVER"
 
 stop_module_holders
