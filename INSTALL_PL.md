@@ -47,6 +47,20 @@ cat /sys/class/dmi/id/product_name
 
 Powinno pojawić się coś w stylu `Nitro AN515-54`.
 
+Program ze sterownikiem `acer-nitro-ec` jest przeznaczony dla tych modeli:
+
+- Acer Nitro 5 AN515-44
+- Acer Nitro 5 AN515-46
+- Acer Nitro 5 AN515-54 — model w pełni przetestowany
+- Acer Nitro 5 AN515-56
+- Acer Nitro 5 AN515-57
+- Acer Nitro 5 AN515-58
+- Acer Nitro 5 AN517-55
+
+Dodatkowo można spróbować modeli AN515-51, AN515-55, AN517-51 i AN517-54 po
+zastosowaniu poprawki sterownika, ale nie są one w pełni zweryfikowane.
+Inne laptopy mogą działać tylko przez `nbfc-linux` i odpowiedni profil NBFC.
+
 > **Ostrzeżenie.** Ręczne sterowanie wentylatorami może przegrzać laptopa. Wentylator **CPU nigdy nie spadnie poniżej 30%**. Używasz na własną odpowiedzialność.
 
 ---

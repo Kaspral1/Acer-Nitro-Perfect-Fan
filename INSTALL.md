@@ -47,6 +47,20 @@ cat /sys/class/dmi/id/product_name
 
 You want something like `Nitro AN515-54`.
 
+With the bundled `acer-nitro-ec` driver, the supported models are:
+
+- Acer Nitro 5 AN515-44
+- Acer Nitro 5 AN515-46
+- Acer Nitro 5 AN515-54 — fully tested
+- Acer Nitro 5 AN515-56
+- Acer Nitro 5 AN515-57
+- Acer Nitro 5 AN515-58
+- Acer Nitro 5 AN517-55
+
+AN515-51, AN515-55, AN517-51, and AN517-54 can also be tried after applying
+the driver patch, but they are not fully verified. Other laptops may work only
+through `nbfc-linux` with a matching NBFC profile.
+
 > **Safety.** Manual fan control can overheat the machine. The **CPU fan is hard-clamped to 30%**. Use at your own risk.
 
 ---
