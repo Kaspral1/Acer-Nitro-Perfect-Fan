@@ -37,3 +37,9 @@ Once you have the compressed archive from Step 1:
 4. Drag and drop the `acpi_dump_my_model.zip` file from your home directory (`/home/your_username/`) into the text box to attach it.
 
 With this single `.zip` archive, we will be able to figure out the ACPI methods assigned to the fan speeds on your hardware and design a patch for the program!
+
+---
+
+<a href="https://www.buymeacoffee.com/Kaspral" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+*Remember, when I drink coffee, the work gets done much faster!* ☕

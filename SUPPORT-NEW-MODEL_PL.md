@@ -37,3 +37,9 @@ Mając spakowane pliki z Kroku 1:
 4. Przeciągnij i upuść plik `acpi_dump_moj_model.zip` ze swojego głównego katalogu domowego (`/home/twój_użytkownik/`) do pola tekstowego, aby go załączyć.
 
 Dzięki temu jednemu archiwum `.zip` będziemy w stanie rozpracować metody ACPI przypisane do obrotów wentylatorów na Twoim sprzęcie i zaprojektować poprawkę do programu!
+
+---
+
+<a href="https://www.buymeacoffee.com/Kaspral" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+*Pamiętaj, że gdy piję kawę, praca dzieje się szybciej!* ☕
