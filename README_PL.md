@@ -34,6 +34,7 @@ Motyw **OutRun** (Ustawienia → Motyw):
 |---------------|---|
 | **Nie programuję** | **[INSTALL_PL.md](INSTALL_PL.md)** — kopiuj komendy |
 | English | [INSTALL.md](INSTALL.md) · [README.md](README.md) |
+| **Kompatybilne modele** | **[COMPATIBLE-MODELS_PL.md](COMPATIBLE-MODELS_PL.md)** |
 | Diagnostyka | `./check-system.sh` (tylko odczyt) |
 
 > **Ostrzeżenie.** Ręczne sterowanie może **przegrzać i uszkodzić sprzęt**. PWM **CPU ma twardą podłogę 30%** (daemon + API + GUI). GPU może nadal używać Zero-RPM na zimno. **Używasz na własną odpowiedzialność.**

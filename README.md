@@ -33,6 +33,7 @@ systemd daemon → shared JSON → Python stdio bridge → Electron dashboard.
 |------------|---|
 | **Never used a terminal?** | **[INSTALL.md](INSTALL.md)** (copy-paste) |
 | **Po polsku** | [INSTALL_PL.md](INSTALL_PL.md) · [README_PL.md](README_PL.md) |
+| **Compatible models** | **[COMPATIBLE-MODELS.md](COMPATIBLE-MODELS.md)** |
 | Diagnose a machine | `./check-system.sh` (read-only) |
 
 > **Safety.** Manual fan control can **overheat and damage hardware**. CPU PWM is **hard-clamped to 30%** (daemon + API + GUI). GPU may still use Zero-RPM when cool. **Use at your own risk.**
