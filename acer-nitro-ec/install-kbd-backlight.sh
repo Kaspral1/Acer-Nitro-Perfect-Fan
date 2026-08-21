@@ -21,6 +21,17 @@ KVER="$(uname -r)"
 live_src() { cat /sys/module/acer_nitro_ec/srcversion 2>/dev/null || echo none; }
 module_loaded() { [ -d /sys/module/acer_nitro_ec ]; }
 
+MODEL="$(cat /sys/class/dmi/id/product_name 2>/dev/null || true)"
+case "$MODEL" in
+    *AN515-44*|*AN515-46*|*AN515-54*|*AN515-56*|*AN515-57*|*AN515-58*|*AN517-55*)
+        ;;
+    *)
+        echo "!!! acer-nitro-ec nie obsługuje modelu '$MODEL'."
+        echo "    Użyj nbfc-linux z profilem pasującym do dokładnego modelu."
+        exit 1
+        ;;
+esac
+
 # GUI i daemon trzymają hwmon — sam systemctl stop nie wystarcza.
 stop_module_holders() {
     echo ">>> Zatrzymuję procesy trzymające acer_nitro_ec"

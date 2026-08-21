@@ -17,16 +17,17 @@ Linuksa. AN515-54 to jedyny model w pełni przetestowany przez opiekuna projektu
 
 ## Modele eksperymentalne z opcjonalną poprawką sterownika
 
-Repozytorium może dodać do sterownika DMI tych modeli przez
-`acer-nitro-ec/dmi-models.patch`:
+Drzewo źródłowe zawiera opcjonalną poprawkę dodającą do sterownika DMI tych
+modeli: `acer-nitro-ec/dmi-models.patch`.
 
 - Acer Nitro 5 AN515-51
 - Acer Nitro 5 AN515-55
 - Acer Nitro 5 AN517-51
 - Acer Nitro 5 AN517-54
 
-Modele te nie są w pełni zweryfikowane. Poprawkę stosuj tylko wtedy, gdy możesz
-bezpiecznie przetestować sterowanie wentylatorami na konkretnym laptopie.
+Modele te nie są w pełni zweryfikowane i nie są włączone w standardowym
+instalatorze. Zastosowanie poprawki wymaga ręcznego przebudowania sterownika i
+bezpiecznego przetestowania sterowania wentylatorami na konkretnym laptopie.
 
 ## Modele sterowane przez NBFC
 

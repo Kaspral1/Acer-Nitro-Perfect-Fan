@@ -28,6 +28,9 @@ Nie uruchamiaj ręcznie `acer-nitro-ec/install-kbd-backlight.sh` ani
 Jeśli masz inny model albo instalacja zakończy się błędem, przejdź niżej do
 pełnej instrukcji i diagnostyki.
 
+Na innym laptopie `install.sh` nie ładuje sterownika `acer-nitro-ec`. Jeśli
+masz działający profil `nbfc-linux`, instalator pozostawi sterowanie NBFC.
+
 ---
 
 ## 1. Czy ten program jest dla Ciebie?

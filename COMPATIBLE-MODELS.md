@@ -17,16 +17,17 @@ The AN515-54 is the only model fully tested by this project.
 
 ## Experimental models with the optional driver patch
 
-The repository can add these DMI models to the driver with
-`acer-nitro-ec/dmi-models.patch`:
+The source tree contains an optional patch for adding these DMI models to the
+driver with `acer-nitro-ec/dmi-models.patch`:
 
 - Acer Nitro 5 AN515-51
 - Acer Nitro 5 AN515-55
 - Acer Nitro 5 AN517-51
 - Acer Nitro 5 AN517-54
 
-These models are not fully verified. Apply the patch only if you can test fan
-control safely on the exact laptop model.
+These models are not fully verified and are not enabled by the standard
+installer. Applying the patch requires manually rebuilding the driver and
+testing fan control safely on the exact laptop model.
 
 ## Models controlled through NBFC
 

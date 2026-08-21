@@ -34,6 +34,14 @@ if systemctl is-active --quiet nbfc_service 2>/dev/null \
     HAS_NBFC=1
 fi
 
+MODEL="$(cat /sys/class/dmi/id/product_name 2>/dev/null || true)"
+CASE_MODEL_SUPPORTED=0
+case "$MODEL" in
+    *AN515-44*|*AN515-46*|*AN515-54*|*AN515-56*|*AN515-57*|*AN515-58*|*AN517-55*)
+        CASE_MODEL_SUPPORTED=1
+        ;;
+esac
+
 if [ "$HAS_EC" -eq 1 ] && [ "$HAS_NBFC" -eq 1 ]; then
     echo "!!! UWAGA: są jednocześnie acer_nitro_ec i nbfc_service."
     echo "    Daemon wybierze acer_nitro_ec i NIE będzie pisał przez NBFC."
@@ -62,11 +70,13 @@ install -o root -g root -m 755 "$SRC/restore-auto.sh"     "$LIB/restore-auto.sh"
 
 # --- Sterownik EC + podświetlenie klawiatury (bez DAMX) ----------------------
 # Buduje acer-nitro-ec z LED 0–4 i timeout 30 s, zdejmuje stary .ko z updates/.
-if [ -x "$SRC/acer-nitro-ec/install-kbd-backlight.sh" ]; then
+if [ "$CASE_MODEL_SUPPORTED" -eq 1 ] && [ -x "$SRC/acer-nitro-ec/install-kbd-backlight.sh" ]; then
     echo ">>> Sterownik acer-nitro-ec (wentylatory + klawiatura)"
     bash "$SRC/acer-nitro-ec/install-kbd-backlight.sh"
     HAS_EC=0
     grep -qs '^acer_nitro_ec$' /sys/class/hwmon/hwmon*/name 2>/dev/null && HAS_EC=1
+elif [ "$CASE_MODEL_SUPPORTED" -eq 0 ] && [ "$HAS_NBFC" -eq 1 ]; then
+    echo ">>> Model '$MODEL' — pomijam acer-nitro-ec; użyję nbfc_service."
 fi
 
 # --- Reguła udev: zapis do PWM i LED bez roota --------------------------------

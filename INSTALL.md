@@ -28,6 +28,10 @@ manually when using this path.
 If you have another model or installation reports an error, continue with the
 full guide and diagnostics below.
 
+On another laptop, `install.sh` does not load the `acer-nitro-ec` driver. If a
+working `nbfc-linux` profile is available, the installer keeps NBFC as the fan
+backend.
+
 ---
 
 ## 1. Is this for you?
