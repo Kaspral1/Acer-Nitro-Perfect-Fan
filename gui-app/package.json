@@ -1,0 +1,78 @@
+{
+  "name": "acer-nitro-perfect-fan",
+  "version": "1.1.0",
+  "description": "Electron dashboard for Acer Nitro 5 fan control on Linux (daemon required)",
+  "main": "main.js",
+  "author": {
+    "name": "Kaspral1",
+    "url": "https://github.com/Kaspral1"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan/issues"
+  },
+  "dependencies": {
+    "chart.js": "^4.3.3"
+  },
+  "devDependencies": {
+    "electron": "^41.7.1",
+    "electron-builder": "^26.15.3"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node i18n.test.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.kaspral1.acer-nitro-perfect-fan",
+    "productName": "Acer Nitro Perfect Fan",
+    "copyright": "Copyright © 2024 keizenx, 2026 Kaspral1",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "index.html",
+      "styles.css",
+      "i18n/**/*",
+      "assets/**/*",
+      "package.json",
+      "node_modules/chart.js/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../nbfc_control_api.py",
+        "to": "nbfc_control_api.py"
+      },
+      {
+        "from": "../fan_backend.py",
+        "to": "fan_backend.py"
+      },
+      {
+        "from": "../nitro_log_summary.py",
+        "to": "nitro_log_summary.py"
+      },
+      {
+        "from": "../nbfc_config.json",
+        "to": "nbfc_config.json"
+      }
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "assets/icon.png",
+      "synopsis": "Fan control dashboard for Acer Nitro 5 (Linux, systemd daemon required)"
+    }
+  }
+}

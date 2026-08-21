@@ -1,0 +1,13 @@
+{
+  "SelectedConfigId": "Acer Nitro AN515-54",
+  "FanTemperatureSources": [
+    {
+      "FanIndex": 0,
+      "TemperatureAlgorithmType": "Average"
+    },
+    {
+      "FanIndex": 1,
+      "TemperatureAlgorithmType": "Average"
+    }
+  ]
+}

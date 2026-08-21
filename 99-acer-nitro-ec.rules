@@ -1,0 +1,9 @@
+# Zezwala grupie acer_nitro_perfect_fan na zapis do rejestrów PWM sterownika acer_nitro_ec.
+# Dzięki temu daemon działa jako zwykły użytkownik (User=acer_nitro_perfect_fan w unitce)
+# i nie potrzebuje roota. Reguła odpala się przy każdym załadowaniu modułu.
+ACTION=="add", SUBSYSTEM=="hwmon", ATTR{name}=="acer_nitro_ec", \
+    RUN+="/bin/sh -c 'chgrp acer_nitro_perfect_fan /sys%p/pwm1 /sys%p/pwm1_enable /sys%p/pwm2 /sys%p/pwm2_enable && chmod g+w /sys%p/pwm1 /sys%p/pwm1_enable /sys%p/pwm2 /sys%p/pwm2_enable'"
+
+# Czerwone podświetlenie (EC 0x31) — atrybuty na urządzeniu platformy.
+ACTION=="add", SUBSYSTEM=="platform", KERNEL=="acer-nitro-ec", \
+    RUN+="/bin/sh -c 'chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_backlight /sys/devices/platform/acer-nitro-ec/kbd_timeout 2>/dev/null || true'"
