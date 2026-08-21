@@ -5,6 +5,29 @@ Ta instrukcja jest napisana tak, żeby dało się ją wykonać **kopiując komen
 **Po angielsku:** [INSTALL.md](INSTALL.md)  
 **Szczegóły techniczne:** [README_PL.md](README_PL.md)
 
+## Najprostsza instalacja — Acer Nitro AN515-54
+
+Jeśli masz **Acer Nitro AN515-54**, wykonaj tylko te kroki. Instalator sam
+zainstaluje sterownik wentylatorów, usługę systemową i konfigurację.
+
+```bash
+sudo apt update
+sudo apt install -y git python3 nodejs npm lm-sensors dkms build-essential linux-headers-$(uname -r)
+git clone https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git
+cd Acer-Nitro-Perfect-Fan
+sudo ./install.sh
+cd gui-app
+npm install
+npm start
+```
+
+Po uruchomieniu powinno pojawić się okno programu z oznaczeniem **ONLINE**.
+Nie uruchamiaj ręcznie `acer-nitro-ec/install-kbd-backlight.sh` ani
+`nbfc/install-nbfc-config.sh`, jeśli korzystasz z tej ścieżki.
+
+Jeśli masz inny model albo instalacja zakończy się błędem, przejdź niżej do
+pełnej instrukcji i diagnostyki.
+
 ---
 
 ## 1. Czy ten program jest dla Ciebie?

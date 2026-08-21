@@ -5,6 +5,29 @@ Copy-paste the commands. You do not need to be a programmer.
 **Polski:** [INSTALL_PL.md](INSTALL_PL.md)  
 **Technical reference:** [README.md](README.md)
 
+## Simplest install — Acer Nitro AN515-54
+
+If you have an **Acer Nitro AN515-54**, run only these commands. The installer
+will install the fan driver, system service, and configuration for you.
+
+```bash
+sudo apt update
+sudo apt install -y git python3 nodejs npm lm-sensors dkms build-essential linux-headers-$(uname -r)
+git clone https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git
+cd Acer-Nitro-Perfect-Fan
+sudo ./install.sh
+cd gui-app
+npm install
+npm start
+```
+
+The application window should open and show **ONLINE**. Do not run
+`acer-nitro-ec/install-kbd-backlight.sh` or `nbfc/install-nbfc-config.sh`
+manually when using this path.
+
+If you have another model or installation reports an error, continue with the
+full guide and diagnostics below.
+
 ---
 
 ## 1. Is this for you?
