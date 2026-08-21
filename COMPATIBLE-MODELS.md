@@ -13,7 +13,7 @@ These models use the EC map supported by the bundled kernel driver:
 - Acer Nitro 5 AN517-55
 
 The fan control path is `acer_nitro_ec` through the Linux hwmon interface.
-The AN515-54 is the only model fully tested by the project maintainer.
+The AN515-54 is the only model fully tested by this project.
 
 ## Experimental models with the optional driver patch
 
@@ -57,9 +57,9 @@ fan controllers against the same EC at the same time.
 
 ### Models present in the supplied NBFC profile list
 
-The following model names were reported by `nbfc config -l` on the maintainer's
-system. They can be controlled through NBFC when the matching profile works on
-the exact laptop:
+The following model names are present in the supplied `nbfc-linux` profile list.
+They can be controlled through NBFC when the matching profile works on the exact
+laptop:
 
 #### ASUS
 
