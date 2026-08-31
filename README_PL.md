@@ -56,6 +56,11 @@ Windows i macOS **nie są** obsługiwane.
 **Profil zasilania CPU** (sidebar — Eco / Cichy / Balans / Sport / Max)
 
 - Zmienia turbo i limity procesora przez osobno zainstalowany daemon [DAMX](https://github.com/PXDiv/Div-Acer-Manager-Max), niezależnie od krzywych wentylatorów
+  - **Eco** (`low-power`): gov=powersave, epp=power, max_pct=50, min_pct=17, Turbo wyłączone
+  - **Cichy** (`quiet`): gov=balance_power, epp=power, max_pct=100, min_pct=17, Turbo wyłączone
+  - **Balans** (`balanced`): gov=powersave, epp=balance_power, max_pct=100, min_pct=17, Turbo włączone
+  - **Sport** (`balanced-performance`): gov=powersave, epp=balance_performance, max_pct=100, min_pct=17, Turbo włączone
+  - **Max** (`performance`): gov=performance, epp=performance, max_pct=100, min_pct=30, Turbo włączone
 - Wystarczy wybrać **raz**. DAMX zapamiętuje wybór i wgrywa go przy starcie systemu — tego programu nie trzeba wtedy uruchamiać
 - Bez DAMX reszta panelu działa; te pięć przycisków zostaje offline
 
@@ -69,7 +74,7 @@ Windows i macOS **nie są** obsługiwane.
 
 **Interfejs**
 
-- Dwa motywy: **Nitro** (domyślny) i **OutRun** — Ustawienia → Motyw, zapamiętywane po restarcie
+- Cztery motywy: **Nitro** (domyślny), **OutRun**, **Matrix** i **Reddit** — Ustawienia → Motyw, zapamiętywane po restarcie
 - Zasobnik systemowy, i18n (PL / EN / ES / DE / CS)
 - Opcjonalne logi CSV — menu **Statystyki**: podsumowanie temperatur, **dzienny raport** (dzień po dniu, data lokalna), podgląd logów, **kasuj logi** (z potwierdzeniem)
 - Badge połączenia: online / offline

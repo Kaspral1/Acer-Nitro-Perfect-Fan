@@ -57,7 +57,9 @@
   --gloss-cta: linear-gradient(180deg, #F706CF 0%, var(--pal-cta) 48%, #D40078 100%);
   --gloss-cpu: linear-gradient(180deg, #67f4ff 0%, var(--gauge-cpu) 42%, #00c4e0 100%);
   --gloss-blue: var(--gloss-steady);
-  --gloss-red: linear-gradient(180deg, #ff7a72 0%, #ff4b42 52%, #e02820 100%);
+  /* Danger was #ff4b42 under white ink (3.3:1). Deepened so the band the
+   * label sits on clears AA, while staying an unmistakable alert red. */
+  --gloss-red: linear-gradient(180deg, #E4443A 0%, #D62A21 52%, #A61810 100%);
   --gloss-orange: var(--gloss-heat);
 
   --glow-quiet: rgba(84, 13, 110, 0.7);
@@ -67,6 +69,27 @@
   --glow-auto: rgba(45, 226, 230, 0.5);
   --glow-peak: rgba(249, 200, 14, 0.5);
   --glow-cta: rgba(246, 1, 157, 0.5);
+  --glow-red: rgba(214, 42, 33, 0.45);
+
+  --border-quiet: rgba(121, 30, 148, 0.8);
+  --border-steady: rgba(45, 120, 220, 0.7);
+  --border-heat: rgba(255, 108, 17, 0.75);
+  --border-peak: rgba(249, 200, 14, 0.75);
+
+  --btn-on-quiet: var(--btn-on-dark);
+  --btn-on-steady: var(--btn-on-dark);
+  --btn-on-heat: var(--btn-on-light);
+  --btn-on-peak: var(--btn-on-light);
+  /* Auto/action/CTA had no ink of their own and borrowed a mismatched role,
+   * which put white on cyan (1.6:1). Each gloss now owns its ink. */
+  --btn-on-auto: #06201f;
+  --btn-on-action: var(--btn-on-light);
+  --btn-on-cta: var(--btn-on-light);
+  --btn-on-red: var(--btn-on-dark);
+
+  --icon-quiet: #e8c8f2;
+  --icon-steady: #d5dcff;
+  --icon-heat: #3a2208;
 
   /* Aliases used by settings/modals (were referenced but never defined). */
   --accent-cyan: var(--cpu-hi);
@@ -83,6 +106,19 @@
   --text-main: #f4f6fb;
   --text-muted: #d7dde8;
   --text-sub: #c5cde0;
+  --text-faint: #7a86a3;
+
+  /* Neutrals that used to be hardcoded, so themes can tint them. */
+  --hover-veil: rgba(255, 255, 255, 0.07);
+  --hover-veil-soft: rgba(255, 255, 255, 0.05);
+  --link-color: #6cb6ff;
+  --link-hover: #b8dcff;
+  --dot-alert: var(--cpu-color);
+  --dot-alert-glow: var(--cpu-glow);
+  --offset-border: rgba(192, 132, 252, 0.45);
+  --offset-glow: rgba(192, 132, 252, 0.65);
+  --bg-tooltip: rgba(16, 20, 32, 0.96);
+  --text-tooltip: #e8eefc;
 
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -132,6 +168,240 @@ html[data-theme="outrun"] {
   --accent-cyan: #2DE2E6;
   --accent-blue: #023788;
   --shadow-glow: 0 0 20px rgba(246, 1, 157, 0.28);
+
+  --border-quiet: rgba(121, 30, 148, 0.8);
+  --border-steady: rgba(45, 226, 230, 0.75);
+  --border-heat: rgba(255, 108, 17, 0.8);
+  --border-peak: rgba(249, 200, 14, 0.8);
+  --btn-on-quiet: #ffffff;
+  /* Steady is the deep royal #023788, so its ink has to be light, not the
+   * near-black the other roles use (was 1.8:1). */
+  --btn-on-steady: #CDE7FF;
+  --btn-on-heat: #140818;
+  --btn-on-peak: #140818;
+  --icon-quiet: #e8c8f2;
+  --icon-steady: #CDE7FF;
+  --icon-heat: #140818;
+}
+
+/* Reddit — paleta z kolorami Reddit: #FF4500, #0DD3BB, #24A0ED, #FFCA00, #FFB000 */
+html[data-theme="reddit"] {
+  --bg-dark: #0E1113;
+  --bg-card: #1A1D20;
+  --bg-card-hover: #22262B;
+  --bg-sidebar: #0B0E10;
+  --bg-box: #22262B;
+  --bg-input: #13171A;
+  --bg-chrome: #0E1113;
+  --border-glass: rgba(255, 69, 0, 0.18);
+  --border-focus: rgba(255, 69, 0, 0.6);
+  --color-blue: #24A0ED;
+  --color-red: #FF4500;
+  --color-green: #0DD3BB;
+  --color-orange: #FFB000;
+  --color-purple: #FFCA00;
+  --color-ram: #0DD3BB;
+  --cpu-color: #0E6FB3;
+  --cpu-hi: #24A0ED;
+  --cpu-text: #82CBFF;
+  --cpu-glow: rgba(36, 160, 237, 0.58);
+  --gpu-color: #CC3700;
+  --gpu-hi: #FF4500;
+  --gpu-text: #FFA580;
+  --gpu-glow: rgba(255, 69, 0, 0.58);
+  --gauge-cpu: #24A0ED;
+  --gauge-cpu-dim: rgba(36, 160, 237, 0.16);
+  --gauge-cpu-glow: rgba(36, 160, 237, 0.8);
+  --gauge-gpu: #FF4500;
+  --gauge-gpu-dim: rgba(255, 69, 0, 0.16);
+  --gauge-gpu-glow: rgba(255, 69, 0, 0.8);
+  --accent-cyan: #0DD3BB;
+  --accent-blue: #24A0ED;
+  --shadow-glow: 0 0 20px rgba(255, 69, 0, 0.3);
+
+  --pal-plum: #0DD3BB;
+  --pal-pink: #FF4500;
+  --pal-sun: #FFB000;
+  --pal-royal: #24A0ED;
+  --pal-sky: #0DD3BB;
+  --pal-peak: #FFCA00;
+  --pal-cta: #FF4500;
+
+  /* Reddit's palette is all bright, saturated hues, so an active chip is a
+   * lit brand fill with dark ink. The old quiet/auto roles were a near-black
+   * slate that read as "disabled" and hid its own label. */
+  --btn-on-neon: #0A0F10;
+  --btn-on-light: #200800;
+  --btn-on-dark: #F2F4F5;
+  --btn-on-quiet: #04211D;
+  --btn-on-steady: #04203A;
+  --btn-on-heat: #2A1800;
+  --btn-on-peak: #2B0900;
+  --btn-on-action: #2B0900;
+  --btn-on-auto: #04211D;
+  --btn-on-cta: #2B0900;
+
+  --border-quiet: rgba(13, 211, 187, 0.85);
+  --border-steady: rgba(36, 160, 237, 0.85);
+  --border-heat: rgba(255, 176, 0, 0.85);
+  --border-peak: rgba(255, 69, 0, 0.9);
+  --icon-quiet: #04211D;
+  --icon-steady: #04203A;
+  --icon-heat: #2A1800;
+
+  /* Intensity ramp: teal -> blue -> amber -> Reddit orange. */
+  --gloss-quiet: linear-gradient(180deg, #3FE6D3 0%, #0DD3BB 48%, #0AA895 100%);
+  --gloss-auto: linear-gradient(180deg, #3FE6D3 0%, #0DD3BB 48%, #0AA895 100%);
+  --gloss-steady: linear-gradient(180deg, #57BBF4 0%, #24A0ED 48%, #157FC6 100%);
+  --gloss-heat: linear-gradient(180deg, #FFC63D 0%, #FFB000 48%, #D48F00 100%);
+  --gloss-peak: linear-gradient(180deg, #FF6A33 0%, #FF4500 48%, #D63A00 100%);
+  --gloss-action: linear-gradient(180deg, #FF6A33 0%, #FF4500 48%, #D63A00 100%);
+  --gloss-cta: linear-gradient(180deg, #FF6A33 0%, #FF4500 48%, #D63A00 100%);
+  --gloss-cpu: linear-gradient(180deg, #60BAF2 0%, #24A0ED 48%, #1680C4 100%);
+
+  --glow-quiet: rgba(13, 211, 187, 0.5);
+  --glow-auto: rgba(13, 211, 187, 0.5);
+  --glow-steady: rgba(36, 160, 237, 0.55);
+  --glow-heat: rgba(255, 176, 0, 0.5);
+  --glow-peak: rgba(255, 69, 0, 0.55);
+  --glow-action: rgba(255, 69, 0, 0.55);
+  --glow-cta: rgba(255, 69, 0, 0.55);
+
+  /* Neutrals pulled onto Reddit's warm-grey ladder. */
+  --text-main: #F2F4F5;
+  --text-muted: #D3D8DB;
+  --text-sub: #B4BCC0;
+  --text-faint: #8A9296;
+  --hover-veil: rgba(255, 69, 0, 0.14);
+  --hover-veil-soft: rgba(255, 69, 0, 0.08);
+  --link-color: #24A0ED;
+  --link-hover: #82CBFF;
+  --dot-alert: #FF4500;
+  --dot-alert-glow: rgba(255, 69, 0, 0.6);
+  --offset-border: rgba(255, 202, 0, 0.5);
+  --offset-glow: rgba(255, 202, 0, 0.6);
+  --bg-tooltip: rgba(14, 17, 19, 0.97);
+  --text-tooltip: #F2F4F5;
+
+  /* Danger has to stay separable from the orange CTA, so it goes crimson. */
+  --gloss-red: linear-gradient(180deg, #E14653 0%, #C82434 52%, #97131F 100%);
+  --glow-red: rgba(200, 36, 52, 0.45);
+}
+
+/* Matrix — paleta Matrix: #1A1C1B, #2A2E2E, #555D58, #95FF77, #59FF00 */
+html[data-theme="matrix"] {
+  --bg-app: linear-gradient(rgba(11, 13, 12, 0.82), rgba(11, 13, 12, 0.88)), var(--bg-dark);
+  --bg-dark: rgba(11, 13, 12, 0.7);
+  --bg-card: rgba(20, 23, 21, 0.85);
+  --bg-card-hover: rgba(27, 32, 29, 0.85);
+  --bg-sidebar: rgba(11, 13, 12, 0.75);
+  --bg-box: rgba(20, 23, 21, 0.85);
+  --bg-input: rgba(26, 30, 28, 0.85);
+  --bg-chrome: rgba(11, 13, 12, 0.85);
+  --border-glass: rgba(89, 255, 0, 0.18);
+  --border-focus: rgba(89, 255, 0, 0.7);
+  --color-blue: #7affaa;
+  --color-red: #59FF00;
+  --color-green: #59FF00;
+  --color-orange: #95FF77;
+  --color-purple: #9BE07F;
+  --color-ram: #a3ff66;
+  --cpu-color: #123d18;
+  --cpu-hi: #7affaa;
+  --cpu-text: #a8ffd0;
+  --cpu-glow: rgba(122, 255, 170, 0.58);
+  --gpu-color: #1e5900;
+  --gpu-hi: #59FF00;
+  --gpu-text: #8cff4d;
+  --gpu-glow: rgba(89, 255, 0, 0.65);
+  --gauge-cpu: #7affaa;
+  --gauge-cpu-dim: rgba(122, 255, 170, 0.15);
+  --gauge-cpu-glow: rgba(122, 255, 170, 0.78);
+  --gauge-gpu: #59FF00;
+  --gauge-gpu-dim: rgba(89, 255, 0, 0.16);
+  --gauge-gpu-glow: rgba(89, 255, 0, 0.82);
+  --accent-cyan: #7affaa;
+  --accent-blue: #59FF00;
+  --shadow-glow: 0 0 20px rgba(89, 255, 0, 0.32);
+  --shadow-ram: rgba(163, 255, 102, 0.45);
+  --shadow-vram: rgba(89, 255, 0, 0.45);
+
+  --pal-plum: #141715;
+  --pal-pink: #59FF00;
+  --pal-sun: #95FF77;
+  --pal-royal: #555D58;
+  --pal-sky: #59FF00;
+  --pal-peak: #7affaa;
+  --pal-cta: #59FF00;
+
+  --btn-on-neon: #0c1c06;
+  --btn-on-light: #0c1c06;
+  --btn-on-dark: #E4FFDD;
+  --btn-on-quiet: #D7FFC9;
+  --btn-on-steady: #E4FFD6;
+  --btn-on-heat: #0A1A04;
+  --btn-on-peak: #071603;
+  --btn-on-action: #0A1A04;
+  --btn-on-auto: #E4FFD6;
+  --btn-on-cta: #071603;
+
+  --border-quiet: rgba(149, 255, 119, 0.55);
+  --border-steady: rgba(89, 255, 0, 0.8);
+  --border-heat: rgba(125, 255, 61, 0.9);
+  --border-peak: #59FF00;
+
+  --icon-quiet: #95FF77;
+  --icon-steady: #B6FF9A;
+  --icon-heat: #0A1A04;
+
+  /* One phosphor hue, four brightness steps. The previous fills were four
+   * near-identical dark greens, so the selected profile was indistinguishable
+   * from the unselected ones. */
+
+  /* Quiet (Cichy / Eco): przygaszony terminal, szarozielony z palety */
+  --gloss-quiet: linear-gradient(180deg, #3E4C42 0%, #303C34 48%, #24302A 100%);
+  --glow-quiet: rgba(149, 255, 119, 0.28);
+
+  /* Steady (Normalny / Balans): średnia zieleń */
+  --gloss-steady: linear-gradient(180deg, #2C6B1E 0%, #205616 48%, #16400E 100%);
+  --glow-steady: rgba(89, 255, 0, 0.42);
+
+  /* Heat (Turbo / Sport): jasna cyber zieleń */
+  --gloss-heat: linear-gradient(180deg, #6FD43C 0%, #57BE24 48%, #3F9A15 100%);
+  --glow-heat: rgba(89, 255, 0, 0.5);
+
+  /* Action (Manual / Własny) */
+  --gloss-action: linear-gradient(180deg, #6FD43C 0%, #57BE24 48%, #3F9A15 100%);
+  --glow-action: rgba(89, 255, 0, 0.5);
+
+  /* Auto */
+  --gloss-auto: linear-gradient(180deg, #2C6B1E 0%, #205616 48%, #16400E 100%);
+  --glow-auto: rgba(89, 255, 0, 0.42);
+
+  /* Peak (Max): pełny neon */
+  --gloss-peak: linear-gradient(180deg, #7DFF3D 0%, #59FF00 48%, #43C400 100%);
+  --glow-peak: rgba(89, 255, 0, 0.7);
+
+  /* CTA (ZAPISZ I ZASTOSUJ): mocny zielony akcent akcji */
+  --gloss-cta: linear-gradient(180deg, #7DFF3D 0%, #59FF00 48%, #43C400 100%);
+  --glow-cta: rgba(89, 255, 0, 0.6);
+  --gloss-cpu: linear-gradient(180deg, #b8ff9e 0%, #7affaa 48%, #5ec740 100%);
+
+  /* Neutrals tinted to phosphor, so body copy stops reading as cold blue-white. */
+  --text-main: #E4FFDD;
+  --text-muted: #B6D9AC;
+  --text-sub: #93B98B;
+  --text-faint: #6F9268;
+  --hover-veil: rgba(89, 255, 0, 0.14);
+  --hover-veil-soft: rgba(89, 255, 0, 0.08);
+  --link-color: #8CFF4D;
+  --link-hover: #C6FFA8;
+  --dot-alert: #6E7A73;
+  --dot-alert-glow: rgba(110, 122, 115, 0.5);
+  --offset-border: rgba(155, 224, 127, 0.5);
+  --offset-glow: rgba(155, 224, 127, 0.6);
+  --bg-tooltip: rgba(9, 14, 10, 0.97);
+  --text-tooltip: #E4FFDD;
 }
 
 /* Reset & Global */
@@ -172,7 +442,9 @@ body {
   left: auto;
   top: auto;
   transform: none !important;
-  background-color: var(--bg-dark);
+  background: var(--bg-app, var(--bg-dark));
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
   z-index: 1;
   box-sizing: border-box;
@@ -273,8 +545,8 @@ body {
 }
 
 .status-dot.red {
-  background-color: var(--cpu-color);
-  box-shadow: 0 0 8px var(--cpu-glow);
+  background-color: var(--dot-alert);
+  box-shadow: 0 0 8px var(--dot-alert-glow);
 }
 
 .header-badge.offline {
@@ -494,7 +766,7 @@ body {
 
 .kbd-level-btn.active {
   background: var(--gloss-auto);
-  color: var(--btn-on-light);
+  color: var(--btn-on-auto, var(--btn-on-light));
   box-shadow: 0 2px 10px var(--glow-auto), var(--gloss-inset);
 }
 
@@ -564,7 +836,7 @@ body {
 }
 
 .profile-btn:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--hover-veil);
   color: var(--text-main);
   transform: translateY(-1px);
 }
@@ -580,38 +852,38 @@ body {
 
 .profile-btn[data-profile="Silent"].active {
   background: var(--gloss-quiet);
-  border-color: rgba(121, 30, 148, 0.8);
-  color: var(--btn-on-dark);
+  border-color: var(--border-quiet, rgba(121, 30, 148, 0.8));
+  color: var(--btn-on-quiet, var(--btn-on-dark));
   box-shadow: 0 4px 16px var(--glow-quiet), var(--gloss-inset);
 }
 
 .profile-btn[data-profile="Silent"].active .profile-icon {
-  color: #e8c8f2;
-  filter: drop-shadow(0 0 8px rgba(180, 110, 200, 0.7));
+  color: var(--icon-quiet, #e8c8f2);
+  filter: drop-shadow(0 0 8px var(--glow-quiet));
 }
 
 .profile-btn[data-profile="Balanced"].active {
   background: var(--gloss-steady);
-  border-color: rgba(45, 120, 220, 0.7);
-  color: var(--btn-on-dark);
+  border-color: var(--border-steady, rgba(45, 120, 220, 0.7));
+  color: var(--btn-on-steady, var(--btn-on-dark));
   box-shadow: 0 4px 16px var(--glow-steady), var(--gloss-inset);
 }
 
 .profile-btn[data-profile="Balanced"].active .profile-icon {
-  color: #d5dcff;
-  filter: drop-shadow(0 0 8px rgba(86, 109, 202, 0.75));
+  color: var(--icon-steady, #d5dcff);
+  filter: drop-shadow(0 0 8px var(--glow-steady));
 }
 
 .profile-btn[data-profile="Turbo"].active {
   background: var(--gloss-heat);
-  border-color: rgba(255, 108, 17, 0.75);
-  color: var(--btn-on-light);
+  border-color: var(--border-heat, rgba(255, 108, 17, 0.75));
+  color: var(--btn-on-heat, var(--btn-on-light));
   box-shadow: 0 4px 16px var(--glow-heat), var(--gloss-inset);
 }
 
 .profile-btn[data-profile="Turbo"].active .profile-icon {
-  color: #3a2208;
-  filter: drop-shadow(0 0 8px rgba(229, 144, 54, 0.7));
+  color: var(--icon-heat, #3a2208);
+  filter: drop-shadow(0 0 8px var(--glow-heat));
 }
 
 .profile-icon {
@@ -677,7 +949,7 @@ body {
 }
 
 .power-profile-btn:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--hover-veil);
   color: var(--text-main);
 }
 
@@ -688,29 +960,29 @@ body {
 .power-profile-btn[data-power-profile="low-power"].active,
 .power-profile-btn[data-power-profile="quiet"].active {
   background: var(--gloss-quiet);
-  border-color: rgba(121, 30, 148, 0.8);
-  color: var(--btn-on-dark);
+  border-color: var(--border-quiet, rgba(121, 30, 148, 0.8));
+  color: var(--btn-on-quiet, var(--btn-on-dark));
   box-shadow: 0 4px 16px var(--glow-quiet), var(--gloss-inset);
 }
 
 .power-profile-btn[data-power-profile="balanced"].active {
   background: var(--gloss-steady);
-  border-color: rgba(45, 120, 220, 0.7);
-  color: var(--btn-on-dark);
+  border-color: var(--border-steady, rgba(45, 120, 220, 0.7));
+  color: var(--btn-on-steady, var(--btn-on-dark));
   box-shadow: 0 4px 16px var(--glow-steady), var(--gloss-inset);
 }
 
 .power-profile-btn[data-power-profile="balanced-performance"].active {
   background: var(--gloss-heat);
-  border-color: rgba(255, 108, 17, 0.75);
-  color: var(--btn-on-light);
+  border-color: var(--border-heat, rgba(255, 108, 17, 0.75));
+  color: var(--btn-on-heat, var(--btn-on-light));
   box-shadow: 0 4px 16px var(--glow-heat), var(--gloss-inset);
 }
 
 .power-profile-btn[data-power-profile="performance"].active {
   background: var(--gloss-peak);
-  border-color: rgba(249, 200, 14, 0.75);
-  color: var(--btn-on-light);
+  border-color: var(--border-peak, rgba(249, 200, 14, 0.75));
+  color: var(--btn-on-peak, var(--btn-on-light));
   box-shadow: 0 4px 16px var(--glow-peak), var(--gloss-inset);
 }
 
@@ -725,8 +997,8 @@ body {
   padding: 7px 9px;
   border-radius: 8px;
   border: 1px solid var(--border-glass);
-  background: rgba(16, 20, 32, 0.96);
-  color: #e8eefc;
+  background: var(--bg-tooltip);
+  color: var(--text-tooltip);
   font-size: 11px;
   line-height: 1.4;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
@@ -748,7 +1020,7 @@ body {
   text-align: left;
   font-size: 10px;
   line-height: 1.35;
-  color: #7a86a3;
+  color: var(--text-faint);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -795,7 +1067,7 @@ body {
   padding: 0;
   border: none;
   background: none;
-  color: #6cb6ff;
+  color: var(--link-color);
   font-size: 12px;
   cursor: pointer;
   text-decoration: underline;
@@ -803,7 +1075,7 @@ body {
 }
 
 .license-link:hover {
-  color: #b8dcff;
+  color: var(--link-hover);
 }
 
 /* Mode Switch Card */
@@ -840,18 +1112,18 @@ body {
 
 .mode-segment-btn:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--hover-veil-soft);
 }
 
 .mode-segment-btn.active {
   background: var(--gloss-auto);
-  color: var(--btn-on-light);
+  color: var(--btn-on-auto, var(--btn-on-light));
   box-shadow: 0 2px 16px var(--glow-auto), var(--gloss-inset);
 }
 
 #mode-btn-manual.active {
   background: var(--gloss-action);
-  color: var(--btn-on-light);
+  color: var(--btn-on-action, var(--btn-on-light));
   box-shadow: 0 2px 14px var(--glow-action), var(--gloss-inset);
 }
 
@@ -881,7 +1153,7 @@ body {
 
 .slider-val-badge.offset-badge {
   color: var(--color-purple);
-  border-color: rgba(192, 132, 252, 0.45);
+  border-color: var(--offset-border);
 }
 
 .custom-range.offset {
@@ -890,7 +1162,7 @@ body {
 
 .custom-range.offset::-webkit-slider-thumb {
   background: var(--color-purple);
-  box-shadow: 0 0 10px rgba(192, 132, 252, 0.65);
+  box-shadow: 0 0 10px var(--offset-glow);
 }
 
 .custom-select {
@@ -1048,13 +1320,13 @@ input:checked + .slider:before {
 }
 
 .progress-fill.ram-fill {
-  background: linear-gradient(90deg, #bf5af2, var(--color-ram));
-  box-shadow: 0 0 10px rgba(208, 122, 255, 0.55);
+  background: linear-gradient(90deg, var(--color-purple, #bf5af2), var(--color-ram));
+  box-shadow: 0 0 10px var(--shadow-ram, rgba(208, 122, 255, 0.55));
 }
 
 .progress-fill.vram-fill {
-  background: linear-gradient(90deg, #30d158, var(--color-green));
-  box-shadow: 0 0 10px rgba(62, 230, 110, 0.55);
+  background: linear-gradient(90deg, var(--gpu-color, #30d158), var(--color-green));
+  box-shadow: 0 0 10px var(--shadow-vram, rgba(62, 230, 110, 0.55));
 }
 
 /* Main Dashboard Container */
@@ -1227,7 +1499,7 @@ input:checked + .slider:before {
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.5px;
-  color: #ffffff;
+  color: var(--text-main);
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 14px rgba(255, 255, 255, 0.28);
 }
@@ -1309,7 +1581,7 @@ input:checked + .slider:before {
 }
 
 .preset-pill {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--hover-veil-soft);
   border: 1px solid var(--border-glass);
   border-radius: 12px;
   padding: 3px 8px;
@@ -1321,22 +1593,19 @@ input:checked + .slider:before {
 }
 
 .preset-pill:hover {
-  background: rgba(86, 109, 202, 0.22);
-  border-color: rgba(123, 145, 230, 0.7);
-  color: #fff;
+  background: var(--hover-veil);
+  border-color: var(--border-steady);
+  color: var(--text-main);
   box-shadow: 0 0 10px var(--glow-steady);
 }
 
 .preset-pill[data-speed="30"]:hover {
-  background: rgba(71, 31, 83, 0.55);
-  border-color: rgba(160, 100, 180, 0.7);
+  border-color: var(--border-quiet);
   box-shadow: 0 0 10px var(--glow-quiet);
 }
 
 .preset-pill[data-speed="100"]:hover {
-  background: rgba(229, 144, 54, 0.28);
-  border-color: rgba(255, 180, 80, 0.7);
-  color: var(--btn-on-light);
+  border-color: var(--border-heat);
   box-shadow: 0 0 10px var(--glow-heat);
 }
 
@@ -1470,13 +1739,13 @@ input:checked + .slider:before {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--hover-veil);
   color: var(--text-main);
 }
 
 .btn-primary {
   background: var(--gloss-cta);
-  color: var(--btn-on-light);
+  color: var(--btn-on-cta, var(--btn-on-light));
   box-shadow: 0 4px 18px var(--glow-cta), var(--gloss-inset);
 }
 
@@ -1523,7 +1792,7 @@ input:checked + .slider:before {
 }
 
 .curve-source-btn:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--hover-veil);
   color: var(--text-main);
 }
 
@@ -1533,15 +1802,15 @@ input:checked + .slider:before {
 
 #curve-source-default.active {
   background: var(--gloss-steady);
-  border-color: rgba(45, 120, 220, 0.7);
-  color: var(--btn-on-dark);
+  border-color: var(--border-steady, rgba(45, 120, 220, 0.7));
+  color: var(--btn-on-steady, var(--btn-on-dark));
   box-shadow: 0 0 14px var(--glow-steady), var(--gloss-inset);
 }
 
 #curve-source-custom.active {
   background: var(--gloss-action);
-  border-color: rgba(255, 67, 101, 0.75);
-  color: var(--btn-on-light);
+  border-color: var(--border-heat, rgba(255, 67, 101, 0.75));
+  color: var(--btn-on-action, var(--btn-on-light));
   box-shadow: 0 0 14px var(--glow-action), var(--gloss-inset);
 }
 
@@ -1670,29 +1939,29 @@ input:checked + .slider:before {
   width: 100%;
 }
 
-/* CPU inputs — Intel blue */
+/* CPU inputs */
 .curve-temp.curve-cpu,
 .curve-speed.curve-cpu {
   color: var(--cpu-text);
-  border-color: rgba(61, 207, 255, 0.4);
+  border-color: var(--gauge-cpu-dim, rgba(61, 207, 255, 0.4));
 }
 
 .curve-temp.curve-cpu:focus,
 .curve-speed.curve-cpu:focus {
-  border-color: var(--cpu-color);
+  border-color: var(--cpu-hi);
   box-shadow: 0 0 8px var(--cpu-glow);
 }
 
-/* GPU inputs — NVIDIA green */
+/* GPU inputs */
 .curve-temp.curve-gpu,
 .curve-speed.curve-gpu {
   color: var(--gpu-text);
-  border-color: rgba(200, 255, 58, 0.4);
+  border-color: var(--gauge-gpu-dim, rgba(200, 255, 58, 0.4));
 }
 
 .curve-temp.curve-gpu:focus,
 .curve-speed.curve-gpu:focus {
-  border-color: var(--gpu-color);
+  border-color: var(--gpu-hi);
   box-shadow: 0 0 8px var(--gpu-glow);
 }
 
@@ -1724,9 +1993,9 @@ input:checked + .slider:before {
 }
 
 .chart-btn.active {
-  background: rgba(45, 226, 230, 0.16);
-  color: #b8fbff;
-  box-shadow: inset 0 0 0 1px rgba(45, 226, 230, 0.75);
+  background: var(--glow-auto);
+  color: var(--text-main);
+  box-shadow: inset 0 0 0 1px var(--color-blue), var(--gloss-inset);
 }
 
 .history-card {
@@ -1873,12 +2142,12 @@ input:checked + .slider:before {
 
 .settings-tab:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--hover-veil-soft);
 }
 
 .settings-tab.active {
   background: var(--gloss-auto);
-  color: var(--btn-on-light);
+  color: var(--btn-on-auto, var(--btn-on-light));
   box-shadow: 0 2px 10px var(--glow-auto), var(--gloss-inset);
 }
 
@@ -2257,7 +2526,7 @@ input:checked + .slider:before {
 
 .defaults-profile-tab:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--hover-veil-soft);
 }
 
 .defaults-profile-tab.active {
@@ -2266,19 +2535,19 @@ input:checked + .slider:before {
 
 .defaults-profile-tab[data-profile="Silent"].active {
   background: var(--gloss-quiet);
-  color: var(--btn-on-dark);
+  color: var(--btn-on-quiet, var(--btn-on-dark));
   box-shadow: 0 0 14px var(--glow-quiet), var(--gloss-inset);
 }
 
 .defaults-profile-tab[data-profile="Balanced"].active {
   background: var(--gloss-steady);
-  color: var(--btn-on-dark);
+  color: var(--btn-on-steady, var(--btn-on-dark));
   box-shadow: 0 0 14px var(--glow-steady), var(--gloss-inset);
 }
 
 .defaults-profile-tab[data-profile="Turbo"].active {
   background: var(--gloss-heat);
-  color: var(--btn-on-light);
+  color: var(--btn-on-heat, var(--btn-on-light));
   box-shadow: 0 0 14px var(--glow-heat), var(--gloss-inset);
 }
 
@@ -2368,7 +2637,7 @@ input:checked + .slider:before {
 
 .modal-btn.primary {
   background: var(--gloss-cta);
-  color: var(--btn-on-light);
+  color: var(--btn-on-cta, var(--btn-on-light));
   box-shadow: 0 4px 14px var(--glow-cta), var(--gloss-inset);
 }
 
@@ -2383,13 +2652,13 @@ input:checked + .slider:before {
 }
 
 .modal-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--hover-veil);
 }
 
 .modal-btn.danger {
   background: var(--gloss-red);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(255, 75, 66, 0.45), var(--gloss-inset);
+  color: var(--btn-on-red, var(--btn-on-dark));
+  box-shadow: 0 4px 14px var(--glow-red), var(--gloss-inset);
 }
 
 .modal-btn.danger:hover {
@@ -2533,6 +2802,10 @@ input:checked + .slider:before {
   cursor: default;
 }
 
+#summary-modal .modal-card {
+  width: 820px;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2548,7 +2821,7 @@ input:checked + .slider:before {
 }
 
 .summary-card-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -2563,7 +2836,7 @@ input:checked + .slider:before {
   display: flex;
   justify-content: space-between;
   padding: 3.5px 0;
-  font-size: 11px;
+  font-size: 13px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 

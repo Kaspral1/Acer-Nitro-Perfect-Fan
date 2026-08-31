@@ -55,6 +55,11 @@ Windows and macOS are **not** supported.
 **CPU power profile** (sidebar — Eco / Quiet / Balanced / Sport / Max)
 
 - Changes CPU turbo and power caps through a separately installed [DAMX](https://github.com/PXDiv/Div-Acer-Manager-Max) daemon, independent of fan curves
+  - **Eco** (`low-power`): gov=powersave, epp=power, max_pct=50, min_pct=17, Turbo OFF
+  - **Quiet** (`quiet`): gov=balance_power, epp=power, max_pct=100, min_pct=17, Turbo OFF
+  - **Balanced** (`balanced`): gov=powersave, epp=balance_power, max_pct=100, min_pct=17, Turbo ON
+  - **Sport** (`balanced-performance`): gov=powersave, epp=balance_performance, max_pct=100, min_pct=17, Turbo ON
+  - **Max** (`performance`): gov=performance, epp=performance, max_pct=100, min_pct=30, Turbo ON
 - Pick it **once**. DAMX stores it and reapplies it at login/boot — you do not need to leave this window open
 - Without DAMX the rest of the panel still works; those five buttons stay offline
 
@@ -68,7 +73,7 @@ Windows and macOS are **not** supported.
 
 **Interface**
 
-- Two color themes: **Nitro** (default) and **OutRun** — Settings → Theme, remembered after restart
+- Four color themes: **Nitro** (default), **OutRun**, **Matrix**, and **Reddit** — Settings → Theme, remembered after restart
 - System tray, i18n (PL / EN / ES / DE / CS)
 - Optional CSV telemetry — Statistics: temperature summary, **daily report** (one local calendar day at a time), view logs, **delete logs** (with confirmation)
 - Connection badge: online / offline when the Python bridge is silent
