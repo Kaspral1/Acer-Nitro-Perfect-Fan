@@ -8,7 +8,8 @@
         (function () {
             try {
                 var t = localStorage.getItem('perfect-fan-theme');
-                document.documentElement.setAttribute('data-theme', t === 'outrun' ? 'outrun' : 'nitro');
+                var valid = ['nitro', 'outrun', 'reddit', 'matrix'];
+                document.documentElement.setAttribute('data-theme', valid.indexOf(t) !== -1 ? t : 'nitro');
             } catch (e) {
                 document.documentElement.setAttribute('data-theme', 'nitro');
             }
@@ -608,6 +609,28 @@
                             </div>
                             <span class="theme-card-name" id="theme-outrun-name">OutRun</span>
                             <span class="theme-card-desc" id="theme-outrun-desc">Neony z palety OutRun</span>
+                        </button>
+                        <button type="button" class="theme-card" id="theme-card-reddit" data-theme="reddit">
+                            <div class="theme-swatches" aria-hidden="true">
+                                <span style="background:#FF4500"></span>
+                                <span style="background:#0DD3BB"></span>
+                                <span style="background:#24A0ED"></span>
+                                <span style="background:#FFCA00"></span>
+                                <span style="background:#FFB000"></span>
+                            </div>
+                            <span class="theme-card-name" id="theme-reddit-name">Reddit</span>
+                            <span class="theme-card-desc" id="theme-reddit-desc">Kolory społeczności</span>
+                        </button>
+                        <button type="button" class="theme-card" id="theme-card-matrix" data-theme="matrix">
+                            <div class="theme-swatches" aria-hidden="true">
+                                <span style="background:#1A1C1B"></span>
+                                <span style="background:#2A2E2E"></span>
+                                <span style="background:#555D58"></span>
+                                <span style="background:#95FF77"></span>
+                                <span style="background:#59FF00"></span>
+                            </div>
+                            <span class="theme-card-name" id="theme-matrix-name">Matrix</span>
+                            <span class="theme-card-desc" id="theme-matrix-desc">Terminalowy zielony</span>
                         </button>
                     </div>
                 </div>

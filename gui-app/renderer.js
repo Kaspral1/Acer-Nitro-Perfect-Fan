@@ -10,6 +10,8 @@ const MIN_PCT_MASTER = 30;
 const CHART_CPU = { stroke: '#00d4ff', fillTop: 'rgba(0, 212, 255, 0.34)', fillBottom: 'rgba(0, 212, 255, 0.0)' };
 const CHART_GPU = { stroke: '#b4ff2c', fillTop: 'rgba(180, 255, 44, 0.28)', fillBottom: 'rgba(180, 255, 44, 0.0)' };
 const THEME_STORAGE_KEY = 'perfect-fan-theme';
+const VALID_THEMES = ['nitro', 'outrun', 'reddit', 'matrix'];
+const THEME_NAMES = { nitro: 'Nitro', outrun: 'OutRun', reddit: 'Reddit', matrix: 'Matrix' };
 const CHART_PALETTES = {
     nitro: {
         cpu: { stroke: '#00d4ff', fillTop: 'rgba(0, 212, 255, 0.34)', fillBottom: 'rgba(0, 212, 255, 0.0)' },
@@ -19,11 +21,20 @@ const CHART_PALETTES = {
         cpu: { stroke: '#2DE2E6', fillTop: 'rgba(45, 226, 230, 0.34)', fillBottom: 'rgba(45, 226, 230, 0.0)' },
         gpu: { stroke: '#F9C80E', fillTop: 'rgba(249, 200, 14, 0.28)', fillBottom: 'rgba(249, 200, 14, 0.0)' },
     },
+    reddit: {
+        cpu: { stroke: '#24A0ED', fillTop: 'rgba(36, 160, 237, 0.34)', fillBottom: 'rgba(36, 160, 237, 0.0)' },
+        gpu: { stroke: '#FF4500', fillTop: 'rgba(255, 69, 0, 0.28)', fillBottom: 'rgba(255, 69, 0, 0.0)' },
+    },
+    matrix: {
+        cpu: { stroke: '#7affaa', fillTop: 'rgba(122, 255, 170, 0.34)', fillBottom: 'rgba(122, 255, 170, 0.0)' },
+        gpu: { stroke: '#59FF00', fillTop: 'rgba(89, 255, 0, 0.28)', fillBottom: 'rgba(89, 255, 0, 0.0)' },
+    },
 };
 
 function getSavedTheme() {
     try {
-        return localStorage.getItem(THEME_STORAGE_KEY) === 'outrun' ? 'outrun' : 'nitro';
+        const val = localStorage.getItem(THEME_STORAGE_KEY);
+        return VALID_THEMES.includes(val) ? val : 'nitro';
     } catch (err) {
         return 'nitro';
     }
@@ -55,7 +66,7 @@ function paintChartPalette(theme) {
 }
 
 function applyTheme(id, { persist = true, silent = false } = {}) {
-    const theme = id === 'outrun' ? 'outrun' : 'nitro';
+    const theme = VALID_THEMES.includes(id) ? id : 'nitro';
     document.documentElement.setAttribute('data-theme', theme);
     if (persist) {
         try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch (err) { /* ignore quota */ }
@@ -65,8 +76,8 @@ function applyTheme(id, { persist = true, silent = false } = {}) {
     });
     paintChartPalette(theme);
     if (!silent) {
-        const key = theme === 'outrun' ? 'theme_outrun_name' : 'theme_nitro_name';
-        const name = (currentTranslations && currentTranslations[key]) || (theme === 'outrun' ? 'OutRun' : 'Nitro');
+        const key = `theme_${theme}_name`;
+        const name = (currentTranslations && currentTranslations[key]) || THEME_NAMES[theme];
         const tpl = (currentTranslations && currentTranslations.toast_theme_applied) || 'Motyw: {theme}';
         showToast(tpl.replace('{theme}', name), 'info');
     }
@@ -3169,6 +3180,10 @@ function applyTranslations() {
     setText('theme-nitro-desc', 'theme_nitro_desc');
     setText('theme-outrun-name', 'theme_outrun_name');
     setText('theme-outrun-desc', 'theme_outrun_desc');
+    setText('theme-reddit-name', 'theme_reddit_name');
+    setText('theme-reddit-desc', 'theme_reddit_desc');
+    setText('theme-matrix-name', 'theme_matrix_name');
+    setText('theme-matrix-desc', 'theme_matrix_desc');
 
     // Settings select options (i18n)
     const closeAsk = document.getElementById('settings-close-ask');

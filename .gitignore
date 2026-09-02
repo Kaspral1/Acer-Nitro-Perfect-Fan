@@ -46,3 +46,15 @@ docs/
 
 # graphify / agent scratch
 graphify-out/
+
+# AI assistant files (local only — never for GitHub)
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.cursorrules
+.mcp.json
+.github/copilot-instructions.md
+
+# Continuity (local AI memory — not for GitHub)
+SESSION_HANDOFF.md
+.continuity/
