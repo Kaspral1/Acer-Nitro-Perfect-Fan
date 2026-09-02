@@ -207,6 +207,11 @@ This copies the daemon to `/usr/local/lib/acer-nitro-perfect-fan/` (outside an e
 
 Look for **`active (running)`** in the status dump.
 
+The installer **refuses to continue** when the laptop is not on the supported
+list and no `nbfc_service` is running. That is a safeguard: without a backend
+the service would have nothing to drive. Set up NBFC first (step 6b), or force
+it with `sudo ./install.sh --force` if you know what you are doing.
+
 Later:
 
 ```bash

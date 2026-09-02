@@ -137,25 +137,33 @@ fi
 echo
 
 # --- Verdict -------------------------------------------------------------------
+# Exit code: 0 = YES (supported), 1 = MAYBE (needs a manual step), 2 = NO.
 echo "=== Verdict ==="
+VERDICT=2
 if ! command -v systemctl >/dev/null 2>&1; then
     warn "NO — this project needs Linux with systemd."
 elif [ "$HAS_EC" -eq 1 ]; then
+    VERDICT=0
     ok "YES — the EC driver is loaded. Install or finish with:  sudo ./install.sh"
 elif [ "$MODEL_OK" -eq 1 ]; then
     if [ "$SB" = "on" ]; then
+        VERDICT=1
         warn "MAYBE — model is supported, but Secure Boot may block the unsigned driver."
         info "Turn Secure Boot off (or sign the module), then:  sudo ./install.sh"
     else
+        VERDICT=0
         ok "YES — supported model. The installer will load the driver:  sudo ./install.sh"
     fi
 elif [ "$MODEL_EXTRA" -eq 1 ]; then
+    VERDICT=1
     warn "MAYBE — $MODEL can work with the driver patch, but is not fully verified."
     info "Try:  sudo ./acer-nitro-ec/apply.sh  then re-run  ./check-system.sh"
 elif [ "$HAS_NBFC" -eq 1 ]; then
+    VERDICT=0
     ok "YES (via NBFC) — set \"backend\": \"nbfc\" in /etc/nitro-fan/config.json after install."
     info "Make sure the selected NBFC profile matches:  nbfc config -l"
 elif command -v nbfc >/dev/null 2>&1; then
+    VERDICT=1
     warn "MAYBE (via NBFC) — start the service and select your profile:"
     info "nbfc config -l   →   sudo nbfc config -a \"Your Model\"   →   sudo systemctl enable --now nbfc_service"
 else
@@ -165,3 +173,4 @@ fi
 echo
 echo "Paste this output into a GitHub issue if something is wrong."
 echo "Service logs:  journalctl -u acer-nitro-perfect-fan.service -n 40 --no-pager"
+exit "$VERDICT"

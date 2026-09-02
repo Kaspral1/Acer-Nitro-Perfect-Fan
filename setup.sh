@@ -43,7 +43,28 @@ fi
 # --- 2. Compatibility check ----------------------------------------------------
 step "2/4  Laptop check"
 chmod +x check-system.sh install.sh 2>/dev/null || true
-./check-system.sh || true
+VERDICT=2
+./check-system.sh && VERDICT=0 || VERDICT=$?
+case "$VERDICT" in
+    0) ;;
+    1)
+        echo
+        echo "The check returned MAYBE. The steps above explain what is missing."
+        printf 'Install anyway? [y/N] '
+        read -r FORCE_ANSWER
+        case "${FORCE_ANSWER:-N}" in
+            [yY]*) ;;
+            *) echo "Aborted."; exit 1 ;;
+        esac
+        ;;
+    *)
+        echo
+        echo "The check returned NO: no supported fan backend on this laptop."
+        echo "Setup stops here so nothing half-broken gets installed."
+        echo "If nbfc-linux supports your model, follow INSTALL.md (NBFC path) first."
+        exit 1
+        ;;
+esac
 
 # --- 3. Driver + system service ------------------------------------------------
 step "3/4  Fan driver + system service"

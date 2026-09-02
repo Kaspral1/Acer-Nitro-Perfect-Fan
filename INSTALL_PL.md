@@ -213,6 +213,11 @@ Skrypt:
 
 Na końcu zobaczysz kilka linii `systemctl status`. Szukaj **`active (running)`**.
 
+Instalator **odmówi pracy**, gdy laptop nie jest na liście obsługiwanych i nie
+ma działającego `nbfc_service`. To zabezpieczenie: bez backendu usługa nie
+miałaby czym sterować. Wtedy najpierw skonfiguruj NBFC (punkt 6b). Świadome
+wymuszenie: `sudo ./install.sh --force`.
+
 Sprawdzenie później:
 
 ```bash

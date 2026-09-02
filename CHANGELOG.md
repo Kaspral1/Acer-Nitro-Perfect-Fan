@@ -8,6 +8,7 @@
 - `setup.sh`: one-command install — packages (apt / dnf / pacman / zypper), laptop check, driver + service, GUI dependencies.
 - `check-system.sh`: English output, model / Secure Boot / kernel-headers / NBFC-profile checks, and a final **YES / MAYBE / NO** verdict with the next command.
 - README (EN/PL) slimmed to a quick-start front page with one screenshot; architecture, `config.json`, NBFC backend and development details moved to `TECHNICAL.md`.
+- Safety: `check-system.sh` exits 0/1/2 (YES/MAYBE/NO), `setup.sh` stops on NO and asks on MAYBE, and `install.sh` refuses to install without a fan backend unless `--force` is passed.
 - Sidebar copy: **Profil prędkości**, **Obciążenie sprzętu**, **Temperatury**. DAMX credit lives in Settings only.
 - CPU clock (**TAKTOWANIE**) in the load card, same style as CPU / GPU / RAM / VRAM.
 - Power-profile descriptions on hover only (Eco / Cichy: turbo off with 40% / 55% caps; Balans / Sport / Max: turbo on).

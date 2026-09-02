@@ -42,6 +42,19 @@ case "$MODEL" in
         ;;
 esac
 
+FORCE=0
+[ "${1:-}" = "--force" ] && FORCE=1
+
+# Nie instaluj na sprzęcie, którym daemon nie miałby czym sterować.
+if [ "$FORCE" -eq 0 ] && [ "$CASE_MODEL_SUPPORTED" -eq 0 ] && [ "$HAS_EC" -eq 0 ] && [ "$HAS_NBFC" -eq 0 ]; then
+    echo "!!! STOP: model '$MODEL' nie jest na liście obsługiwanych i nie wykryto nbfc_service."
+    echo "    Bez backendu wentylatorów usługa nie miałaby czym sterować."
+    echo "    Jeśli nbfc-linux obsługuje ten model: zainstaluj nbfc, wybierz profil"
+    echo "    (nbfc config -l, potem sudo nbfc config -a \"Model\") i uruchom nbfc_service, potem wróć tutaj."
+    echo "    Świadome wymuszenie: sudo ./install.sh --force"
+    exit 1
+fi
+
 if [ "$HAS_EC" -eq 1 ] && [ "$HAS_NBFC" -eq 1 ]; then
     echo "!!! UWAGA: są jednocześnie acer_nitro_ec i nbfc_service."
     echo "    Daemon wybierze acer_nitro_ec i NIE będzie pisał przez NBFC."
@@ -79,6 +92,16 @@ elif [ "$CASE_MODEL_SUPPORTED" -eq 0 ] && [ "$HAS_NBFC" -eq 1 ]; then
     echo ">>> Model '$MODEL' — pomijam acer-nitro-ec; użyję nbfc_service."
 fi
 
+# Po próbie załadowania sterownika: bez żadnego backendu nie instaluj usługi,
+# która tylko restartowałaby się w pętli.
+if [ "$FORCE" -eq 0 ] && [ "$HAS_EC" -eq 0 ] && [ "$HAS_NBFC" -eq 0 ]; then
+    echo "!!! STOP: nie wykryto ani acer_nitro_ec, ani nbfc_service."
+    echo "    Sterownik nie załadował się (Secure Boot? brak nagłówków jądra?)."
+    echo "    Diagnostyka: ./check-system.sh"
+    echo "    Świadome wymuszenie: sudo ./install.sh --force"
+    exit 1
+fi
+
 # --- Reguła udev: zapis do PWM i LED bez roota --------------------------------
 echo ">>> Reguła udev w $UDEV_RULE"
 install -o root -g root -m 644 "$SRC/99-acer-nitro-ec.rules" "$UDEV_RULE"
@@ -93,14 +116,6 @@ done
 if [ -e /sys/devices/platform/acer-nitro-ec/kbd_backlight ]; then
     chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_backlight || true
     [ -e /sys/devices/platform/acer-nitro-ec/kbd_timeout ] && chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_timeout || true
-fi
-
-if [ "$HAS_EC" -eq 0 ] && [ "$HAS_NBFC" -eq 0 ]; then
-    echo "!!! UWAGA: nie wykryto ani acer_nitro_ec, ani nbfc_service."
-    echo "    Usługa będzie się restartować, dopóki nie pojawi się backend."
-    echo "    Sterownik:  sudo ./acer-nitro-ec/install-kbd-backlight.sh"
-    echo "    albo NBFC:  sudo ./nbfc/install-nbfc-config.sh && sudo systemctl enable --now nbfc_service"
-    echo
 fi
 
 # --- Konfiguracja (zapisywalna dla użytkownika GUI, bez roota) ---------------
