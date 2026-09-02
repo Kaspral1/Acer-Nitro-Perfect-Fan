@@ -446,7 +446,7 @@ function handleClearLogsResponse(result) {
         return;
     }
     if ((result.deleted || 0) > 0) {
-        showToast(tr('toast_logs_cleared', 'Usunięto logi telemetryczne'), 'success');
+        showToast(tr('toast_logs_cleared', 'Usunięto logi'), 'success');
         return;
     }
     showToast(tr('toast_logs_already_empty', 'Brak logów do usunięcia'), 'info');
@@ -1503,7 +1503,7 @@ function syncSummaryTitle() {
     if (!el) return;
     el.textContent = summaryMode === 'day'
         ? tr('daily_report_title', 'Dzienny raport')
-        : tr('summary_modal_title', 'Podsumowanie Temperatur i Telemetrii');
+        : tr('summary_modal_title', 'Podsumowanie temperatur i logów');
 }
 
 function currentViewStats(stats) {
@@ -1596,7 +1596,7 @@ function renderLogSummaryModal(stats, options = {}) {
     const dayLine = (summaryMode === 'day' && view.date)
         ? `${tr('summary_report_day', 'Day: {date}').replace('{date}', formatDayLabel(view.date))}\n`
         : '';
-    lastSummaryRawText = `${tr('summary_report_title', '=== TELEMETRY & LOG SUMMARY ===')}
+    lastSummaryRawText = `${tr('summary_report_title', '=== LOG SUMMARY ===')}
 ${dayLine}${tr('summary_report_runtime', 'Runtime:')} ${formatSummaryDuration(view.total_runtime_seconds)} ${tr('summary_report_samples', '({n} samples)').replace('{n}', view.total_samples)}
 ${tr('summary_report_range', 'Range: From {start} To {end}').replace('{start}', view.start_time).replace('{end}', view.end_time)}
 

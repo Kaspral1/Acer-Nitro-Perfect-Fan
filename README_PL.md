@@ -34,7 +34,9 @@ cd gui-app && npm start
 - Ręczne suwaki PWM (CPU min. 30%), Zero-RPM GPU, wygładzanie EMA. Ustawiasz raz, daemon pilnuje dalej bez otwartego okna.
 - Profile zasilania CPU **Eco ... Max** (turbo i limity mocy) przez opcjonalny daemon [DAMX](https://github.com/PXDiv/Div-Acer-Manager-Max).
 - Podświetlenie klawiatury **Off / 25 / 50 / 75 / 100**, które zostaje po restarcie (AN515-54).
-- Cztery motywy (Nitro / OutRun / Matrix / Reddit), zasobnik systemowy, pięć języków, telemetria CSV z dziennymi raportami.
+- Cztery motywy (Nitro / OutRun / Matrix / Reddit) i ikona w zasobniku systemowym.
+- Interfejs po polsku, angielsku, hiszpańsku, niemiecku i czesku.
+- Opcjonalny **lokalny** log CSV z dziennymi raportami. Plik zostaje w folderze projektu na Twoim dysku; nic nie jest nigdzie wysyłane.
 
 ## Dokumentacja
 

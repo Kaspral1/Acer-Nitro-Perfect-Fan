@@ -34,7 +34,9 @@ cd gui-app && npm start
 - Manual PWM sliders (CPU floor 30%), GPU Zero-RPM, EMA smoothing. Set it once and the daemon keeps it, no window needed.
 - CPU power profiles **Eco ... Max** (turbo and power caps) via the optional [DAMX](https://github.com/PXDiv/Div-Acer-Manager-Max) daemon.
 - Keyboard backlight **Off / 25 / 50 / 75 / 100** that survives reboot (AN515-54).
-- Four themes (Nitro / OutRun / Matrix / Reddit), system tray, five languages, CSV telemetry with daily reports.
+- Four themes (Nitro / OutRun / Matrix / Reddit) and a system tray icon.
+- Interface in Polish, English, Spanish, German and Czech.
+- Optional **local** CSV log with daily reports. The file stays in the project folder on your disk; nothing is ever sent anywhere.
 
 ## Documentation
 
