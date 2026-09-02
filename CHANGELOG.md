@@ -7,6 +7,7 @@
 - Fixed: Reddit and Matrix shipped as CSS only — added the missing theme cards, theme validation, chart palettes and i18n keys.
 - `setup.sh`: one-command install — packages (apt / dnf / pacman / zypper), laptop check, driver + service, GUI dependencies.
 - `check-system.sh`: English output, model / Secure Boot / kernel-headers / NBFC-profile checks, and a final **YES / MAYBE / NO** verdict with the next command.
+- README (EN/PL) slimmed to a quick-start front page with one screenshot; architecture, `config.json`, NBFC backend and development details moved to `TECHNICAL.md`.
 - Sidebar copy: **Profil prędkości**, **Obciążenie sprzętu**, **Temperatury**. DAMX credit lives in Settings only.
 - CPU clock (**TAKTOWANIE**) in the load card, same style as CPU / GPU / RAM / VRAM.
 - Power-profile descriptions on hover only (Eco / Cichy: turbo off with 40% / 55% caps; Balans / Sport / Max: turbo on).
