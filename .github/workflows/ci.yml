@@ -60,6 +60,7 @@ jobs:
           bash -n restore-auto.sh
           bash -n update-daemon.sh
           bash -n check-system.sh
+          bash -n setup.sh
           bash -n nbfc/install-nbfc-config.sh
           bash -n acer-nitro-ec/apply.sh
 

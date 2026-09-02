@@ -5,10 +5,27 @@ Copy-paste the commands. You do not need to be a programmer.
 **Polski:** [INSTALL_PL.md](INSTALL_PL.md)  
 **Technical reference:** [README.md](README.md)
 
-## Simplest install — Acer Nitro AN515-54
+## Simplest install
 
-If you have an **Acer Nitro AN515-54**, run only these commands. The installer
-will install the fan driver, system service, and configuration for you.
+Three commands. `setup.sh` installs the packages, checks your laptop, installs
+the fan driver + system service, and downloads the GUI dependencies
+(apt, dnf, pacman and zypper are handled):
+
+```bash
+git clone https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git
+cd Acer-Nitro-Perfect-Fan
+./setup.sh
+```
+
+When it finishes, open the app:
+
+```bash
+cd gui-app && npm start
+```
+
+The application window should open and show **ONLINE**.
+
+Prefer to run every step yourself? The manual equivalent (Mint / Ubuntu / Debian):
 
 ```bash
 sudo apt update
@@ -21,9 +38,8 @@ npm install
 npm start
 ```
 
-The application window should open and show **ONLINE**. Do not run
-`acer-nitro-ec/install-kbd-backlight.sh` or `nbfc/install-nbfc-config.sh`
-manually when using this path.
+Do not run `acer-nitro-ec/install-kbd-backlight.sh` or
+`nbfc/install-nbfc-config.sh` manually when using these paths.
 
 If you have another model or installation reports an error, continue with the
 full guide and diagnostics below.
@@ -74,7 +90,7 @@ through `nbfc-linux` with a matching NBFC profile.
 Two pieces. You need both.
 
 1. **Background service (daemon)** — starts with the computer, even with no window open. This is what actually writes fan speeds. Pick Silent / Balanced / Turbo once; the service keeps using that profile.
-2. **Window (GUI)** — sliders, fan profiles, charts, two color themes (Nitro / OutRun). On AN515-54, Settings also has keyboard backlight **Off / 25 / 50 / 75 / 100** (and optional 30 s timeout) through `acer-nitro-ec` — **not** DAMX. That level is stored in the EC, so it survives reboot with the window closed. CPU power profiles (Eco / Quiet / Balanced / Sport / Max) need a separately installed **DAMX** daemon (Div Acer Manager Max, **GPL-3.0**). Pick a CPU profile once; DAMX reapplies it at boot. This project does not ship or install DAMX. The rest of the panel works without it.
+2. **Window (GUI)** — sliders, fan profiles, charts, four color themes (Nitro / OutRun / Matrix / Reddit). On AN515-54, Settings also has keyboard backlight **Off / 25 / 50 / 75 / 100** (and optional 30 s timeout) through `acer-nitro-ec` — **not** DAMX. That level is stored in the EC, so it survives reboot with the window closed. CPU power profiles (Eco / Quiet / Balanced / Sport / Max) need a separately installed **DAMX** daemon (Div Acer Manager Max, **GPL-3.0**). Pick a CPU profile once; DAMX reapplies it at boot. This project does not ship or install DAMX. The rest of the panel works without it.
 
 An AppImage **does not replace** the service. Always run `install.sh` first.
 
@@ -217,7 +233,7 @@ You want an **ONLINE** badge, not a red OFFLINE.
 - **AUTO** — Silent / Balanced / Turbo **fan** curves (this is not the CPU power profile).
 - **POWER PROFILE** (Eco / Quiet / Balanced / Sport / Max) — CPU turbo/caps via DAMX. Set once; DAMX applies it in the background at boot. The GUI can stay closed.
 - **Settings** — keyboard backlight Off / 25 / 50 / 75 / 100 and “turn off after 30 s”. Set once; the EC keeps it. Stock Linux always came back at max brightness on boot.
-- **Settings → Theme** — Nitro or OutRun.
+- **Settings → Theme** — Nitro, OutRun, Matrix or Reddit.
 
 Next day:
 

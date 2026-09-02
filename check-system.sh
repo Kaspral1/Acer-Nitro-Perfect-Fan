@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Read-only diagnostics for a GitHub issue or the beginner install guide.
-# Does not change fans, services, or files.
+# Read-only compatibility check. Changes nothing: no fans, services, or files.
+# Prints a final YES / MAYBE / NO verdict and the exact next step.
 #
 #   ./check-system.sh
 
@@ -10,110 +10,158 @@ ok()   { printf '  [OK]   %s\n' "$*"; }
 warn() { printf '  [!!]   %s\n' "$*"; }
 info() { printf '  [--]   %s\n' "$*"; }
 
-echo "=== Acer Nitro Perfect Fan — diagnostyka (tylko odczyt) ==="
+# Models with the same EC map (handled by the bundled acer-nitro-ec driver).
+EC_MODELS="AN515-44 AN515-46 AN515-54 AN515-56 AN515-57 AN515-58 AN517-55"
+# Extra models the repo patch can add — not fully verified.
+EC_EXTRA="AN515-51 AN515-55 AN517-51 AN517-54"
+
+echo "=== Acer Nitro Perfect Fan — system check (read-only) ==="
 echo
 
-MODEL="$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo '(brak DMI)')"
+# --- Laptop -------------------------------------------------------------------
+MODEL="$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo '(no DMI)')"
 VENDOR="$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo '?')"
 echo "Laptop"
-info "producent: $VENDOR"
-info "model DMI: $MODEL"
-info "jądro:     $(uname -r)"
-info "system:    $(. /etc/os-release 2>/dev/null && echo "${PRETTY_NAME:-?}" || uname -s)"
+info "vendor:  $VENDOR"
+info "model:   $MODEL"
+info "kernel:  $(uname -r)"
+info "distro:  $(. /etc/os-release 2>/dev/null && echo "${PRETTY_NAME:-?}" || uname -s)"
+
+MODEL_OK=0        # on the EC driver list
+MODEL_EXTRA=0     # patchable, not verified
+for m in $EC_MODELS; do
+    case "$MODEL" in *"$m"*) MODEL_OK=1 ;; esac
+done
+if [ "$MODEL_OK" -eq 0 ]; then
+    for m in $EC_EXTRA; do
+        case "$MODEL" in *"$m"*) MODEL_EXTRA=1 ;; esac
+    done
+fi
+if [ "$MODEL_OK" -eq 1 ]; then
+    ok "model is on the supported list (acer-nitro-ec driver)"
+elif [ "$MODEL_EXTRA" -eq 1 ]; then
+    warn "model is patchable but NOT fully verified ($EC_EXTRA)"
+else
+    info "model is not an Acer Nitro 5/7 from the EC list — NBFC is the only path"
+fi
 echo
 
-echo "Narzędzia"
-if command -v python3 >/dev/null 2>&1; then
-    ok "python3  $($(command -v python3) --version 2>&1 | awk '{print $2}')"
-else
-    warn "brak python3  — sudo apt install python3"
-fi
-if command -v node >/dev/null 2>&1; then
-    ok "node     $(node --version)"
-else
-    warn "brak node  — sudo apt install nodejs npm"
-fi
-if command -v npm >/dev/null 2>&1; then
-    ok "npm      $(npm --version)"
-else
-    warn "brak npm"
-fi
-if command -v systemctl >/dev/null 2>&1; then
-    ok "systemd"
-else
-    warn "brak systemd — ten projekt działa tylko z systemd"
-fi
+# --- Tools ---------------------------------------------------------------------
+echo "Tools"
+for t in git python3 node npm systemctl dkms; do
+    if command -v "$t" >/dev/null 2>&1; then
+        ok "$t"
+    else
+        case "$t" in
+            git)       warn "missing git — sudo apt install git" ;;
+            python3)   warn "missing python3 — sudo apt install python3" ;;
+            node|npm)  warn "missing $t — sudo apt install nodejs npm" ;;
+            systemctl) warn "missing systemd — this project needs systemd" ;;
+            dkms)      info "missing dkms (needed to build the EC driver) — sudo apt install dkms" ;;
+        esac
+    fi
+done
 if command -v sensors >/dev/null 2>&1; then
     ok "lm-sensors"
 else
-    info "brak polecenia sensors (opcjonalne): sudo apt install lm-sensors"
+    info "no lm-sensors (optional): sudo apt install lm-sensors"
 fi
+if [ -d "/lib/modules/$(uname -r)/build" ]; then
+    ok "kernel headers ($(uname -r))"
+else
+    warn "no kernel headers — sudo apt install linux-headers-\$(uname -r)"
+fi
+
+# Secure Boot blocks unsigned DKMS modules (the EC driver).
+SB="unknown"
+if command -v mokutil >/dev/null 2>&1; then
+    case "$(mokutil --sb-state 2>/dev/null)" in
+        *enabled*)  SB=on ;;
+        *disabled*) SB=off ;;
+    esac
+else
+    EFIVAR="$(echo /sys/firmware/efi/efivars/SecureBoot-* 2>/dev/null)"
+    if [ -f "$EFIVAR" ]; then
+        [ "$(od -An -j4 -tu1 "$EFIVAR" 2>/dev/null | tr -d ' \n')" = "1" ] && SB=on || SB=off
+    fi
+fi
+case "$SB" in
+    on)  warn "Secure Boot is ON — an unsigned DKMS driver may not load (disable it or sign the module)" ;;
+    off) ok "Secure Boot is off" ;;
+    *)   info "Secure Boot state unknown" ;;
+esac
 echo
 
-echo "Backend wentylatorów"
+# --- Fan backend ---------------------------------------------------------------
+echo "Fan backend"
 HAS_EC=0
 if grep -qs '^acer_nitro_ec$' /sys/class/hwmon/hwmon*/name 2>/dev/null; then
     HAS_EC=1
     HWMON="$(grep -l '^acer_nitro_ec$' /sys/class/hwmon/hwmon*/name 2>/dev/null | head -1)"
-    ok "acer_nitro_ec  (${HWMON%/name})"
+    ok "acer_nitro_ec loaded (${HWMON%/name})"
 else
-    warn "brak hwmon acer_nitro_ec"
-    info "sterownik: sudo ./acer-nitro-ec/apply.sh"
+    info "acer_nitro_ec not loaded yet — the installer loads it on supported models"
 fi
 
 HAS_NBFC=0
 if [ -S /run/nbfc_service.socket ] || [ -S /var/run/nbfc_service.socket ]; then
     HAS_NBFC=1
-    ok "gniazdo nbfc_service"
+    ok "nbfc_service socket present"
+    if [ -f /etc/nbfc/nbfc.json ]; then
+        PROF="$(grep -o '"SelectedConfigId"[^,}]*' /etc/nbfc/nbfc.json 2>/dev/null | cut -d'"' -f4)"
+        [ -n "$PROF" ] && ok "NBFC profile selected: $PROF" || warn "NBFC has no profile selected — run: nbfc config -l"
+    fi
+elif command -v nbfc >/dev/null 2>&1; then
+    info "nbfc installed but the service is not running — sudo systemctl enable --now nbfc_service"
 else
-    info "brak gniazda nbfc_service (OK, gdy działa acer_nitro_ec)"
-fi
-if command -v nbfc >/dev/null 2>&1; then
-    info "nbfc CLI: $(command -v nbfc)"
+    info "no nbfc-linux (fine on supported Nitro models; required on other laptops)"
 fi
 if [ "$HAS_EC" -eq 1 ] && [ "$HAS_NBFC" -eq 1 ]; then
-    warn "oba backendy naraz — daemon w trybie auto wybierze hwmon i nie będzie pisał przez NBFC"
-fi
-if [ "$HAS_EC" -eq 0 ] && [ "$HAS_NBFC" -eq 0 ]; then
-    warn "żaden backend nie jest gotowy — wentylatory nie ruszą z tego programu"
+    warn "both backends present — the daemon in auto mode uses hwmon and will not write via NBFC"
 fi
 echo
 
-echo "Usługa acer-nitro-perfect-fan"
+# --- Service -------------------------------------------------------------------
+echo "Service"
 if systemctl list-unit-files acer-nitro-perfect-fan.service >/dev/null 2>&1; then
     STATE="$(systemctl is-active acer-nitro-perfect-fan.service 2>/dev/null || true)"
     ENABLED="$(systemctl is-enabled acer-nitro-perfect-fan.service 2>/dev/null || true)"
     if [ "$STATE" = "active" ]; then
-        ok "acer-nitro-perfect-fan.service = $STATE  (włączona: $ENABLED)"
+        ok "acer-nitro-perfect-fan.service = $STATE (enabled: $ENABLED)"
     else
-        warn "acer-nitro-perfect-fan.service = ${STATE:-brak}  (włączona: ${ENABLED:-?})"
-        info "instalacja: sudo ./install.sh"
+        warn "acer-nitro-perfect-fan.service = ${STATE:-missing} (enabled: ${ENABLED:-?})"
     fi
 else
-    warn "usługa nie jest zainstalowana  — sudo ./install.sh"
-fi
-if [ -f /etc/nitro-fan/config.json ]; then
-    BACKEND="$(python3 -c 'import json; print(json.load(open("/etc/nitro-fan/config.json")).get("backend","auto"))' 2>/dev/null || echo '?')"
-    ok "config /etc/nitro-fan/config.json  (backend=$BACKEND)"
-else
-    info "brak /etc/nitro-fan/config.json (powstanie przy install.sh)"
-fi
-if id acer_nitro_perfect_fan >/dev/null 2>&1; then
-    ok "użytkownik serwisowy acer_nitro_perfect_fan"
-else
-    info "brak użytkownika acer_nitro_perfect_fan (powstanie przy install.sh)"
+    info "service not installed yet — sudo ./install.sh"
 fi
 echo
 
-echo "Konflikt (dwa programy piszące do EC)"
-if systemctl is-active --quiet nbfc_service 2>/dev/null; then
-    if [ "$HAS_EC" -eq 1 ]; then
-        warn "nbfc_service jest aktywny obok acer_nitro_ec"
+# --- Verdict -------------------------------------------------------------------
+echo "=== Verdict ==="
+if ! command -v systemctl >/dev/null 2>&1; then
+    warn "NO — this project needs Linux with systemd."
+elif [ "$HAS_EC" -eq 1 ]; then
+    ok "YES — the EC driver is loaded. Install or finish with:  sudo ./install.sh"
+elif [ "$MODEL_OK" -eq 1 ]; then
+    if [ "$SB" = "on" ]; then
+        warn "MAYBE — model is supported, but Secure Boot may block the unsigned driver."
+        info "Turn Secure Boot off (or sign the module), then:  sudo ./install.sh"
     else
-        info "nbfc_service aktywny (to OK, gdy używasz backendu nbfc)"
+        ok "YES — supported model. The installer will load the driver:  sudo ./install.sh"
     fi
+elif [ "$MODEL_EXTRA" -eq 1 ]; then
+    warn "MAYBE — $MODEL can work with the driver patch, but is not fully verified."
+    info "Try:  sudo ./acer-nitro-ec/apply.sh  then re-run  ./check-system.sh"
+elif [ "$HAS_NBFC" -eq 1 ]; then
+    ok "YES (via NBFC) — set \"backend\": \"nbfc\" in /etc/nitro-fan/config.json after install."
+    info "Make sure the selected NBFC profile matches:  nbfc config -l"
+elif command -v nbfc >/dev/null 2>&1; then
+    warn "MAYBE (via NBFC) — start the service and select your profile:"
+    info "nbfc config -l   →   sudo nbfc config -a \"Your Model\"   →   sudo systemctl enable --now nbfc_service"
+else
+    warn "NO (yet) — no fan backend for '$MODEL'."
+    info "If nbfc-linux has a profile for this model, install it first; otherwise this app cannot help."
 fi
 echo
-
-echo "Gotowe. Wklej ten wydruk do zgłoszenia na GitHub, jeśli coś nie działa."
-echo "Logi usługi:  journalctl -u acer-nitro-perfect-fan.service -n 40 --no-pager"
+echo "Paste this output into a GitHub issue if something is wrong."
+echo "Service logs:  journalctl -u acer-nitro-perfect-fan.service -n 40 --no-pager"

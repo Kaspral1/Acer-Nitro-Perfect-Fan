@@ -35,7 +35,26 @@ Motyw **OutRun** (Ustawienia → Motyw):
 | **Nie programuję** | **[INSTALL_PL.md](INSTALL_PL.md)** — kopiuj komendy |
 | English | [INSTALL.md](INSTALL.md) · [README.md](README.md) |
 | **Kompatybilne modele** | **[COMPATIBLE-MODELS_PL.md](COMPATIBLE-MODELS_PL.md)** |
-| Diagnostyka | `./check-system.sh` (tylko odczyt) |
+| Czy mój laptop się nadaje? | `./check-system.sh` → prosty werdykt **TAK / MOŻE / NIE** (tylko odczyt) |
+
+## Szybki start
+
+Trzy komendy. Skrypt najpierw sprawdzi laptopa, potem zainstaluje wszystko:
+
+```bash
+git clone https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git
+cd Acer-Nitro-Perfect-Fan
+./setup.sh
+```
+
+Potem otwórz aplikację:
+
+```bash
+cd gui-app && npm start
+```
+
+To wszystko — usługa wentylatorów działa w tle i startuje z systemem.
+Wersja krok po kroku z wyjaśnieniami: **[INSTALL_PL.md](INSTALL_PL.md)**.
 
 > **Ostrzeżenie.** Ręczne sterowanie może **przegrzać i uszkodzić sprzęt**. PWM **CPU ma twardą podłogę 30%** (daemon + API + GUI). GPU może nadal używać Zero-RPM na zimno. **Używasz na własną odpowiedzialność.**
 
@@ -188,17 +207,11 @@ Na Linuksie — ten projekt. Na Windowsie — keizenx + NBFC.
 
 ## Instalacja
 
-Pełna instrukcja „kopiuj i wklej”: **[INSTALL_PL.md](INSTALL_PL.md)**.
+Zalecane: **3 komendy z [Szybkiego startu](#szybki-start)** wyżej. Pełna instrukcja „kopiuj i wklej”: **[INSTALL_PL.md](INSTALL_PL.md)**.
 
-```bash
-git clone https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git
-cd Acer-Nitro-Perfect-Fan
-./check-system.sh
-sudo ./install.sh
-cd gui-app && npm install && npm start
-```
+Ręcznie to trzy kroki: `./check-system.sh` (czy laptop jest obsługiwany?) → `sudo ./install.sh` (sterownik + usługa) → `cd gui-app && npm install && npm start` (GUI).
 
-`install.sh` kopiuje daemon do `/usr/local/lib/acer-nitro-perfect-fan/`, konfigurację do `/etc/nitro-fan/`, regułę udev i włącza `acer-nitro-perfect-fan.service`.
+`install.sh` kopiuje daemon do `/usr/local/lib/acer-nitro-perfect-fan/`, konfigurację do `/etc/nitro-fan/`, regułę udev i włącza `acer-nitro-perfect-fan.service`. Potrzebny jest backend wentylatorów: `acer_nitro_ec` (instalator ładuje go na obsługiwanych modelach) albo `nbfc_service`.
 
 Opcjonalny AppImage / `.deb`: `cd gui-app && npm run dist`. Paczka GUI **nie zastępuje** demona.
 

@@ -3,7 +3,10 @@
 ## v1.1 (2026)
 
 - Version shown as **v1.1** (package semver `1.1.0`).
-- Two color themes: **Nitro** (default) and **OutRun** (Settings → Theme), remembered after restart. Screenshots: `assets/Screenshot.png`, `assets/Screenshot-outrun.png`.
+- Four color themes: **Nitro** (default), **OutRun**, **Matrix** and **Reddit** (Settings → Theme), remembered after restart. Screenshots: `assets/Screenshot.png`, `assets/Screenshot-outrun.png`, `assets/Screenshot_matrix.png`, `assets/Screenshot_reddit.png`.
+- Fixed: Reddit and Matrix shipped as CSS only — added the missing theme cards, theme validation, chart palettes and i18n keys.
+- `setup.sh`: one-command install — packages (apt / dnf / pacman / zypper), laptop check, driver + service, GUI dependencies.
+- `check-system.sh`: English output, model / Secure Boot / kernel-headers / NBFC-profile checks, and a final **YES / MAYBE / NO** verdict with the next command.
 - Sidebar copy: **Profil prędkości**, **Obciążenie sprzętu**, **Temperatury**. DAMX credit lives in Settings only.
 - CPU clock (**TAKTOWANIE**) in the load card, same style as CPU / GPU / RAM / VRAM.
 - Power-profile descriptions on hover only (Eco / Cichy: turbo off with 40% / 55% caps; Balans / Sport / Max: turbo on).

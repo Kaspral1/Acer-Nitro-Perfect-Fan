@@ -5,10 +5,27 @@ Ta instrukcja jest napisana tak, żeby dało się ją wykonać **kopiując komen
 **Po angielsku:** [INSTALL.md](INSTALL.md)  
 **Szczegóły techniczne:** [README_PL.md](README_PL.md)
 
-## Najprostsza instalacja — Acer Nitro AN515-54
+## Najprostsza instalacja
 
-Jeśli masz **Acer Nitro AN515-54**, wykonaj tylko te kroki. Instalator sam
-zainstaluje sterownik wentylatorów, usługę systemową i konfigurację.
+Trzy komendy. `setup.sh` zainstaluje pakiety, sprawdzi laptopa, wgra sterownik
+wentylatorów + usługę systemową i pobierze zależności GUI (obsługuje apt, dnf,
+pacman i zypper):
+
+```bash
+git clone https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git
+cd Acer-Nitro-Perfect-Fan
+./setup.sh
+```
+
+Po zakończeniu otwórz aplikację:
+
+```bash
+cd gui-app && npm start
+```
+
+Powinno pojawić się okno programu z oznaczeniem **ONLINE**.
+
+Wolisz wykonać każdy krok sam? Ręczny odpowiednik (Mint / Ubuntu / Debian):
 
 ```bash
 sudo apt update
@@ -21,9 +38,8 @@ npm install
 npm start
 ```
 
-Po uruchomieniu powinno pojawić się okno programu z oznaczeniem **ONLINE**.
 Nie uruchamiaj ręcznie `acer-nitro-ec/install-kbd-backlight.sh` ani
-`nbfc/install-nbfc-config.sh`, jeśli korzystasz z tej ścieżki.
+`nbfc/install-nbfc-config.sh`, jeśli korzystasz z tych ścieżek.
 
 Jeśli masz inny model albo instalacja zakończy się błędem, przejdź niżej do
 pełnej instrukcji i diagnostyki.
@@ -73,7 +89,7 @@ Inne laptopy mogą działać tylko przez `nbfc-linux` i odpowiedni profil NBFC.
 Program ma **dwie części**. Obie są potrzebne.
 
 1. **Usługa w tle (daemon)** — działa po starcie systemu, nawet bez otwartego okna. To ona naprawdę kręci wentylatorami. Profil Cichy / Normalny / Turbo wystarczy wybrać raz.
-2. **Okienko (GUI)** — suwaki, profile wentylatorów, wykresy, dwa motywy (Nitro / OutRun). Na AN515-54 w Ustawieniach jest jasność czerwonej klawiatury **Off / 25 / 50 / 75 / 100** i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**). Zapis idzie do EC: ustawiasz raz i **zostaje po restarcie** przy zamkniętym programie. Na zwykłym Linuksie BIOS dawał tylko wyłączenie albo timeout 30 s, a laptop zawsze wstawał na 100%. Profile zasilania CPU (Eco / Cichy / Balans / Sport / Max) wymagają osobno zainstalowanego **DAMX** (Div Acer Manager Max, **GPL-3.0**) — ten program go nie instaluje. Wystarczy wybrać profil raz; DAMX wgrywa go przy starcie. Bez DAMX reszta panelu działa.
+2. **Okienko (GUI)** — suwaki, profile wentylatorów, wykresy, cztery motywy (Nitro / OutRun / Matrix / Reddit). Na AN515-54 w Ustawieniach jest jasność czerwonej klawiatury **Off / 25 / 50 / 75 / 100** i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**). Zapis idzie do EC: ustawiasz raz i **zostaje po restarcie** przy zamkniętym programie. Na zwykłym Linuksie BIOS dawał tylko wyłączenie albo timeout 30 s, a laptop zawsze wstawał na 100%. Profile zasilania CPU (Eco / Cichy / Balans / Sport / Max) wymagają osobno zainstalowanego **DAMX** (Div Acer Manager Max, **GPL-3.0**) — ten program go nie instaluje. Wystarczy wybrać profil raz; DAMX wgrywa go przy starcie. Bez DAMX reszta panelu działa.
 
 Sama paczka AppImage **nie zastępuje** usługi. Najpierw zawsze `install.sh`.
 
@@ -226,7 +242,7 @@ Powinno otworzyć się okno **Acer Nitro Perfect Fan**.
 - W trybie **AUTO** działają krzywe wentylatorów (Cichy / Normalny / Turbo) — to **nie** jest profil procesora.
 - **PROFIL ZASILANIA** (Eco / Cichy / Balans / Sport / Max) — turbo i limity CPU przez DAMX. Wybierasz raz; DAMX wgrywa to w tle przy starcie. Okienka nie trzeba wtedy otwierać.
 - **Ustawienia** — podświetlanie klawiatury Off / 25 / 50 / 75 / 100 i „gaśnięcie po 30 s”. Ustawiasz raz; EC to trzyma. Bez tego Linux zawsze wracał na max po starcie.
-- **Ustawienia → Motyw** — Nitro albo OutRun.
+- **Ustawienia → Motyw** — Nitro, OutRun, Matrix albo Reddit.
 
 Żeby uruchomić panel kolejnego dnia:
 

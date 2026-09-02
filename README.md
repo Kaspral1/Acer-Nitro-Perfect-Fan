@@ -34,7 +34,26 @@ systemd daemon → shared JSON → Python stdio bridge → Electron dashboard.
 | **Never used a terminal?** | **[INSTALL.md](INSTALL.md)** (copy-paste) |
 | **Po polsku** | [INSTALL_PL.md](INSTALL_PL.md) · [README_PL.md](README_PL.md) |
 | **Compatible models** | **[COMPATIBLE-MODELS.md](COMPATIBLE-MODELS.md)** |
-| Diagnose a machine | `./check-system.sh` (read-only) |
+| Is my laptop supported? | `./check-system.sh` → plain **YES / MAYBE / NO** verdict (read-only) |
+
+## Quick start
+
+Three commands. The script checks your laptop first, then installs everything:
+
+```bash
+git clone https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git
+cd Acer-Nitro-Perfect-Fan
+./setup.sh
+```
+
+Then open the app:
+
+```bash
+cd gui-app && npm start
+```
+
+That is all — the fan service runs in the background and starts at boot.
+Step-by-step version with explanations: **[INSTALL.md](INSTALL.md)**.
 
 > **Safety.** Manual fan control can **overheat and damage hardware**. CPU PWM is **hard-clamped to 30%** (daemon + API + GUI). GPU may still use Zero-RPM when cool. **Use at your own risk.**
 
@@ -193,18 +212,11 @@ Use this project on Linux. Use keizenx + NBFC when you need Windows.
 
 ## Installation
 
-Full copy-paste walkthrough: **[INSTALL.md](INSTALL.md)**.
+Recommended: the **3-command [Quick start](#quick-start)** above. Full copy-paste walkthrough: **[INSTALL.md](INSTALL.md)**.
 
-```bash
-git clone https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan.git
-cd Acer-Nitro-Perfect-Fan
-./check-system.sh
-# need a backend first: acer_nitro_ec  or  nbfc_service
-sudo ./install.sh
-cd gui-app && npm install && npm start
-```
+Manually, it is three steps: `./check-system.sh` (is this laptop supported?) → `sudo ./install.sh` (driver + service) → `cd gui-app && npm install && npm start` (GUI).
 
-`install.sh` copies the daemon to `/usr/local/lib/acer-nitro-perfect-fan/`, writes `/etc/nitro-fan/`, installs udev `99-acer-nitro-ec.rules`, and enables `acer-nitro-perfect-fan.service`.
+`install.sh` copies the daemon to `/usr/local/lib/acer-nitro-perfect-fan/`, writes `/etc/nitro-fan/`, installs udev `99-acer-nitro-ec.rules`, and enables `acer-nitro-perfect-fan.service`. A fan backend is needed first: `acer_nitro_ec` (loaded by the installer on supported models) or `nbfc_service`.
 
 Optional AppImage / `.deb`: `cd gui-app && npm run dist`. The packaged GUI **still needs** the system daemon.
 
