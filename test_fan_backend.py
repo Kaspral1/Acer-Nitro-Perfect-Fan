@@ -25,6 +25,12 @@ class DetectTests(unittest.TestCase):
             path.write_text(json.dumps({"backend": "nbfc"}))
             self.assertEqual(fb.read_config_backend(path), fb.BACKEND_NBFC)
 
+    def test_read_config_backend_damx(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "config.json"
+            path.write_text(json.dumps({"backend": "damx"}))
+            self.assertEqual(fb.read_config_backend(path), fb.BACKEND_DAMX)
+
     def test_read_config_backend_invalid_falls_back(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "config.json"
@@ -87,9 +93,104 @@ class DetectTests(unittest.TestCase):
     def test_detect_nothing_fails(self):
         with mock.patch.object(fb, "find_hwmon", return_value=None), mock.patch.object(
             fb, "nbfc_socket_path", return_value=None
-        ):
+        ), mock.patch.object(fb, "detect_damx_backend", return_value=None):
             with self.assertRaises(RuntimeError):
                 fb.detect_backend("auto")
+
+    def test_auto_does_not_enable_damx_implicitly(self):
+        damx = mock.Mock(spec=fb.DamxBackend)
+        with mock.patch.object(fb, "find_hwmon", return_value=None), mock.patch.object(
+            fb, "nbfc_socket_path", return_value=None
+        ), mock.patch.object(fb, "detect_damx_backend", return_value=damx) as detect_damx:
+            with self.assertRaises(RuntimeError):
+                fb.detect_backend("auto")
+        detect_damx.assert_not_called()
+
+    def test_detect_forced_damx(self):
+        damx = mock.Mock(spec=fb.DamxBackend)
+        damx.name = fb.BACKEND_DAMX
+        with mock.patch.object(fb, "find_hwmon", return_value=None), mock.patch.object(
+            fb, "nbfc_socket_path", return_value=None
+        ), mock.patch.object(fb, "detect_damx_backend", return_value=damx):
+            backend, why = fb.detect_backend(fb.BACKEND_DAMX)
+        self.assertIs(backend, damx)
+        self.assertIn("DAMX", why)
+
+
+class DamxBackendTests(unittest.TestCase):
+    def setUp(self):
+        self.backend = fb.DamxBackend(Path("/run/DAMX.sock"))
+
+    def test_requires_fan_speed_feature(self):
+        self.backend._request = mock.Mock(return_value={
+            "success": True,
+            "data": {"available_features": ["thermal_profile", "fan_speed"]},
+        })
+        self.assertIn("fan_speed", self.backend.get_supported_features())
+
+    def test_json_round_trip_buffers_split_response(self):
+        response = json.dumps({
+            "success": True,
+            "data": {"available_features": ["fan_speed"]},
+        }).encode("utf-8")
+
+        class FakeSocket:
+            def __init__(self):
+                self.chunks = [response[:12], response[12:]]
+                self.sent = b""
+                self.connected_to = None
+                self.closed = False
+
+            def settimeout(self, _timeout):
+                pass
+
+            def connect(self, path):
+                self.connected_to = path
+
+            def sendall(self, payload):
+                self.sent = payload
+
+            def recv(self, _size):
+                return self.chunks.pop(0) if self.chunks else b""
+
+            def close(self):
+                self.closed = True
+
+        fake = FakeSocket()
+        with mock.patch.object(fb.socket, "socket", return_value=fake):
+            backend = fb.DamxBackend(Path("/run/DAMX.sock"))
+            self.assertEqual(backend.get_supported_features(), {"fan_speed"})
+
+        self.assertEqual(fake.connected_to, "/run/DAMX.sock")
+        self.assertEqual(
+            json.loads(fake.sent.decode("utf-8")),
+            {"command": "get_supported_features", "params": {}},
+        )
+        self.assertTrue(fake.closed)
+
+    def test_maps_fan_speed_settings(self):
+        self.backend._request = mock.Mock(return_value={
+            "success": True,
+            "data": {"fan_speed": {"cpu": "35", "gpu": "42"}},
+        })
+        self.assertEqual(self.backend.read_pwm_pct("1"), 35.0)
+        self.assertEqual(self.backend.read_pwm_pct("2"), 42.0)
+
+    def test_writing_one_fan_preserves_the_other(self):
+        self.backend._fan_cache = (30.0, 44.0)
+        self.backend._fan_cache_at = 10**9
+        self.backend._request = mock.Mock(return_value={"success": True, "data": {}})
+        self.backend.write_pwm_pct("1", 55)
+        self.backend._request.assert_called_once_with(
+            "set_fan_speed", {"cpu": 55, "gpu": 44}
+        )
+
+    def test_restore_auto_sets_both_fans_to_zero(self):
+        self.backend._request = mock.Mock(return_value={"success": True, "data": {}})
+        self.backend.restore_auto()
+        self.backend._request.assert_called_once_with(
+            "set_fan_speed", {"cpu": 0, "gpu": 0}
+        )
 
 
 class NbfcParseTests(unittest.TestCase):

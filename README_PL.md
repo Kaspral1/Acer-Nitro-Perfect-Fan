@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-v1.1-informational.svg)](gui-app/package.json)
 
-Sterowanie wentylatorami dla **Acer Nitro 5** na Linuxie z systemd: daemon w tle plus dashboard Electron.
+Sterowanie wentylatorami dla laptopów **Acer Nitro** na Linuxie z systemd: daemon w tle plus dashboard Electron.
 
-**Obsługiwane:** Acer Nitro 5 AN515-44 / 46 / **54** (w pełni przetestowany) / 56 / 57 / 58 oraz AN517-55. Inne laptopy działają przez [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux), jeśli ma profil dla Twojego modelu. Zobacz [COMPATIBLE-MODELS_PL.md](COMPATIBLE-MODELS_PL.md). Windows i macOS **nie są** obsługiwane.
+**Obsługiwane:** Acer Nitro 5 AN515-44 / 46 / **54** (w pełni przetestowany) / 56 / 57 / 58 oraz AN517-55, a także Nitro 16 **AN16-41** przez dedykowaną ścieżkę DAMX. Inne laptopy działają przez [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux), jeśli ma profil dla Twojego modelu. Zobacz [COMPATIBLE-MODELS_PL.md](COMPATIBLE-MODELS_PL.md). Windows i macOS **nie są** obsługiwane.
 
 ![Acer Nitro Perfect Fan](assets/Screenshot.png)
 
@@ -21,7 +21,7 @@ cd Acer-Nitro-Perfect-Fan
 cd gui-app && npm start
 ```
 
-`setup.sh` najpierw sprawdza laptopa i zatrzymuje się na sprzęcie, którym nie może bezpiecznie sterować. Potem instaluje pakiety, sterownik wentylatorów, usługę w tle i GUI.
+`setup.sh` najpierw sprawdza laptopa i zatrzymuje się na sprzęcie, którym nie może bezpiecznie sterować. Na **AN16-41** automatycznie wybiera osobny wariant DAMX/linuwu_sense i nigdy nie instaluje starego sterownika `acer_nitro_ec`. DAMX musi być wcześniej zainstalowany i uruchomiony. Na starszych obsługiwanych modelach instalowany jest zwykły sterownik, usługa w tle i GUI.
 
 - **Czy zadziała na moim laptopie?** Uruchom `./check-system.sh`. Nic nie zmienia, a na końcu wypisuje prosty werdykt **YES / MAYBE / NO**.
 - **Krok po kroku:** [INSTALL_PL.md](INSTALL_PL.md) · **English:** [README.md](README.md) · [INSTALL.md](INSTALL.md)

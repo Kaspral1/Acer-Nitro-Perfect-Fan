@@ -1,9 +1,9 @@
 [Unit]
-Description=Acer Nitro Perfect Fan daemon (acer_nitro_ec or nbfc)
+Description=Acer Nitro Perfect Fan daemon (acer_nitro_ec, nbfc or DAMX)
 Documentation=https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan
 # Skrypt i konfiguracja leżą na / (nie w zaszyfrowanym /home), więc są dostępne
 # od razu po zamontowaniu systemu plików — jeszcze przed zalogowaniem użytkownika.
-After=local-fs.target nbfc_service.service
+After=local-fs.target nbfc_service.service damx-daemon.service
 Wants=local-fs.target
 
 [Service]

@@ -11,6 +11,24 @@ for h in /sys/class/hwmon/hwmon*; do
     done
 done
 
+# Backend DAMX: 0,0 oznacza firmware'owy tryb automatyczny obu wentylatorów.
+if grep -Eq '"backend"[[:space:]]*:[[:space:]]*"damx"' /etc/nitro-fan/config.json 2>/dev/null \
+   && { [ -S /run/DAMX.sock ] || [ -S /var/run/DAMX.sock ]; }; then
+    python3 - <<'PY' >/dev/null 2>&1 || true
+import json
+import socket
+from pathlib import Path
+
+path = next(str(p) for p in (Path("/run/DAMX.sock"), Path("/var/run/DAMX.sock")) if p.is_socket())
+s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+s.settimeout(2)
+s.connect(path)
+s.sendall(json.dumps({"command": "set_fan_speed", "params": {"cpu": 0, "gpu": 0}}).encode())
+s.recv(4096)
+s.close()
+PY
+fi
+
 # Backend NBFC: oddaj progi z profilu nbfc-linux (daemon nie pisze już % ręcznie).
 if [ -S /run/nbfc_service.socket ] || [ -S /var/run/nbfc_service.socket ]; then
     if command -v nbfc >/dev/null 2>&1; then

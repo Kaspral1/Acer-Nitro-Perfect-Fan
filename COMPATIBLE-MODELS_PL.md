@@ -15,6 +15,18 @@ Te modele korzystają z mapy EC obsługiwanej przez dołączony sterownik jądra
 Sterowanie wentylatorami odbywa się przez `acer_nitro_ec` i interfejs hwmon
 Linuksa. AN515-54 to jedyny model w pełni przetestowany przez opiekuna projektu.
 
+## Acer Nitro 16 AN16-41 - dedykowana ścieżka DAMX
+
+Instalator rozpoznaje dokładny model DMI zawierający `AN16-41` i zamiast
+dołączonego starego sterownika EC lub NBFC wybiera `DAMX`/`linuwu_sense`.
+Wymaga jądra Linux 6.13 lub nowszego oraz wcześniej zainstalowanego i
+uruchomionego daemona DAMX, którego gniazdo udostępnia funkcję `fan_speed`.
+
+Instalator zatrzyma się, jeśli brakuje DAMX albo aktywny jest `acer_nitro_ec` lub
+NBFC. Opcja `--force` celowo nie omija zabezpieczeń AN16-41. Perfect Fan nie
+pobiera ani nie instaluje DAMX; najpierw użyj jego oficjalnego wydania i uruchom
+ponownie komputer: [wydania PXDiv/Div-Acer-Manager-Max](https://github.com/PXDiv/Div-Acer-Manager-Max/releases).
+
 ## Modele eksperymentalne z opcjonalną poprawką sterownika
 
 Drzewo źródłowe zawiera opcjonalną poprawkę dodającą do sterownika DMI tych

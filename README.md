@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-v1.1-informational.svg)](gui-app/package.json)
 
-Fan control for **Acer Nitro 5** on Linux with systemd: a background daemon plus an Electron dashboard.
+Fan control for **Acer Nitro** laptops on Linux with systemd: a background daemon plus an Electron dashboard.
 
-**Supported:** Acer Nitro 5 AN515-44 / 46 / **54** (fully tested) / 56 / 57 / 58 and AN517-55. Other laptops work through [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) if it has a profile for your model. See [COMPATIBLE-MODELS.md](COMPATIBLE-MODELS.md). Windows and macOS are **not** supported.
+**Supported:** Acer Nitro 5 AN515-44 / 46 / **54** (fully tested) / 56 / 57 / 58 and AN517-55, plus Nitro 16 **AN16-41** through its dedicated DAMX path. Other laptops work through [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) if it has a profile for your model. See [COMPATIBLE-MODELS.md](COMPATIBLE-MODELS.md). Windows and macOS are **not** supported.
 
 ![Acer Nitro Perfect Fan](assets/Screenshot.png)
 
@@ -21,7 +21,7 @@ cd Acer-Nitro-Perfect-Fan
 cd gui-app && npm start
 ```
 
-`setup.sh` checks your laptop first and stops on hardware it cannot drive safely. Then it installs the packages, the fan driver, the background service and the GUI.
+`setup.sh` checks your laptop first and stops on hardware it cannot drive safely. On **AN16-41**, it automatically selects the separate DAMX/linuwu_sense variant and never installs the legacy `acer_nitro_ec` driver. DAMX must already be installed and running. On older supported models it installs the regular fan driver, background service and GUI.
 
 - **Will it run on my laptop?** Run `./check-system.sh`. It is read-only and ends with a plain **YES / MAYBE / NO**.
 - **Step by step:** [INSTALL.md](INSTALL.md) · **Po polsku:** [INSTALL_PL.md](INSTALL_PL.md) · [README_PL.md](README_PL.md)

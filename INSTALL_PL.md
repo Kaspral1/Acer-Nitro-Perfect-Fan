@@ -7,8 +7,8 @@ Ta instrukcja jest napisana tak, żeby dało się ją wykonać **kopiując komen
 
 ## Najprostsza instalacja
 
-Trzy komendy. `setup.sh` zainstaluje pakiety, sprawdzi laptopa, wgra sterownik
-wentylatorów + usługę systemową i pobierze zależności GUI (obsługuje apt, dnf,
+Trzy komendy. `setup.sh` zainstaluje pakiety, sprawdzi laptopa, wybierze właściwy
+backend wentylatorów + usługę systemową i pobierze zależności GUI (obsługuje apt, dnf,
 pacman i zypper):
 
 ```bash
@@ -38,6 +38,10 @@ npm install
 npm start
 ```
 
+Na AN16-41 użyj `./setup.sh` zamiast powyższej ręcznej listy pakietów. Osobna
+ścieżka tego modelu nie potrzebuje DKMS ani nagłówków jądra, ale DAMX musi być
+wcześniej zainstalowany i uruchomiony.
+
 Nie uruchamiaj ręcznie `acer-nitro-ec/install-kbd-backlight.sh` ani
 `nbfc/install-nbfc-config.sh`, jeśli korzystasz z tych ścieżek.
 
@@ -55,7 +59,7 @@ masz działający profil `nbfc-linux`, instalator pozostawi sterowanie NBFC.
 |---------|-----------|
 | Jaki system? | **Tylko Linux** z `systemd` (Linux Mint, Ubuntu, Debian, Fedora…). |
 | Windows / macOS? | **Nie.** Na Windowsie użyj [keizenx/nitro-fan-control](https://github.com/keizenx/nitro-fan-control) + NBFC. |
-| Jaki laptop? | **Acer Nitro 5.** W pełni przetestowany: **AN515-54**. |
+| Jaki laptop? | **Acer Nitro.** W pełni przetestowany: **AN515-54**; dedykowany wariant DAMX: **AN16-41**. |
 | Predator / Helios / Nitro V? | **Nie obiecujemy.** Inny układ sterowania wentylatorami. |
 
 Sprawdź model (wklej w terminal i naciśnij Enter):
@@ -64,7 +68,7 @@ Sprawdź model (wklej w terminal i naciśnij Enter):
 cat /sys/class/dmi/id/product_name
 ```
 
-Powinno pojawić się coś w stylu `Nitro AN515-54`.
+Powinno pojawić się coś w stylu `Nitro AN515-54` albo `Nitro AN16-41`.
 
 Program ze sterownikiem `acer-nitro-ec` jest przeznaczony dla tych modeli:
 
@@ -80,6 +84,9 @@ Dodatkowo można spróbować modeli AN515-51, AN515-55, AN517-51 i AN517-54 po
 zastosowaniu poprawki sterownika, ale nie są one w pełni zweryfikowane.
 Inne laptopy mogą działać tylko przez `nbfc-linux` i odpowiedni profil NBFC.
 
+AN16-41 nie korzysta z tej listy EC. Obowiązuje dla niego osobna ścieżka DAMX
+opisana w punkcie 6c.
+
 > **Ostrzeżenie.** Ręczne sterowanie wentylatorami może przegrzać laptopa. Wentylator **CPU nigdy nie spadnie poniżej 30%**. Używasz na własną odpowiedzialność.
 
 ---
@@ -89,7 +96,7 @@ Inne laptopy mogą działać tylko przez `nbfc-linux` i odpowiedni profil NBFC.
 Program ma **dwie części**. Obie są potrzebne.
 
 1. **Usługa w tle (daemon)** — działa po starcie systemu, nawet bez otwartego okna. To ona naprawdę kręci wentylatorami. Profil Cichy / Normalny / Turbo wystarczy wybrać raz.
-2. **Okienko (GUI)** — suwaki, profile wentylatorów, wykresy, cztery motywy (Nitro / OutRun / Matrix / Reddit). Na AN515-54 w Ustawieniach jest jasność czerwonej klawiatury **Off / 25 / 50 / 75 / 100** i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**). Zapis idzie do EC: ustawiasz raz i **zostaje po restarcie** przy zamkniętym programie. Na zwykłym Linuksie BIOS dawał tylko wyłączenie albo timeout 30 s, a laptop zawsze wstawał na 100%. Profile zasilania CPU (Eco / Cichy / Balans / Sport / Max) wymagają osobno zainstalowanego **DAMX** (Div Acer Manager Max, **GPL-3.0**) — ten program go nie instaluje. Wystarczy wybrać profil raz; DAMX wgrywa go przy starcie. Bez DAMX reszta panelu działa.
+2. **Okienko (GUI)** - suwaki, profile wentylatorów, wykresy, cztery motywy (Nitro / OutRun / Matrix / Reddit). Na AN515-54 w Ustawieniach jest jasność czerwonej klawiatury **Off / 25 / 50 / 75 / 100** i gaśnięcie po 30 s (przez `acer-nitro-ec`, **bez DAMX**). Zapis idzie do EC: ustawiasz raz i **zostaje po restarcie** przy zamkniętym programie. Na zwykłym Linuksie BIOS dawał tylko wyłączenie albo timeout 30 s, a laptop zawsze wstawał na 100%. Profile zasilania CPU (Eco / Cichy / Balans / Sport / Max) wymagają osobno zainstalowanego **DAMX** (Div Acer Manager Max, **GPL-3.0**) - ten program go nie instaluje. Wystarczy wybrać profil raz; DAMX wgrywa go przy starcie. Na starszych backendach bez DAMX wyłączone są tylko te przyciski; AN16-41 wymaga DAMX także do wentylatorów.
 
 Sama paczka AppImage **nie zastępuje** usługi. Najpierw zawsze `install.sh`.
 
@@ -152,13 +159,13 @@ chmod +x check-system.sh install.sh uninstall.sh update-daemon.sh restore-auto.s
 ./check-system.sh
 ```
 
-Nic nie zmienia na wentylatorach. Zielone `[OK]` przy `acer_nitro_ec` albo gnieździe NBFC znaczy, że jest czym sterować.
+Nic nie zmienia na wentylatorach. Zielone `[OK]` przy `acer_nitro_ec`, NBFC albo DAMX znaczy, że jest czym sterować.
 
 ---
 
 ## 6. Sterownik wentylatorów
 
-Program nie „zgaduje” rejestrów płyty. Potrzebuje **jednego** z dwóch backendów:
+Program nie „zgaduje” rejestrów płyty. Potrzebuje **jednego** backendu:
 
 ### 6a. Zalecane: `acer_nitro_ec` (moduł jądra)
 
@@ -194,6 +201,17 @@ sudo systemctl enable --now nbfc_service
 
 Nie uruchamiaj **naraz** dwóch programów piszących do tych samych wentylatorów (ten daemon + osobne NBFC GUI). Szczegóły: [nbfc/README.md](nbfc/README.md).
 
+### 6c. Acer Nitro 16 AN16-41: DAMX
+
+Na tym modelu nie używaj kroków 6a ani 6b. Zainstaluj oficjalne
+[wydanie DAMX](https://github.com/PXDiv/Div-Acer-Manager-Max/releases), uruchom
+ponownie komputer i jeszcze raz wykonaj `./setup.sh`. Instalator rozpozna
+`AN16-41`, sprawdzi jądro 6.13+, gniazdo DAMX i funkcję `fan_speed`, a następnie
+ustawi `"backend": "damx"`. Nie zainstaluje `acer_nitro_ec` ani NBFC.
+
+Dla bezpieczeństwa instalacja zatrzyma się, jeśli brakuje DAMX lub aktywny jest
+stary backend. Opcja `--force` nie omija tej kontroli modelu.
+
 ---
 
 ## 7. Usługa systemowa (to jest „instalacja”)
@@ -213,10 +231,10 @@ Skrypt:
 
 Na końcu zobaczysz kilka linii `systemctl status`. Szukaj **`active (running)`**.
 
-Instalator **odmówi pracy**, gdy laptop nie jest na liście obsługiwanych i nie
-ma działającego `nbfc_service`. To zabezpieczenie: bez backendu usługa nie
-miałaby czym sterować. Wtedy najpierw skonfiguruj NBFC (punkt 6b). Świadome
-wymuszenie: `sudo ./install.sh --force`.
+Instalator **odmówi pracy** bez odpowiedniego backendu. Na AN16-41 akceptowana
+jest wyłącznie sprawdzona ścieżka DAMX i nie można jej wymusić. Na innych
+nieznanych modelach najpierw skonfiguruj NBFC (punkt 6b); świadome wymuszenie to
+`sudo ./install.sh --force`.
 
 Sprawdzenie później:
 

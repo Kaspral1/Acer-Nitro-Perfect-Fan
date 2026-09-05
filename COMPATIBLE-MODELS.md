@@ -15,6 +15,18 @@ These models use the EC map supported by the bundled kernel driver:
 The fan control path is `acer_nitro_ec` through the Linux hwmon interface.
 The AN515-54 is the only model fully tested by this project.
 
+## Acer Nitro 16 AN16-41 - dedicated DAMX path
+
+The installer recognizes the exact DMI model containing `AN16-41` and selects
+`DAMX`/`linuwu_sense` instead of the bundled legacy EC driver or NBFC. It
+requires Linux kernel 6.13 or newer and an already installed, running DAMX
+daemon whose socket exposes the `fan_speed` feature.
+
+The installer stops if DAMX is missing or if `acer_nitro_ec`/NBFC is active.
+`--force` deliberately cannot bypass these AN16-41 safeguards. Perfect Fan does
+not download or install DAMX; use its official release and reboot first:
+[PXDiv/Div-Acer-Manager-Max releases](https://github.com/PXDiv/Div-Acer-Manager-Max/releases).
+
 ## Experimental models with the optional driver patch
 
 The source tree contains an optional patch for adding these DMI models to the

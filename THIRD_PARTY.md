@@ -11,12 +11,14 @@ It does **not** relicense itself when optional integrations are present.
 
 The sidebar **power profiles** (Eco / Quiet / Balanced / Sport / Max) send
 JSON commands to a DAMX daemon that is already installed on the machine
-(`/var/run/DAMX.sock`). This repository does **not** vendor DAMX sources,
-binaries, or Linuwu-Sense.
+(`/run/DAMX.sock` or `/var/run/DAMX.sock`). On Acer Nitro AN16-41, Perfect Fan
+also uses DAMX's `fan_speed` feature as its dedicated fan-control backend. This
+repository does **not** vendor DAMX sources, binaries, or Linuwu-Sense.
 
-DAMX remains a separate program under GPL-3.0. Install, update, and
-distribute it on its own terms. If DAMX is missing, Perfect Fan still
-runs; only those CPU power-profile buttons stay offline.
+DAMX remains a separate program under GPL-3.0. Install, update, and distribute
+it on its own terms. If DAMX is missing, only CPU power-profile buttons stay
+offline on legacy backends; installation stops on AN16-41 because DAMX is its
+required fan backend.
 
 Pick a profile once. The DAMX daemon (typically `damx-daemon.service`)
 stores it under `/var/lib/damx/thermal_profile` and reapplies it at boot.

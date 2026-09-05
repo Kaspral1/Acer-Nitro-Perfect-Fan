@@ -18,11 +18,11 @@ technical lives here.
 ┌──────────────────────────────▼──────────────────────────────┐
 │         Daemon (nitro_fan_daemon.py / acer-nitro-perfect-fan)        │
 │              fan_backend.py  (auto detect)                  │
-└───────────────┬─────────────────────────────┬───────────────┘
-                │ hwmon pwm1/pwm2             │ UNIX socket
-┌───────────────▼───────────────┐   ┌─────────▼──────────────┐
-│     Kernel: acer_nitro_ec     │   │  nbfc_service (EC)     │
-└───────────────────────────────┘   └────────────────────────┘
+└───────────┬───────────────────┬───────────────────┬─────────┘
+            │ hwmon pwm1/pwm2   │ UNIX socket       │ UNIX socket
+┌───────────▼───────────┐  ┌────▼──────────────┐  ┌─▼──────────────────┐
+│ Kernel: acer_nitro_ec │  │ nbfc_service (EC) │  │ DAMX/linuwu_sense │
+└───────────────────────┘  └───────────────────┘  └────────────────────┘
 ```
 
 The daemon picks a backend at start (`backend` in `/etc/nitro-fan/config.json`,
@@ -30,9 +30,12 @@ default `auto`):
 
 1. **`acer_nitro_ec`** — hwmon `pwm1` / `pwm2` (preferred when the module is loaded)
 2. **`nbfc`** — [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) socket, if the kernel module is missing
+3. **`damx`** - DAMX JSON socket with `fan_speed` (dedicated AN16-41 install path; explicit only)
 
-`auto` will **not** drive NBFC while `acer_nitro_ec` exists. That avoids two
-writers on the same EC.
+`auto` will **not** drive NBFC while `acer_nitro_ec` exists, and it never selects
+DAMX implicitly. That avoids two writers on the same EC and prevents DAMX fan
+control from being enabled merely because its power-profile socket is present.
+The AN16-41 installer explicitly writes `damx` after its hardware checks.
 
 ## Configuration (`/etc/nitro-fan/config.json`)
 
@@ -53,7 +56,7 @@ writers on the same EC.
 }
 ```
 
-- `backend`: `auto` (default), `acer_nitro_ec`, or `nbfc`
+- `backend`: `auto` (default), `acer_nitro_ec`, `nbfc`, or `damx`
 - `mode`: `dynamic` (curves) or `manual` (fixed PWM from `manual_speeds`)
 - Fan `0` = CPU, fan `1` = GPU
 - Curve points and manual speeds below **30%** are raised to 30% (GUI, API, daemon)
@@ -73,8 +76,20 @@ independent of the fan curves:
 | Sport | `balanced-performance` | powersave | balance_performance | 100 | 17 | on |
 | Max | `performance` | performance | performance | 100 | 30 | on |
 
-Pick it **once** — DAMX stores it and reapplies it at login/boot. Without DAMX
-the rest of the panel still works; those five buttons stay offline.
+Pick it **once** - DAMX stores it and reapplies it at login/boot. On legacy
+backends the rest of the panel still works without DAMX; those five buttons stay
+offline. AN16-41 additionally uses DAMX as its required fan backend.
+
+## DAMX fan backend (AN16-41)
+
+For DMI model `AN16-41`, `setup.sh`/`install.sh` use the already installed DAMX
+daemon and its `set_fan_speed` JSON command. `fan_backend.py` preserves the
+other fan value when changing one channel, reads RPM/temperatures from the
+`acer` hwmon device, and restores firmware automatic mode with CPU/GPU `0,0`.
+
+This path requires Linux 6.13+, a DAMX socket exposing `fan_speed`, and no
+active `acer_nitro_ec` or NBFC backend. The installer never downloads DAMX and
+never applies the legacy EC driver to AN16-41.
 
 ## NBFC (alternative backend)
 
@@ -148,12 +163,12 @@ The real NBFC laptop profile lives in [`nbfc/`](nbfc/).
 | | **This project** | **keizenx/nitro-fan-control** |
 |---|------------------|--------------------------------|
 | Role | Daemon + GUI | GUI only |
-| Fan backend | `acer_nitro_ec` **or** nbfc-linux (auto) | [NBFC](https://github.com/nbfc-linux/nbfc-linux) / [hirschmann/nbfc](https://github.com/hirschmann/nbfc) |
+| Fan backend | `acer_nitro_ec`, nbfc-linux, or DAMX on AN16-41 | [NBFC](https://github.com/nbfc-linux/nbfc-linux) / [hirschmann/nbfc](https://github.com/hirschmann/nbfc) |
 | Who writes the EC | daemon → hwmon, **or** daemon → `nbfc_service` | `nbfc_service` / `nbfc.exe` |
 | OS | Linux + **systemd** only | Linux and **Windows** |
 | Extra kernel module | `acer-nitro-ec` (DKMS) for the hwmon path | `ec_sys` / `acpi_ec` (`write_support=1`) |
 | Curves | Interpolated °C→% editor, EMA, 30% CPU floor, GPU Zero-RPM | NBFC step thresholds; Silent/Balanced/Turbo as preset targets |
-| Model coverage | patched AN515/AN517 list, plus any nbfc-linux config | Any laptop with an NBFC config (~180 models) |
+| Model coverage | patched AN515/AN517 list, AN16-41 via DAMX, plus any nbfc-linux config | Any laptop with an NBFC config (~180 models) |
 | Packaged GUI | AppImage / `.deb` — **daemon still required** | AppImage / `.deb` / Windows installer |
 
 Use this project on Linux. Use keizenx + NBFC when you need Windows.

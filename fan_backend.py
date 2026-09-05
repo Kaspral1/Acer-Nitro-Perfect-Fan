@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Warstwa I/O wentylatorów: acer_nitro_ec (hwmon) albo nbfc-linux.
+"""Warstwa I/O wentylatorów: acer_nitro_ec, nbfc-linux albo DAMX.
 
 GUI i krzywe nie wiedzą, który backend jest aktywny. Wybór:
-  1. pole ``backend`` w config.json: auto | acer_nitro_ec | nbfc
-  2. auto: hwmon acer_nitro_ec jeśli jest, w przeciwnym razie gniazdo nbfc
+  1. pole ``backend`` w config.json: auto | acer_nitro_ec | nbfc | damx
+  2. auto: hwmon acer_nitro_ec, potem nbfc; DAMX wymaga jawnego wyboru
 """
 
 from __future__ import annotations
@@ -26,14 +26,20 @@ CONFIG_MAX_BYTES = 256 * 1024
 BACKEND_AUTO = "auto"
 BACKEND_EC = "acer_nitro_ec"
 BACKEND_NBFC = "nbfc"
-VALID_BACKENDS = (BACKEND_AUTO, BACKEND_EC, BACKEND_NBFC)
+BACKEND_DAMX = "damx"
+VALID_BACKENDS = (BACKEND_AUTO, BACKEND_EC, BACKEND_NBFC, BACKEND_DAMX)
 
 HWMON_ROOT = Path("/sys/class/hwmon")
 NBFC_SOCKETS = (
     Path("/run/nbfc_service.socket"),
     Path("/var/run/nbfc_service.socket"),
 )
+DAMX_SOCKETS = (
+    Path("/run/DAMX.sock"),
+    Path("/var/run/DAMX.sock"),
+)
 NBFC_END = b"\nEND"
+DAMX_MAX_RESPONSE_BYTES = 256 * 1024
 # fan_id daemona: "1" = CPU, "2" = GPU  →  indeks NBFC 0 / 1
 DAEMON_TO_NBFC = {"1": 0, "2": 1}
 API_TO_DAEMON = {"0": "1", "1": "2"}
@@ -70,6 +76,13 @@ def find_hwmon(name: str) -> Optional[Path]:
 
 def nbfc_socket_path() -> Optional[Path]:
     for p in NBFC_SOCKETS:
+        if p.is_socket():
+            return p
+    return None
+
+
+def damx_socket_path() -> Optional[Path]:
+    for p in DAMX_SOCKETS:
         if p.is_socket():
             return p
     return None
@@ -223,6 +236,158 @@ class AcerNitroEcBackend(FanBackend):
                     break
                 except OSError:
                     continue
+
+
+class DamxBackend(FanBackend):
+    """Sterowanie przez JSON IPC daemona DAMX i sensory hwmon ``acer``."""
+
+    name = BACKEND_DAMX
+
+    def __init__(self, sock_path: Path, cache_ttl: float = 0.4):
+        self.sock_path = sock_path
+        self.cache_ttl = cache_ttl
+        self._fan_cache: Optional[Tuple[float, float]] = None
+        self._fan_cache_at = 0.0
+
+    def _request(self, command: str, params: Optional[dict] = None) -> dict:
+        payload = json.dumps(
+            {"command": command, "params": params or {}},
+            separators=(",", ":"),
+        ).encode("utf-8")
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        parsed = None
+        try:
+            sock.settimeout(1.5)
+            sock.connect(os.fspath(self.sock_path))
+            sock.sendall(payload)
+            blob = b""
+            while len(blob) <= DAMX_MAX_RESPONSE_BYTES:
+                chunk = sock.recv(4096)
+                if not chunk:
+                    break
+                blob += chunk
+                try:
+                    parsed = json.loads(blob.decode("utf-8"))
+                    break
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    continue
+            else:
+                raise RuntimeError("damx: odpowiedź przekracza limit")
+        finally:
+            sock.close()
+
+        if not blob:
+            raise RuntimeError("damx: pusta odpowiedź")
+        if parsed is None:
+            raise RuntimeError("damx: niepełna odpowiedź JSON")
+        if not isinstance(parsed, dict):
+            raise RuntimeError("damx: odpowiedź nie jest obiektem JSON")
+        return parsed
+
+    @staticmethod
+    def _expect_success(response: dict, operation: str):
+        if response.get("success") is True:
+            return response.get("data")
+        raise RuntimeError(f"damx: {operation}: {response.get('error') or 'nieznany błąd'}")
+
+    def get_supported_features(self) -> set:
+        data = self._expect_success(
+            self._request("get_supported_features"),
+            "nie można odczytać listy funkcji",
+        )
+        features = data.get("available_features") if isinstance(data, dict) else None
+        if not isinstance(features, list):
+            raise RuntimeError("damx: brak poprawnej listy available_features")
+        return {str(feature) for feature in features}
+
+    def _fan_pair(self, force: bool = False) -> Tuple[float, float]:
+        now = time.monotonic()
+        if not force and self._fan_cache is not None and now - self._fan_cache_at < self.cache_ttl:
+            return self._fan_cache
+        data = self._expect_success(
+            self._request("get_all_settings"),
+            "nie można odczytać ustawień",
+        )
+        speeds = data.get("fan_speed") if isinstance(data, dict) else None
+        if not isinstance(speeds, dict):
+            raise RuntimeError("damx: brak fan_speed w ustawieniach")
+        cpu = _as_float(speeds.get("cpu"))
+        gpu = _as_float(speeds.get("gpu"))
+        if cpu is None or gpu is None:
+            raise RuntimeError("damx: niepoprawna wartość fan_speed")
+        self._fan_cache = (cpu, gpu)
+        self._fan_cache_at = now
+        return self._fan_cache
+
+    def _acer_hwmon(self) -> Optional[Path]:
+        return find_hwmon("acer")
+
+    def read_temps(self) -> Dict[str, Optional[float]]:
+        hwmon = self._acer_hwmon()
+        if not hwmon:
+            return {"cpu": None, "gpu": None, "sys": None}
+        return {
+            "cpu": _read_temp_c(hwmon / "temp1_input"),
+            "gpu": _read_temp_c(hwmon / "temp2_input"),
+            "sys": _read_temp_c(hwmon / "temp3_input"),
+        }
+
+    def read_pwm_pct(self, fan_id: str) -> Optional[float]:
+        try:
+            cpu, gpu = self._fan_pair()
+        except (OSError, RuntimeError, ValueError):
+            return None
+        if str(fan_id) == "1":
+            return cpu
+        if str(fan_id) == "2":
+            return gpu
+        return None
+
+    def read_fan_rpm(self, fan_id: str) -> Optional[int]:
+        hwmon = self._acer_hwmon()
+        if not hwmon or str(fan_id) not in ("1", "2"):
+            return None
+        rpm = _read_int(hwmon / f"fan{fan_id}_input")
+        return rpm if rpm is not None and rpm >= 0 else None
+
+    def write_pwm_pct(self, fan_id: str, pct: float) -> None:
+        cpu, gpu = self._fan_pair()
+        if str(fan_id) == "1":
+            cpu = float(pct)
+        elif str(fan_id) == "2":
+            gpu = float(pct)
+        else:
+            return
+        self._expect_success(
+            self._request("set_fan_speed", {"cpu": round(cpu), "gpu": round(gpu)}),
+            "nie można ustawić wentylatorów",
+        )
+        self._fan_cache = (float(round(cpu)), float(round(gpu)))
+        self._fan_cache_at = time.monotonic()
+
+    def restore_auto(self) -> None:
+        try:
+            self._expect_success(
+                self._request("set_fan_speed", {"cpu": 0, "gpu": 0}),
+                "nie można przywrócić trybu auto",
+            )
+        except (OSError, RuntimeError, ValueError):
+            pass
+        self._fan_cache = (0.0, 0.0)
+        self._fan_cache_at = time.monotonic()
+
+
+def detect_damx_backend() -> Optional[DamxBackend]:
+    path = damx_socket_path()
+    if not path:
+        return None
+    backend = DamxBackend(path)
+    try:
+        if "fan_speed" not in backend.get_supported_features():
+            return None
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return backend
 
 
 class NbfcBackend(FanBackend):
@@ -434,6 +599,11 @@ def detect_backend(preferred: str = BACKEND_AUTO) -> Tuple[FanBackend, str]:
         if not nbfc:
             raise RuntimeError("backend=nbfc, ale brak gniazda nbfc_service")
         return NbfcBackend(nbfc), "config: nbfc"
+    if pref == BACKEND_DAMX:
+        damx = detect_damx_backend()
+        if not damx:
+            raise RuntimeError("backend=damx, ale daemon nie udostępnia funkcji fan_speed")
+        return damx, "config: DAMX (linuwu_sense)"
 
     if ec:
         reason = "auto: acer_nitro_ec"
@@ -443,8 +613,8 @@ def detect_backend(preferred: str = BACKEND_AUTO) -> Tuple[FanBackend, str]:
     if nbfc:
         return NbfcBackend(nbfc), "auto: nbfc_service (brak acer_nitro_ec)"
     raise RuntimeError(
-        "brak backendu: załaduj acer_nitro_ec albo uruchom nbfc_service "
-        "(sudo ./acer-nitro-ec/apply.sh albo sudo ./nbfc/install-nbfc-config.sh)"
+        "brak backendu: załaduj acer_nitro_ec albo uruchom nbfc_service; "
+        "DAMX jest wybierany jawnie przez instalator obsługiwanego modelu"
     )
 
 

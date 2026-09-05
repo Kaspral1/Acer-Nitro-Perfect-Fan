@@ -7,8 +7,8 @@ Copy-paste the commands. You do not need to be a programmer.
 
 ## Simplest install
 
-Three commands. `setup.sh` installs the packages, checks your laptop, installs
-the fan driver + system service, and downloads the GUI dependencies
+Three commands. `setup.sh` installs the packages, checks your laptop, selects
+the correct fan backend + system service, and downloads the GUI dependencies
 (apt, dnf, pacman and zypper are handled):
 
 ```bash
@@ -38,6 +38,10 @@ npm install
 npm start
 ```
 
+On AN16-41, use `./setup.sh` instead of the manual package list above. Its
+dedicated route does not need DKMS or kernel headers, but DAMX must already be
+installed and running.
+
 Do not run `acer-nitro-ec/install-kbd-backlight.sh` or
 `nbfc/install-nbfc-config.sh` manually when using these paths.
 
@@ -56,7 +60,7 @@ backend.
 |----------|--------|
 | OS? | **Linux + systemd** only (Mint, Ubuntu, Debian, Fedora…). |
 | Windows / macOS? | **No.** Use [keizenx/nitro-fan-control](https://github.com/keizenx/nitro-fan-control) + NBFC on Windows. |
-| Laptop? | **Acer Nitro 5.** Fully tested: **AN515-54**. |
+| Laptop? | **Acer Nitro.** Fully tested: **AN515-54**; dedicated DAMX route: **AN16-41**. |
 | Predator / Helios / Nitro V? | **Not claimed.** Different EC or WMI. |
 
 Check your model:
@@ -65,7 +69,7 @@ Check your model:
 cat /sys/class/dmi/id/product_name
 ```
 
-You want something like `Nitro AN515-54`.
+You want something like `Nitro AN515-54` or `Nitro AN16-41`.
 
 With the bundled `acer-nitro-ec` driver, the supported models are:
 
@@ -81,6 +85,9 @@ AN515-51, AN515-55, AN517-51, and AN517-54 can also be tried after applying
 the driver patch, but they are not fully verified. Other laptops may work only
 through `nbfc-linux` with a matching NBFC profile.
 
+AN16-41 does not use that EC model list. It follows the separate DAMX route in
+step 6c.
+
 > **Safety.** Manual fan control can overheat the machine. The **CPU fan is hard-clamped to 30%**. Use at your own risk.
 
 ---
@@ -90,7 +97,7 @@ through `nbfc-linux` with a matching NBFC profile.
 Two pieces. You need both.
 
 1. **Background service (daemon)** — starts with the computer, even with no window open. This is what actually writes fan speeds. Pick Silent / Balanced / Turbo once; the service keeps using that profile.
-2. **Window (GUI)** — sliders, fan profiles, charts, four color themes (Nitro / OutRun / Matrix / Reddit). On AN515-54, Settings also has keyboard backlight **Off / 25 / 50 / 75 / 100** (and optional 30 s timeout) through `acer-nitro-ec` — **not** DAMX. That level is stored in the EC, so it survives reboot with the window closed. CPU power profiles (Eco / Quiet / Balanced / Sport / Max) need a separately installed **DAMX** daemon (Div Acer Manager Max, **GPL-3.0**). Pick a CPU profile once; DAMX reapplies it at boot. This project does not ship or install DAMX. The rest of the panel works without it.
+2. **Window (GUI)** - sliders, fan profiles, charts, four color themes (Nitro / OutRun / Matrix / Reddit). On AN515-54, Settings also has keyboard backlight **Off / 25 / 50 / 75 / 100** (and optional 30 s timeout) through `acer-nitro-ec` - **not** DAMX. That level is stored in the EC, so it survives reboot with the window closed. CPU power profiles (Eco / Quiet / Balanced / Sport / Max) need a separately installed **DAMX** daemon (Div Acer Manager Max, **GPL-3.0**). Pick a CPU profile once; DAMX reapplies it at boot. This project does not ship or install DAMX. Without it, only these buttons stay offline on older backends; AN16-41 requires DAMX for fan control too.
 
 An AppImage **does not replace** the service. Always run `install.sh` first.
 
@@ -153,13 +160,13 @@ chmod +x check-system.sh install.sh uninstall.sh update-daemon.sh restore-auto.s
 ./check-system.sh
 ```
 
-Read-only. A green `[OK]` on `acer_nitro_ec` or the NBFC socket means a backend exists.
+Read-only. A green `[OK]` on `acer_nitro_ec`, NBFC, or DAMX means a backend exists.
 
 ---
 
 ## 6. Fan backend
 
-The app will not poke EC registers itself. It needs **one** backend.
+The app will not guess EC registers. It needs **one** backend.
 
 ### 6a. Preferred: `acer_nitro_ec`
 
@@ -193,6 +200,17 @@ sudo systemctl enable --now nbfc_service
 
 Do not run two EC writers at once. Details: [nbfc/README.md](nbfc/README.md).
 
+### 6c. Acer Nitro 16 AN16-41: DAMX
+
+Do not use 6a or 6b on this model. Install the official
+[DAMX release](https://github.com/PXDiv/Div-Acer-Manager-Max/releases), reboot,
+and run `./setup.sh` again. The installer detects `AN16-41`, verifies kernel
+6.13+, the DAMX socket and its `fan_speed` feature, then sets
+`"backend": "damx"`. It does not install `acer_nitro_ec` or NBFC.
+
+For safety, installation stops if DAMX is missing or a legacy backend is
+active. `--force` does not bypass this model-specific check.
+
 ---
 
 ## 7. System service
@@ -207,10 +225,10 @@ This copies the daemon to `/usr/local/lib/acer-nitro-perfect-fan/` (outside an e
 
 Look for **`active (running)`** in the status dump.
 
-The installer **refuses to continue** when the laptop is not on the supported
-list and no `nbfc_service` is running. That is a safeguard: without a backend
-the service would have nothing to drive. Set up NBFC first (step 6b), or force
-it with `sudo ./install.sh --force` if you know what you are doing.
+The installer **refuses to continue** without a suitable backend. For AN16-41,
+only the verified DAMX path is accepted and this cannot be forced. For other
+unknown models, set up NBFC first (step 6b), or use
+`sudo ./install.sh --force` only if you know what you are doing.
 
 Later:
 

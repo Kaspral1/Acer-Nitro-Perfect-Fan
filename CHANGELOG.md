@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Acer Nitro 16 AN16-41 gets a dedicated installation path through an already
+  installed DAMX/linuwu_sense stack. The installer verifies kernel 6.13+, the
+  DAMX socket and `fan_speed`, selects `backend=damx`, and skips the legacy
+  `acer_nitro_ec` driver and NBFC.
+- Safety: AN16-41 installation stops on a missing DAMX or conflicting legacy
+  backend, and `--force` cannot bypass these model-specific checks.
+- The Python fan layer and emergency restore script can control/restore both
+  DAMX fan channels; unit coverage was added for detection, channel preservation
+  and automatic-mode restore.
+
 ## v1.1 (2026)
 
 - Version shown as **v1.1** (package semver `1.1.0`).

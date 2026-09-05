@@ -14,6 +14,7 @@ info() { printf '  [--]   %s\n' "$*"; }
 EC_MODELS="AN515-44 AN515-46 AN515-54 AN515-56 AN515-57 AN515-58 AN517-55"
 # Extra models the repo patch can add — not fully verified.
 EC_EXTRA="AN515-51 AN515-55 AN517-51 AN517-54"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "=== Acer Nitro Perfect Fan — system check (read-only) ==="
 echo
@@ -21,6 +22,8 @@ echo
 # --- Laptop -------------------------------------------------------------------
 MODEL="$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo '(no DMI)')"
 VENDOR="$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo '?')"
+IS_AN16_41=0
+case "$MODEL" in *AN16-41*) IS_AN16_41=1 ;; esac
 echo "Laptop"
 info "vendor:  $VENDOR"
 info "model:   $MODEL"
@@ -37,18 +40,27 @@ if [ "$MODEL_OK" -eq 0 ]; then
         case "$MODEL" in *"$m"*) MODEL_EXTRA=1 ;; esac
     done
 fi
-if [ "$MODEL_OK" -eq 1 ]; then
+if [ "$IS_AN16_41" -eq 1 ]; then
+    ok "model has a dedicated DAMX/linuwu_sense installation path"
+elif [ "$MODEL_OK" -eq 1 ]; then
     ok "model is on the supported list (acer-nitro-ec driver)"
 elif [ "$MODEL_EXTRA" -eq 1 ]; then
     warn "model is patchable but NOT fully verified ($EC_EXTRA)"
 else
-    info "model is not an Acer Nitro 5/7 from the EC list — NBFC is the only path"
+    info "model has no dedicated repo path - only a verified NBFC profile may work"
 fi
 echo
+
+KERNEL_OK=0
+[ "$(printf '%s\n%s\n' '6.13' "$(uname -r | cut -d- -f1)" | sort -V | head -n1)" = "6.13" ] && KERNEL_OK=1
 
 # --- Tools ---------------------------------------------------------------------
 echo "Tools"
 for t in git python3 node npm systemctl dkms; do
+    if [ "$IS_AN16_41" -eq 1 ] && [ "$t" = "dkms" ]; then
+        info "dkms not required on the AN16-41 DAMX path"
+        continue
+    fi
     if command -v "$t" >/dev/null 2>&1; then
         ok "$t"
     else
@@ -66,7 +78,9 @@ if command -v sensors >/dev/null 2>&1; then
 else
     info "no lm-sensors (optional): sudo apt install lm-sensors"
 fi
-if [ -d "/lib/modules/$(uname -r)/build" ]; then
+if [ "$IS_AN16_41" -eq 1 ]; then
+    info "kernel headers not required on the AN16-41 DAMX path"
+elif [ -d "/lib/modules/$(uname -r)/build" ]; then
     ok "kernel headers ($(uname -r))"
 else
     warn "no kernel headers — sudo apt install linux-headers-\$(uname -r)"
@@ -85,22 +99,35 @@ else
         [ "$(od -An -j4 -tu1 "$EFIVAR" 2>/dev/null | tr -d ' \n')" = "1" ] && SB=on || SB=off
     fi
 fi
-case "$SB" in
-    on)  warn "Secure Boot is ON — an unsigned DKMS driver may not load (disable it or sign the module)" ;;
-    off) ok "Secure Boot is off" ;;
-    *)   info "Secure Boot state unknown" ;;
-esac
+if [ "$IS_AN16_41" -eq 1 ]; then
+    info "Secure Boot does not affect the skipped acer_nitro_ec DKMS path"
+else
+    case "$SB" in
+        on)  warn "Secure Boot is ON - an unsigned DKMS driver may not load (disable it or sign the module)" ;;
+        off) ok "Secure Boot is off" ;;
+        *)   info "Secure Boot state unknown" ;;
+    esac
+fi
 echo
 
 # --- Fan backend ---------------------------------------------------------------
 echo "Fan backend"
 HAS_EC=0
-if grep -qs '^acer_nitro_ec$' /sys/class/hwmon/hwmon*/name 2>/dev/null; then
+if [ -d /sys/module/acer_nitro_ec ] \
+   || grep -qs '^acer_nitro_ec$' /sys/class/hwmon/hwmon*/name 2>/dev/null; then
     HAS_EC=1
-    HWMON="$(grep -l '^acer_nitro_ec$' /sys/class/hwmon/hwmon*/name 2>/dev/null | head -1)"
-    ok "acer_nitro_ec loaded (${HWMON%/name})"
+    HWMON="$(grep -l '^acer_nitro_ec$' /sys/class/hwmon/hwmon*/name 2>/dev/null | head -1 || true)"
+    if [ -n "$HWMON" ]; then
+        ok "acer_nitro_ec loaded (${HWMON%/name})"
+    else
+        warn "acer_nitro_ec module loaded without its hwmon device"
+    fi
 else
-    info "acer_nitro_ec not loaded yet — the installer loads it on supported models"
+    if [ "$IS_AN16_41" -eq 1 ]; then
+        info "acer_nitro_ec not loaded (correct for the AN16-41 DAMX path)"
+    else
+        info "acer_nitro_ec not loaded yet - the installer loads it on supported models"
+    fi
 fi
 
 HAS_NBFC=0
@@ -116,8 +143,22 @@ elif command -v nbfc >/dev/null 2>&1; then
 else
     info "no nbfc-linux (fine on supported Nitro models; required on other laptops)"
 fi
+HAS_DAMX=0
+if command -v python3 >/dev/null 2>&1 && { [ -S /run/DAMX.sock ] || [ -S /var/run/DAMX.sock ]; }; then
+    if PYTHONPATH="$SCRIPT_DIR" python3 -c 'from fan_backend import BACKEND_DAMX, detect_backend; detect_backend(BACKEND_DAMX)' >/dev/null 2>&1; then
+        HAS_DAMX=1
+        ok "DAMX socket responds and exposes fan_speed"
+    else
+        warn "DAMX socket exists, but fan_speed is unavailable"
+    fi
+elif [ "$IS_AN16_41" -eq 1 ]; then
+    info "DAMX is not running (required for the AN16-41 path)"
+fi
 if [ "$HAS_EC" -eq 1 ] && [ "$HAS_NBFC" -eq 1 ]; then
     warn "both backends present — the daemon in auto mode uses hwmon and will not write via NBFC"
+fi
+if [ "$IS_AN16_41" -eq 1 ] && { [ "$HAS_EC" -eq 1 ] || [ "$HAS_NBFC" -eq 1 ]; }; then
+    warn "AN16-41 must use only DAMX; disable acer_nitro_ec/NBFC before installation"
 fi
 echo
 
@@ -142,6 +183,18 @@ echo "=== Verdict ==="
 VERDICT=2
 if ! command -v systemctl >/dev/null 2>&1; then
     warn "NO — this project needs Linux with systemd."
+elif [ "$IS_AN16_41" -eq 1 ] && [ "$KERNEL_OK" -eq 0 ]; then
+    warn "NO - AN16-41 through DAMX requires Linux kernel 6.13 or newer."
+elif [ "$IS_AN16_41" -eq 1 ] && { [ "$HAS_EC" -eq 1 ] || [ "$HAS_NBFC" -eq 1 ]; }; then
+    warn "NO - conflicting fan backend detected; AN16-41 uses DAMX only."
+elif [ "$IS_AN16_41" -eq 1 ] && [ "$HAS_DAMX" -eq 1 ]; then
+    VERDICT=0
+    ok "YES - AN16-41 will use the dedicated DAMX installation path."
+    info "Continue with:  sudo ./install.sh"
+elif [ "$IS_AN16_41" -eq 1 ]; then
+    VERDICT=1
+    warn "MAYBE - AN16-41 is supported, but DAMX with fan_speed must be installed first."
+    info "Official releases: https://github.com/PXDiv/Div-Acer-Manager-Max/releases"
 elif [ "$HAS_EC" -eq 1 ]; then
     VERDICT=0
     ok "YES — the EC driver is loaded. Install or finish with:  sudo ./install.sh"
