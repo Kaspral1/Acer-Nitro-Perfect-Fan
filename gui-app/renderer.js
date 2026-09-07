@@ -146,6 +146,18 @@ function isManualUiLocked() {
     return Date.now() < manualUiLockUntil || isUserDraggingFanSlider || isUserEditingOffset;
 }
 
+/** Po zapisie krzywej ignoruj telemetrię na czas przetworzenia i potwierdzenia przez backend. */
+let curveUiLockUntil = 0;
+const CURVE_UI_LOCK_MS = 1500;
+
+function lockCurveUi(ms = CURVE_UI_LOCK_MS) {
+    curveUiLockUntil = Date.now() + ms;
+}
+
+function isCurveUiLocked() {
+    return Date.now() < curveUiLockUntil || isUserEditingInputs;
+}
+
 let masterBase = 30; // shared base under offset (master slider)
 let currentProfile = 'Silent'; // Silent | Balanced | Turbo
 // Źródło krzywej: default (wbudowane profile) | custom (własne, niekasowane przy default)
@@ -1710,7 +1722,7 @@ function updateUI(data) {
 
     // Sync curve source + active curves from backend
     if (data.curve_source === 'custom' || data.curve_source === 'default') {
-        if (!isUserEditingInputs) {
+        if (!isCurveUiLocked()) {
             syncCurveSourceUI(data.curve_source);
         }
     }
@@ -1741,7 +1753,7 @@ function updateUI(data) {
     if (typeof data.has_custom_curve === 'boolean') {
         hasCustomCurve = data.has_custom_curve;
     }
-    if (data.curves && !isUserEditingInputs) {
+    if (data.curves && !isCurveUiLocked()) {
         const mapped = mapCurvePayload(data.curves);
         if (mapped) {
             curvesData = mapped;
@@ -2930,6 +2942,7 @@ function setupEventListeners() {
         btn.addEventListener('click', () => {
             const src = btn.dataset.source === 'custom' ? 'custom' : 'default';
             if (src === curveSource) return;
+            lockCurveUi(1200);
             syncCurveSourceUI(src);
             if (api.setCurveSource) {
                 api.setCurveSource(src);
@@ -3062,7 +3075,11 @@ function setupEventListeners() {
             };
             hasCustomCurve = true;
             curveSource = 'custom';
+            lockCurveUi(1500);
             syncCurveSourceUI('custom');
+            if (api.setCurveSource) {
+                api.setCurveSource('custom');
+            }
             loadCurvesToInputs();
 
             if (anyUnsorted) {

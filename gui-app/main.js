@@ -584,9 +584,39 @@ ipcMain.on('clear-logs', () => {
 });
 
 ipcMain.on('set-fan-curve', (event, curveData) => {
-  const flatData = numericTokens(Array.isArray(curveData) ? curveData.flat() : []);
-  if (!flatData) return;
-  sendPython('set_curve', ...flatData);
+  let fan = null;
+  let rawValues = [];
+
+  if (curveData && typeof curveData === 'object' && !Array.isArray(curveData)) {
+    if (curveData.fan && typeof curveData.fan === 'string') {
+      const f = curveData.fan.toLowerCase();
+      if (['cpu', 'gpu', 'all'].includes(f)) fan = f;
+    }
+    const pts = curveData.points || curveData.curve || [];
+    rawValues = Array.isArray(pts) ? pts.flat() : [];
+  } else if (Array.isArray(curveData)) {
+    const flat = curveData.flat();
+    if (typeof flat[0] === 'string' && ['cpu', 'gpu', 'all'].includes(flat[0].toLowerCase())) {
+      fan = flat[0].toLowerCase();
+      rawValues = flat.slice(1);
+    } else {
+      rawValues = flat;
+    }
+  } else {
+    return;
+  }
+
+  const flatData = numericTokens(rawValues);
+  if (!flatData || flatData.length < 4 || flatData.length % 2 !== 0) {
+    console.warn('[Main] set-fan-curve: niepoprawne dane krzywej', curveData);
+    return;
+  }
+
+  if (fan) {
+    sendPython('set_curve', fan, ...flatData);
+  } else {
+    sendPython('set_curve', ...flatData);
+  }
 });
 
 ipcMain.on('set-curve-source', (event, source) => {
