@@ -3039,12 +3039,29 @@ function setupEventListeners() {
         });
     }
 
-    // ZAPISZ I ZASTOSUJ — zapisuje jako Własne + stosuje (defaulty profilu zostają)
+    // ZAPISZ I ZASTOSUJ — stosuje aktualnie wybrany tryb (Domyślny lub Własny)
     if (applyCurveBtn) {
         applyCurveBtn.addEventListener('click', () => {
-            // W trybie Domyślny najpierw przełącz na edycję własną (kopiuje wartości z pól)
             if (curveSource === 'default') {
-                syncCurveSourceUI('custom');
+                // Jeśli wybrano tryb Domyślny, zastosuj wbudowaną krzywą profilu
+                lockCurveUi(1500);
+                syncCurveSourceUI('default');
+                if (api.setCurveSource) {
+                    api.setCurveSource('default');
+                }
+                if (defaultCurvesCache) {
+                    curvesData = {
+                        cpu: defaultCurvesCache.cpu.map((p) => [...p]),
+                        gpu: defaultCurvesCache.gpu.map((p) => [...p]),
+                    };
+                    loadCurvesToInputs();
+                }
+                showToast(
+                    currentTranslations['toast_curve_source_default']
+                        || 'Krzywa: ustawienia domyślne profilu',
+                    'success'
+                );
+                return;
             }
 
             let anyUnsorted = false;
