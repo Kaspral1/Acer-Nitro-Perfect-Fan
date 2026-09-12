@@ -8,7 +8,7 @@
         (function () {
             try {
                 var t = localStorage.getItem('perfect-fan-theme');
-                var valid = ['nitro', 'outrun', 'reddit', 'matrix'];
+                var valid = ['nitro', 'outrun', 'reddit', 'matrix', 'ubuntu'];
                 document.documentElement.setAttribute('data-theme', valid.indexOf(t) !== -1 ? t : 'nitro');
             } catch (e) {
                 document.documentElement.setAttribute('data-theme', 'nitro');
@@ -515,76 +515,105 @@
                         <button type="button" class="settings-tab" id="settings-tab-theme" data-settings-tab="theme" role="tab" aria-selected="false">Motyw</button>
                     </div>
                     <div class="settings-tab-panel" id="settings-panel-general" data-settings-panel="general" role="tabpanel">
-                    <div class="dropdown-header">
-                        <span id="settings-header-title">USTAWIENIA</span>
-                    </div>
-                    <div class="settings-kbd" id="kbd-backlight-section">
-                        <div class="dropdown-section-label" id="kbd-backlight-title">Podświetlanie klawiatury</div>
-                        <p class="kbd-status" id="kbd-status" hidden></p>
-                        <div class="mode-segmented-control kbd-level-row" role="group" aria-labelledby="kbd-backlight-title">
-                            <button type="button" class="kbd-level-btn" data-kbd-level="0">Off</button>
-                            <button type="button" class="kbd-level-btn" data-kbd-level="1">25</button>
-                            <button type="button" class="kbd-level-btn" data-kbd-level="2">50</button>
-                            <button type="button" class="kbd-level-btn" data-kbd-level="3">75</button>
-                            <button type="button" class="kbd-level-btn" data-kbd-level="4">100</button>
-                        </div>
-                        <div class="kbd-timeout-row">
-                            <span class="kbd-timeout-label" id="kbd-timeout-label">Gaśnięcie po 30 s</span>
-                            <div class="mode-segmented-control kbd-timeout-control" role="group" aria-labelledby="kbd-timeout-label">
-                                <button type="button" id="kbd-timeout-off" class="mode-segment-btn" data-kbd-timeout="0">
-                                    <span id="kbd-timeout-off-text">Nie</span>
-                                </button>
-                                <button type="button" id="kbd-timeout-on" class="mode-segment-btn" data-kbd-timeout="1">
-                                    <span id="kbd-timeout-on-text">Tak</span>
-                                </button>
+                        <!-- Grupa 1: Klawiatura -->
+                        <div class="settings-group settings-kbd" id="kbd-backlight-section">
+                            <div class="dropdown-section-label" id="kbd-backlight-title">Podświetlenie klawiatury</div>
+                            <p class="kbd-status" id="kbd-status" hidden></p>
+                            <div class="mode-segmented-control kbd-level-row" role="group" aria-labelledby="kbd-backlight-title">
+                                <button type="button" class="kbd-level-btn" data-kbd-level="0">Off</button>
+                                <button type="button" class="kbd-level-btn" data-kbd-level="1">25</button>
+                                <button type="button" class="kbd-level-btn" data-kbd-level="2">50</button>
+                                <button type="button" class="kbd-level-btn" data-kbd-level="3">75</button>
+                                <button type="button" class="kbd-level-btn" data-kbd-level="4">100</button>
+                            </div>
+                            <div class="kbd-timeout-row">
+                                <span class="kbd-timeout-label" id="kbd-timeout-label">Gaśnięcie po 30 s</span>
+                                <div class="mode-segmented-control kbd-timeout-control" role="group" aria-labelledby="kbd-timeout-label">
+                                    <button type="button" id="kbd-timeout-off" class="mode-segment-btn" data-kbd-timeout="0">
+                                        <span id="kbd-timeout-off-text">Nie</span>
+                                    </button>
+                                    <button type="button" id="kbd-timeout-on" class="mode-segment-btn" data-kbd-timeout="1">
+                                        <span id="kbd-timeout-on-text">Tak</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-section-label" id="settings-close-label">Przycisk X (zamknięcie)</div>
-                    <select id="settings-close-action" class="settings-select" title="Zachowanie przycisku X">
-                        <option value="ask" id="settings-close-ask">Pytaj za każdym razem</option>
-                        <option value="minimize" id="settings-close-minimize">Zawsze minimalizuj do tray</option>
-                        <option value="quit" id="settings-close-quit">Zawsze zamykaj całkowicie</option>
-                    </select>
-                    <div class="dropdown-divider"></div>
-                    <button id="settings-edit-defaults-btn" class="dropdown-item action-item">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 20h9"/>
-                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                        </svg>
-                        <span id="settings-edit-defaults-label">Zmień domyślne ustawienia</span>
-                    </button>
-                    <button id="settings-licenses-btn" class="dropdown-item action-item">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
-                        <span id="settings-licenses-label">Licencje</span>
-                    </button>
-                    <button type="button" id="settings-github-btn" class="dropdown-item action-item" data-url="https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan" title="https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
-                            <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.36 1.12 2.94.85.09-.67.35-1.12.63-1.37-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.84c.85.01 1.71.12 2.51.34 1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.04 10.04 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/>
-                        </svg>
-                        <span id="settings-github-label">Repozytorium na GitHubie</span>
-                    </button>
-                    <button id="settings-show-disclaimer-btn" class="dropdown-item action-item">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                            <line x1="12" y1="9" x2="12" y2="13"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                        <span id="settings-show-disclaimer-label">Pokaż ostrzeżenie bezpieczeństwa</span>
-                    </button>
-                    <button id="settings-reset-close-btn" class="dropdown-item action-item">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                            <path d="M3 3v5h5"/>
-                        </svg>
-                        <span id="settings-reset-close-label">Resetuj pytanie przy zamykaniu</span>
-                    </button>
+
+                        <div class="dropdown-divider"></div>
+
+                        <!-- Grupa 2: Zachowanie okna -->
+                        <div class="settings-group">
+                            <div class="dropdown-section-label" id="settings-window-group-title">Zachowanie okna</div>
+                            <div class="settings-field">
+                                <div class="settings-sublabel" id="settings-close-label">Przycisk X (zamknięcie)</div>
+                                <select id="settings-close-action" class="settings-select" title="Zachowanie przycisku X">
+                                    <option value="ask" id="settings-close-ask">Pytaj za każdym razem</option>
+                                    <option value="minimize" id="settings-close-minimize">Zawsze minimalizuj do tray</option>
+                                    <option value="quit" id="settings-close-quit">Zawsze zamykaj całkowicie</option>
+                                </select>
+                            </div>
+                            <button type="button" id="settings-reset-close-btn" class="dropdown-item action-item">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                    <path d="M3 3v5h5"/>
+                                </svg>
+                                <span id="settings-reset-close-label">Resetuj pytanie przy zamykaniu</span>
+                            </button>
+                        </div>
+
+                        <div class="dropdown-divider"></div>
+
+                        <!-- Grupa 3: Zaawansowane i bezpieczeństwo -->
+                        <div class="settings-group">
+                            <div class="dropdown-section-label" id="settings-advanced-group-title">Zaawansowane i bezpieczeństwo</div>
+                            <button type="button" id="settings-edit-defaults-btn" class="dropdown-item action-item">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"/>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                                <span id="settings-edit-defaults-label">Zmień domyślne ustawienia</span>
+                            </button>
+                            <button type="button" id="settings-show-disclaimer-btn" class="dropdown-item action-item">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                    <line x1="12" y1="9" x2="12" y2="13"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                <span id="settings-show-disclaimer-label">Pokaż ostrzeżenie bezpieczeństwa</span>
+                            </button>
+                        </div>
+
+                        <div class="dropdown-divider"></div>
+
+                        <!-- Grupa 4: O projekcie i wsparcie -->
+                        <div class="settings-group">
+                            <div class="dropdown-section-label" id="settings-about-group-title">O projekcie i wsparcie</div>
+                            <button type="button" id="settings-support-btn" class="dropdown-item action-item support-item" data-url="https://buymeacoffee.com/kaspral" title="https://buymeacoffee.com/kaspral">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="support-icon">
+                                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                                    <line x1="6" y1="1" x2="6" y2="4"/>
+                                    <line x1="10" y1="1" x2="10" y2="4"/>
+                                    <line x1="14" y1="1" x2="14" y2="4"/>
+                                </svg>
+                                <span id="settings-support-label">Postaw kawę (Buy Me a Coffee)</span>
+                            </button>
+                            <button type="button" id="settings-github-btn" class="dropdown-item action-item" data-url="https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan" title="https://github.com/Kaspral1/Acer-Nitro-Perfect-Fan">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                                    <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.36 1.12 2.94.85.09-.67.35-1.12.63-1.37-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.84c.85.01 1.71.12 2.51.34 1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.04 10.04 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/>
+                                </svg>
+                                <span id="settings-github-label">Repozytorium na GitHubie</span>
+                            </button>
+                            <button type="button" id="settings-licenses-btn" class="dropdown-item action-item">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                                <span id="settings-licenses-label">Licencje</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="settings-tab-panel hidden" id="settings-panel-theme" data-settings-panel="theme" role="tabpanel" hidden>
                         <p class="theme-hint" id="theme-hint">Wybierz kolorystykę interfejsu. Motyw zapamiętuje się po restarcie.</p>
@@ -631,6 +660,17 @@
                             </div>
                             <span class="theme-card-name" id="theme-matrix-name">Matrix</span>
                             <span class="theme-card-desc" id="theme-matrix-desc">Terminalowy zielony</span>
+                        </button>
+                        <button type="button" class="theme-card" id="theme-card-ubuntu" data-theme="ubuntu">
+                            <div class="theme-swatches" aria-hidden="true">
+                                <span style="background:#d15327"></span>
+                                <span style="background:#59284f"></span>
+                                <span style="background:#ffffff"></span>
+                                <span style="background:#333333"></span>
+                                <span style="background:#ada7a0"></span>
+                            </div>
+                            <span class="theme-card-name" id="theme-ubuntu-name">Ubuntu</span>
+                            <span class="theme-card-desc" id="theme-ubuntu-desc">Klasyczny styl Linux Ubuntu</span>
                         </button>
                     </div>
                 </div>
@@ -709,17 +749,27 @@
             <div class="modal-body license-modal-body">
                 <section class="license-block">
                     <h4 id="license-app-heading">Acer Nitro Perfect Fan</h4>
-                    <p id="license-app-body">Ten program jest na licencji MIT (keizenx 2024, Kaspral1 2026). Kod źródłowy jest w repozytorium projektu.</p>
+                    <p id="license-app-body">Program jest udostępniany na licencji MIT (© 2024 keizenx, © 2026 Kaspral1). Kod źródłowy dostępny jest w repozytorium projektu na GitHubie.</p>
+                    <button type="button" class="license-link support-license-link" id="license-support-btn" data-url="https://buymeacoffee.com/kaspral" title="Buy Me a Coffee">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                            <line x1="6" y1="1" x2="6" y2="4"/>
+                            <line x1="10" y1="1" x2="10" y2="4"/>
+                            <line x1="14" y1="1" x2="14" y2="4"/>
+                        </svg>
+                        <span id="license-support-btn-label">Postaw kawę twórcy (Buy Me a Coffee)</span>
+                    </button>
                 </section>
                 <section class="license-block">
                     <h4 id="license-damx-heading">Profile zasilania — DAMX</h4>
-                    <p id="license-damx-body">Przyciski Eco / Cichy / Balans / Sport / Max łączą się z już zainstalowanym daemonem DAMX (Div Acer Manager Max) przez gniazdo Unix. Ten program nie zawiera kodu DAMX i zostaje na MIT. DAMX oraz sterownik Linuwu-Sense to osobne projekty na GNU GPL v3.</p>
+                    <p id="license-damx-body">Profile zasilania (Eco, Cichy, Balans, Sport, Max) komunikują się z usługą DAMX (Div Acer Manager Max) przez gniazdo Unix. Aplikacja nie zawiera kodu DAMX i pozostaje na licencji MIT. DAMX oraz sterownik Linuwu-Sense to niezależne projekty na licencji GNU GPL v3.</p>
                     <button type="button" class="license-link" id="license-damx-link" data-url="https://github.com/PXDiv/Div-Acer-Manager-Max">Div Acer Manager Max (GPL-3.0)</button>
                     <button type="button" class="license-link" id="license-linuwu-link" data-url="https://github.com/PXDiv/Div-Linuwu-Sense">Linuwu-Sense (GPL-3.0)</button>
                 </section>
                 <section class="license-block">
                     <h4 id="license-ec-heading">Sterownik acer-nitro-ec</h4>
-                    <p id="license-ec-body">Dołączony moduł jądra (wentylatory i na AN515-54 podświetlenie klawiatury) jest na GPL-2.0. To nie zmienia licencji MIT daemona ani okienka.</p>
+                    <p id="license-ec-body">Dołączony moduł jądra (odpowiedzialny za wentylatory oraz podświetlenie klawiatury w modelu AN515-54) objęty jest licencją GPL-2.0. Nie wpływa to na licencję MIT daemona ani aplikacji graficznej (GUI).</p>
                 </section>
             </div>
             <div class="modal-footer">
