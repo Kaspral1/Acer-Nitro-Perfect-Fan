@@ -892,6 +892,8 @@ class NBFCController:
             t2, s2 = curve[i+1]
 
             if t1 <= highest_temp <= t2:
+                if t2 == t1:
+                    return s2
                 # Linear interpolation formula: y = y1 + (x - x1) * (y2 - y1) / (x2 - x1)
                 fraction = (highest_temp - t1) / (t2 - t1)
                 speed = s1 + fraction * (s2 - s1)
