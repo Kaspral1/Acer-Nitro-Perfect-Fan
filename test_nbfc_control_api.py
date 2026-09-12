@@ -299,6 +299,55 @@ class RunCommandTimeoutTests(unittest.TestCase):
             self.assertEqual(run.call_args.kwargs["timeout"], 3.0)
 
 
+class CalculateDynamicSpeedTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.cfg = os.path.join(self.tmp.name, "config.json")
+        Path(self.cfg).write_text("{}")
+        with mock.patch.object(api, "detect_from_config", side_effect=RuntimeError("no hwmon")):
+            self.ctl = api.NBFCController(config_path=self.cfg, fallback_config_path=self.cfg)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_linear_interpolation(self):
+        self.ctl.curves["cpu"] = [(40.0, 30.0), (60.0, 50.0)]
+        speed = self.ctl.calculate_dynamic_speed([50.0], "cpu")
+        self.assertEqual(speed, 40.0)
+
+    def test_temperature_out_of_bounds(self):
+        self.ctl.curves["cpu"] = [(40.0, 30.0), (60.0, 50.0)]
+        self.assertEqual(self.ctl.calculate_dynamic_speed([30.0], "cpu"), 30.0)
+        self.assertEqual(self.ctl.calculate_dynamic_speed([80.0], "cpu"), 50.0)
+
+
+class CurveDeduplicationTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.cfg = os.path.join(self.tmp.name, "config.json")
+        Path(self.cfg).write_text("{}")
+        with mock.patch.object(api, "detect_from_config", side_effect=RuntimeError("no hwmon")):
+            self.ctl = api.NBFCController(config_path=self.cfg, fallback_config_path=self.cfg)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_normalize_curve_points_deduplicates_by_temperature(self):
+        pts = [(45.0, 30.0), (55.0, 32.0), (55.0, 40.0), (75.0, 60.0)]
+        norm = self.ctl._normalize_curve_points("cpu", pts)
+        self.assertEqual(norm, [(45.0, 30.0), (55.0, 40.0), (75.0, 60.0)])
+
+    def test_normalize_curve_points_raises_if_insufficient_unique_temperatures(self):
+        pts = [(50.0, 30.0), (50.0, 40.0)]
+        with self.assertRaises(ValueError):
+            self.ctl._normalize_curve_points("cpu", pts)
+
+    def test_parse_fan_points_deduplicates_by_temperature(self):
+        pts = [[45, 30], [55, 32], [55, 40], [75, 60]]
+        parsed = api.NBFCController._parse_fan_points(pts)
+        self.assertEqual(parsed, [(45.0, 30.0), (55.0, 40.0), (75.0, 60.0)])
+
+
 class ClearTelemetryLogsTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

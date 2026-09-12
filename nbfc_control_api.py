@@ -178,12 +178,13 @@ class NBFCController:
         if not points or not isinstance(points, list) or len(points) < 2:
             return None
         try:
-            out: List[Tuple[float, float]] = []
+            dedup: Dict[float, float] = {}
             for pair in points:
                 t = float(pair[0])
                 s = max(MIN_PCT_CPU, min(100.0, float(pair[1])))
-                out.append((t, s))
-            return sorted(out, key=lambda p: p[0])
+                dedup[t] = s
+            out = sorted(dedup.items(), key=lambda p: p[0])
+            return out if len(out) >= 2 else None
         except (TypeError, ValueError, IndexError):
             return None
 
@@ -671,7 +672,7 @@ class NBFCController:
         if len(points) < 2:
             raise ValueError("krzywa wymaga co najmniej 2 punktów")
         floor = MIN_PCT_CPU if fan == 'cpu' else MIN_PCT_GPU
-        normalized = []
+        dedup: Dict[float, float] = {}
         for temp, speed in points:
             t = float(temp)
             s = float(speed)
@@ -680,8 +681,11 @@ class NBFCController:
             if s < 0.0 or s > 100.0:
                 raise ValueError(f"prędkość poza zakresem 0-100%: {s}")
             s = max(floor, min(100.0, s))
-            normalized.append((t, s))
-        return sorted(normalized)
+            dedup[t] = s
+        out = sorted(dedup.items(), key=lambda p: p[0])
+        if len(out) < 2:
+            raise ValueError("krzywa wymaga co najmniej 2 unikalnych temperatur")
+        return out
 
     def set_default_curve(
         self, profile: str, fan: str, points: List[Tuple[float, float]]

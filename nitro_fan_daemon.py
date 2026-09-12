@@ -94,16 +94,17 @@ def log_throttled(key: str, msg: str, last_log={}) -> None:
 
 
 def clean_curve(raw, default):
-    """Normalizuje punkty krzywej; prędkość nigdy poniżej MIN_PCT_CPU (30%)."""
-    pts = []
+    """Normalizuje i deduplikuje punkty krzywej po temperaturze; prędkość nigdy poniżej MIN_PCT_CPU (30%)."""
+    dedup = {}
     for p in raw or []:
         try:
             t, s = p
             speed = max(float(MIN_PCT_CPU), min(100.0, float(s)))
-            pts.append((float(t), speed))
+            dedup[float(t)] = speed
         except (TypeError, ValueError):
             continue
-    return sorted(pts) if pts else default
+    pts = sorted(dedup.items(), key=lambda p: p[0])
+    return pts if len(pts) >= 2 else default
 
 
 def clean_speed_offset(raw) -> float:
