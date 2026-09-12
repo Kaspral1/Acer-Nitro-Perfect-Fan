@@ -6,6 +6,18 @@ import unittest
 import nitro_fan_daemon as d
 
 
+class CleanCurveDeduplicationTests(unittest.TestCase):
+    def test_clean_curve_deduplicates_by_temperature(self):
+        raw = [(45.0, 30.0), (55.0, 32.0), (55.0, 40.0), (75.0, 60.0)]
+        cleaned = d.clean_curve(raw, d.CURVE_CPU)
+        self.assertEqual(cleaned, [(45.0, 30.0), (55.0, 40.0), (75.0, 60.0)])
+
+    def test_clean_curve_falls_back_if_fewer_than_two_unique_temperatures(self):
+        raw = [(50.0, 30.0), (50.0, 40.0)]
+        cleaned = d.clean_curve(raw, d.CURVE_CPU)
+        self.assertEqual(cleaned, d.CURVE_CPU)
+
+
 class GpuCurveBoostTests(unittest.TestCase):
     def test_adds_five_points(self):
         self.assertAlmostEqual(d.boost_gpu_curve_pct(30.0), 35.0)
