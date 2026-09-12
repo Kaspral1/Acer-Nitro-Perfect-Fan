@@ -161,6 +161,8 @@
   "theme_reddit_desc": "Kolory społeczności",
   "theme_matrix_name": "Matrix",
   "theme_matrix_desc": "Terminalowy zielony",
+  "theme_ubuntu_name": "Ubuntu",
+  "theme_ubuntu_desc": "Grafit i oberżyna Yaru",
   "toast_theme_applied": "Motyw: {theme}",
   "power_license_credit": "Profile CPU przez DAMX (GPL-3.0)",
   "license_modal_title": "Licencje",

@@ -8,7 +8,7 @@
         (function () {
             try {
                 var t = localStorage.getItem('perfect-fan-theme');
-                var valid = ['nitro', 'outrun', 'reddit', 'matrix'];
+                var valid = ['nitro', 'outrun', 'reddit', 'matrix', 'ubuntu'];
                 document.documentElement.setAttribute('data-theme', valid.indexOf(t) !== -1 ? t : 'nitro');
             } catch (e) {
                 document.documentElement.setAttribute('data-theme', 'nitro');
@@ -631,6 +631,17 @@
                             </div>
                             <span class="theme-card-name" id="theme-matrix-name">Matrix</span>
                             <span class="theme-card-desc" id="theme-matrix-desc">Terminalowy zielony</span>
+                        </button>
+                        <button type="button" class="theme-card" id="theme-card-ubuntu" data-theme="ubuntu">
+                            <div class="theme-swatches" aria-hidden="true">
+                                <span style="background:#261E27"></span>
+                                <span style="background:#77216F"></span>
+                                <span style="background:#E95420"></span>
+                                <span style="background:#E879D9"></span>
+                                <span style="background:#5E2750"></span>
+                            </div>
+                            <span class="theme-card-name" id="theme-ubuntu-name">Ubuntu</span>
+                            <span class="theme-card-desc" id="theme-ubuntu-desc">Grafit i oberżyna Yaru</span>
                         </button>
                     </div>
                 </div>

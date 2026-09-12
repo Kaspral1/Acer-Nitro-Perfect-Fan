@@ -148,6 +148,8 @@ const REQUIRED_KEYS = [
   "theme_nitro_desc",
   "theme_outrun_name",
   "theme_outrun_desc",
+  "theme_ubuntu_name",
+  "theme_ubuntu_desc",
   "toast_theme_applied",
   "power_license_credit",
   "license_modal_title",

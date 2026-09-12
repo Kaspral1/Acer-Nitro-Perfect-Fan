@@ -161,6 +161,8 @@
   "theme_reddit_desc": "Barvy komunity",
   "theme_matrix_name": "Matrix",
   "theme_matrix_desc": "Terminálová zelená",
+  "theme_ubuntu_name": "Ubuntu",
+  "theme_ubuntu_desc": "Grafit a lilek Yaru",
   "toast_theme_applied": "Motiv: {theme}",
   "power_license_credit": "Profily CPU přes DAMX (GPL-3.0)",
   "license_modal_title": "Licence",

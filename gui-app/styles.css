@@ -354,10 +354,6 @@ html[data-theme="matrix"] {
   --icon-steady: #B6FF9A;
   --icon-heat: #0A1A04;
 
-  /* One phosphor hue, four brightness steps. The previous fills were four
-   * near-identical dark greens, so the selected profile was indistinguishable
-   * from the unselected ones. */
-
   /* Quiet (Cichy / Eco): przygaszony terminal, szarozielony z palety */
   --gloss-quiet: linear-gradient(180deg, #3E4C42 0%, #303C34 48%, #24302A 100%);
   --glow-quiet: rgba(149, 255, 119, 0.28);
@@ -402,6 +398,105 @@ html[data-theme="matrix"] {
   --offset-glow: rgba(155, 224, 127, 0.6);
   --bg-tooltip: rgba(9, 14, 10, 0.97);
   --text-tooltip: #E4FFDD;
+}
+
+/* Ubuntu — paleta Yaru Yaru Aubergine & Orange: #261E27, #77216F, #E95420, #E879D9 */
+html[data-theme="ubuntu"] {
+  --bg-dark: #1C151D;
+  --bg-card: #2B212C;
+  --bg-card-hover: #362B37;
+  --bg-sidebar: #19121A;
+  --bg-box: #322834;
+  --bg-input: #231B24;
+  --bg-chrome: #161017;
+  --border-glass: rgba(233, 84, 32, 0.22);
+  --border-focus: rgba(233, 84, 32, 0.65);
+  --color-blue: #E879D9;
+  --color-red: #E95420;
+  --color-green: #38D878;
+  --color-orange: #E95420;
+  --color-purple: #77216F;
+  --color-ram: #E879D9;
+  --cpu-color: #5E2750;
+  --cpu-hi: #E879D9;
+  --cpu-text: #F5B3ED;
+  --cpu-glow: rgba(232, 121, 217, 0.58);
+  --gpu-color: #A3310B;
+  --gpu-hi: #E95420;
+  --gpu-text: #FF9E7D;
+  --gpu-glow: rgba(233, 84, 32, 0.65);
+  --gauge-cpu: #E879D9;
+  --gauge-cpu-dim: rgba(232, 121, 217, 0.16);
+  --gauge-cpu-glow: rgba(232, 121, 217, 0.78);
+  --gauge-gpu: #E95420;
+  --gauge-gpu-dim: rgba(233, 84, 32, 0.16);
+  --gauge-gpu-glow: rgba(233, 84, 32, 0.8);
+  --accent-cyan: #E879D9;
+  --accent-blue: #77216F;
+  --shadow-glow: 0 0 20px rgba(233, 84, 32, 0.3);
+
+  --pal-plum: #5E2750;
+  --pal-pink: #E879D9;
+  --pal-sun: #E95420;
+  --pal-royal: #77216F;
+  --pal-sky: #E879D9;
+  --pal-peak: #FF8F00;
+  --pal-cta: #E95420;
+
+  --btn-on-neon: #1C0A19;
+  --btn-on-light: #200800;
+  --btn-on-dark: #F7F5F7;
+  --btn-on-quiet: #F7F5F7;
+  --btn-on-steady: #F7F5F7;
+  --btn-on-heat: #200800;
+  --btn-on-peak: #200800;
+  --btn-on-action: #200800;
+  --btn-on-auto: #1C0A19;
+  --btn-on-cta: #ffffff;
+
+  --border-quiet: rgba(232, 121, 217, 0.8);
+  --border-steady: rgba(119, 33, 111, 0.85);
+  --border-heat: rgba(233, 84, 32, 0.85);
+  --border-peak: rgba(255, 143, 0, 0.9);
+
+  --icon-quiet: #F7F5F7;
+  --icon-steady: #F7F5F7;
+  --icon-heat: #200800;
+
+  --gloss-quiet: linear-gradient(180deg, #9C358F 0%, #77216F 48%, #5E2750 100%);
+  --gloss-steady: linear-gradient(180deg, #A82E9C 0%, #8C2282 48%, #6B1763 100%);
+  --gloss-heat: linear-gradient(180deg, #FF7043 0%, #E95420 48%, #BF360C 100%);
+  --gloss-peak: linear-gradient(180deg, #FFA726 0%, #FF8F00 48%, #E65100 100%);
+  --gloss-action: linear-gradient(180deg, #FF7043 0%, #E95420 48%, #BF360C 100%);
+  --gloss-auto: linear-gradient(180deg, #F0A0E8 0%, #E879D9 48%, #C74FC7 100%);
+  --gloss-cta: linear-gradient(180deg, #FF7043 0%, #E95420 48%, #BF360C 100%);
+  --gloss-cpu: linear-gradient(180deg, #F0A0E8 0%, #E879D9 48%, #C74FC7 100%);
+
+  --glow-quiet: rgba(119, 33, 111, 0.55);
+  --glow-steady: rgba(140, 34, 130, 0.55);
+  --glow-heat: rgba(233, 84, 32, 0.55);
+  --glow-peak: rgba(255, 143, 0, 0.55);
+  --glow-action: rgba(233, 84, 32, 0.55);
+  --glow-auto: rgba(232, 121, 217, 0.5);
+  --glow-cta: rgba(233, 84, 32, 0.6);
+
+  --text-main: #F7F5F7;
+  --text-muted: #D9D2D9;
+  --text-sub: #BBB0BC;
+  --text-faint: #8E8290;
+  --hover-veil: rgba(233, 84, 32, 0.14);
+  --hover-veil-soft: rgba(233, 84, 32, 0.08);
+  --link-color: #E879D9;
+  --link-hover: #F0A0E8;
+  --dot-alert: #E95420;
+  --dot-alert-glow: rgba(233, 84, 32, 0.6);
+  --offset-border: rgba(232, 121, 217, 0.5);
+  --offset-glow: rgba(232, 121, 217, 0.6);
+  --bg-tooltip: rgba(28, 21, 29, 0.97);
+  --text-tooltip: #F7F5F7;
+
+  --gloss-red: linear-gradient(180deg, #E14653 0%, #C82434 52%, #97131F 100%);
+  --glow-red: rgba(200, 36, 52, 0.45);
 }
 
 /* Reset & Global */
@@ -655,7 +750,17 @@ body {
 .resources-card {
   background: var(--bg-box);
   border: 1px solid var(--border-glass);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  transition: var(--transition-fast);
+}
+
+.sidebar-box:hover,
+.power-profile-card:hover,
+.mode-card:hover,
+.resources-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 /* Temps box grows into leftover rail height so the bottom is not empty wash. */
@@ -1343,16 +1448,18 @@ input:checked + .slider:before {
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-glass);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
-  padding: 12px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 14px;
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(16px);
   transition: var(--transition-smooth);
 }
 
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .card-header {
@@ -1449,7 +1556,9 @@ input:checked + .slider:before {
 }
 
 .gauge-inner {
-  fill: #0b0e16;
+  fill: var(--bg-input);
+  stroke: var(--border-glass);
+  stroke-width: 1;
 }
 
 .gauge-bg {
@@ -1471,16 +1580,14 @@ input:checked + .slider:before {
   stroke: var(--gauge-cpu);
   filter:
     drop-shadow(0 0 3px var(--gauge-cpu))
-    drop-shadow(0 0 10px var(--gauge-cpu-glow))
-    drop-shadow(0 0 18px rgba(0, 180, 255, 0.4));
+    drop-shadow(0 0 10px var(--gauge-cpu-glow));
 }
 
 .gpu-progress {
   stroke: var(--gauge-gpu);
   filter:
     drop-shadow(0 0 3px var(--gauge-gpu))
-    drop-shadow(0 0 10px var(--gauge-gpu-glow))
-    drop-shadow(0 0 18px rgba(118, 255, 0, 0.35));
+    drop-shadow(0 0 10px var(--gauge-gpu-glow));
 }
 
 .gauge-center {
@@ -1501,7 +1608,7 @@ input:checked + .slider:before {
   letter-spacing: -0.5px;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 14px rgba(255, 255, 255, 0.28);
+  text-shadow: 0 0 12px var(--hover-veil);
 }
 
 .gauge-unit {
@@ -1527,13 +1634,15 @@ input:checked + .slider:before {
 .cpu-theme .temp-badge {
   color: var(--gauge-cpu);
   background: var(--gauge-cpu-dim);
-  border-color: rgba(0, 229, 255, 0.4);
+  border-color: var(--border-glass);
+  box-shadow: 0 0 12px var(--gauge-cpu-dim);
 }
 
 .gpu-theme .temp-badge {
   color: var(--gauge-gpu);
   background: var(--gauge-gpu-dim);
-  border-color: rgba(180, 255, 44, 0.4);
+  border-color: var(--border-glass);
+  box-shadow: 0 0 12px var(--gauge-gpu-dim);
 }
 
 .cpu-theme .temp-badge.high,
@@ -1546,7 +1655,8 @@ input:checked + .slider:before {
 .metric-footer {
   width: 100%;
   margin-top: auto;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
   border-radius: var(--radius-sm);
   padding: 8px 12px;
 }
@@ -1663,7 +1773,8 @@ input:checked + .slider:before {
   width: 100%;
   height: 8px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
   outline: none;
   transition: var(--transition-fast);
 }
@@ -2097,10 +2208,10 @@ input:checked + .slider:before {
   right: 0;
   width: 210px;
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   padding: 8px;
   z-index: 1100;
   display: flex;
@@ -2340,7 +2451,8 @@ input:checked + .slider:before {
   background: var(--bg-card);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px);
   display: flex;
   flex-direction: column;
   overflow: hidden;

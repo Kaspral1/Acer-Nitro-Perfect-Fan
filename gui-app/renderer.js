@@ -10,8 +10,8 @@ const MIN_PCT_MASTER = 30;
 const CHART_CPU = { stroke: '#00d4ff', fillTop: 'rgba(0, 212, 255, 0.34)', fillBottom: 'rgba(0, 212, 255, 0.0)' };
 const CHART_GPU = { stroke: '#b4ff2c', fillTop: 'rgba(180, 255, 44, 0.28)', fillBottom: 'rgba(180, 255, 44, 0.0)' };
 const THEME_STORAGE_KEY = 'perfect-fan-theme';
-const VALID_THEMES = ['nitro', 'outrun', 'reddit', 'matrix'];
-const THEME_NAMES = { nitro: 'Nitro', outrun: 'OutRun', reddit: 'Reddit', matrix: 'Matrix' };
+const VALID_THEMES = ['nitro', 'outrun', 'reddit', 'matrix', 'ubuntu'];
+const THEME_NAMES = { nitro: 'Nitro', outrun: 'OutRun', reddit: 'Reddit', matrix: 'Matrix', ubuntu: 'Ubuntu' };
 const CHART_PALETTES = {
     nitro: {
         cpu: { stroke: '#00d4ff', fillTop: 'rgba(0, 212, 255, 0.34)', fillBottom: 'rgba(0, 212, 255, 0.0)' },
@@ -28,6 +28,10 @@ const CHART_PALETTES = {
     matrix: {
         cpu: { stroke: '#7affaa', fillTop: 'rgba(122, 255, 170, 0.34)', fillBottom: 'rgba(122, 255, 170, 0.0)' },
         gpu: { stroke: '#59FF00', fillTop: 'rgba(89, 255, 0, 0.28)', fillBottom: 'rgba(89, 255, 0, 0.0)' },
+    },
+    ubuntu: {
+        cpu: { stroke: '#E879D9', fillTop: 'rgba(232, 121, 217, 0.34)', fillBottom: 'rgba(232, 121, 217, 0.0)' },
+        gpu: { stroke: '#E95420', fillTop: 'rgba(233, 84, 32, 0.28)', fillBottom: 'rgba(233, 84, 32, 0.0)' },
     },
 };
 
@@ -3218,6 +3222,8 @@ function applyTranslations() {
     setText('theme-reddit-desc', 'theme_reddit_desc');
     setText('theme-matrix-name', 'theme_matrix_name');
     setText('theme-matrix-desc', 'theme_matrix_desc');
+    setText('theme-ubuntu-name', 'theme_ubuntu_name');
+    setText('theme-ubuntu-desc', 'theme_ubuntu_desc');
 
     // Settings select options (i18n)
     const closeAsk = document.getElementById('settings-close-ask');
