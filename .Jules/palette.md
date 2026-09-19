@@ -1,0 +1,3 @@
+## 2026-09-18 - Accessible Icon Buttons and Range Sliders in Electron Apps
+**Learning:** Custom titlebars and modal close buttons with character entity icons (like `&times;`, `&minus;`, `&#9633;`) are read literally or silently skipped by screen readers unless given explicit `aria-label` attributes. Similarly, HTML range inputs (`<input type="range">`) require `aria-labelledby` linking them to their section labels so screen reader users hear the control context when navigating.
+**Action:** Always verify that icon-only buttons in custom window headers or modal dialogs have `aria-label` attributes, and link range sliders to label elements via `aria-labelledby`.
