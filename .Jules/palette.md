@@ -1,0 +1,3 @@
+## 2026-09-19 - Accessibility focus states and ARIA labels for custom Electron controls
+**Learning:** Custom window titlebars, range sliders, and modal close buttons in Electron apps often lack accessible focus outlines and ARIA labels. Users navigating via keyboard need explicit `:focus-visible` ring indicators, and screen reader users require `aria-label` or `aria-labelledby` attributes on icon-only buttons and range controls.
+**Action:** Always ensure all icon-only buttons have explicit `aria-label`s, sliders have `aria-labelledby`, and interactive HTML elements have defined `:focus-visible` outline styles.
