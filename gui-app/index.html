@@ -33,10 +33,10 @@
             </div>
         </div>
         <div class="titlebar-controls">
-            <button id="tray-btn" title="Minimalizuj do tray" style="font-size: 11px;">&#10515;</button>
-            <button id="minimize-btn" title="Minimalizuj">&minus;</button>
-            <button id="maximize-btn" title="Maksymalizuj">&#9633;</button>
-            <button id="close-btn" class="close" title="Zamknij">&times;</button>
+            <button id="tray-btn" title="Minimalizuj do tray" aria-label="Minimalizuj do tray" style="font-size: 11px;">&#10515;</button>
+            <button id="minimize-btn" title="Minimalizuj" aria-label="Minimalizuj">&minus;</button>
+            <button id="maximize-btn" title="Maksymalizuj" aria-label="Maksymalizuj">&#9633;</button>
+            <button id="close-btn" class="close" title="Zamknij" aria-label="Zamknij">&times;</button>
         </div>
     </header>
 
@@ -44,7 +44,7 @@
     <div id="safety-disclaimer" class="safety-disclaimer" role="alert">
         <span class="disclaimer-icon">⚠</span>
         <span id="disclaimer-text">Ostrzeżenie: ręczne sterowanie wentylatorami może spowodować przegrzanie. W trybie manualnym Master/CPU/GPU nie schodzą poniżej 30% PWM. Używasz na własną odpowiedzialność.</span>
-        <button type="button" id="disclaimer-dismiss" class="disclaimer-dismiss" title="OK">×</button>
+        <button type="button" id="disclaimer-dismiss" class="disclaimer-dismiss" title="OK" aria-label="Zamknij ostrzeżenie">×</button>
     </div>
 
     <div class="app-layout">
@@ -245,7 +245,7 @@
                                 <span class="slider-val-badge" id="slider-value">30%</span>
                             </div>
                             <div class="range-wrapper">
-                                <input type="range" min="30" max="100" value="30" class="custom-range master" id="fan-slider">
+                                <input type="range" min="30" max="100" value="30" class="custom-range master" id="fan-slider" aria-labelledby="master-slider-label">
                             </div>
                         </div>
 
@@ -256,7 +256,7 @@
                                 <span class="slider-val-badge cpu-badge" id="cpu-slider-value">30%</span>
                             </div>
                             <div class="range-wrapper">
-                                <input type="range" min="30" max="100" value="30" class="custom-range cpu" id="cpu-fan-slider">
+                                <input type="range" min="30" max="100" value="30" class="custom-range cpu" id="cpu-fan-slider" aria-labelledby="cpu-fan-label">
                             </div>
                         </div>
 
@@ -267,7 +267,7 @@
                                 <span class="slider-val-badge gpu-badge" id="gpu-slider-value">30%</span>
                             </div>
                             <div class="range-wrapper">
-                                <input type="range" min="30" max="100" value="30" class="custom-range gpu" id="gpu-fan-slider">
+                                <input type="range" min="30" max="100" value="30" class="custom-range gpu" id="gpu-fan-slider" aria-labelledby="gpu-fan-label">
                             </div>
                         </div>
 
@@ -278,7 +278,7 @@
                                 <span class="slider-val-badge offset-badge" id="offset-value">0%</span>
                             </div>
                             <div class="range-wrapper">
-                                <input type="range" min="-50" max="50" value="0" step="1" class="custom-range offset" id="speed-offset-slider">
+                                <input type="range" min="-50" max="50" value="0" step="1" class="custom-range offset" id="speed-offset-slider" aria-labelledby="offset-label">
                             </div>
                             <div class="offset-scale">
                                 <span id="offset-scale-gpu">GPU +50%</span>
@@ -699,7 +699,7 @@
                     </svg>
                     <h3 id="summary-modal-title">Podsumowanie temperatur i logów</h3>
                 </div>
-                <button id="close-modal-x" class="modal-close-btn">&times;</button>
+                <button id="close-modal-x" class="modal-close-btn" aria-label="Zamknij">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="summary-day-nav hidden" id="summary-day-nav" role="navigation">
@@ -744,7 +744,7 @@
                     </svg>
                     <h3 id="license-modal-title">Licencje</h3>
                 </div>
-                <button type="button" id="license-modal-close-x" class="modal-close-btn" title="Zamknij">&times;</button>
+                <button type="button" id="license-modal-close-x" class="modal-close-btn" title="Zamknij" aria-label="Zamknij">&times;</button>
             </div>
             <div class="modal-body license-modal-body">
                 <section class="license-block">
@@ -791,7 +791,7 @@
                     </svg>
                     <h3 id="defaults-modal-title">Domyślne krzywe profili</h3>
                 </div>
-                <button type="button" id="defaults-modal-close-x" class="modal-close-btn" title="Zamknij">&times;</button>
+                <button type="button" id="defaults-modal-close-x" class="modal-close-btn" title="Zamknij" aria-label="Zamknij">&times;</button>
             </div>
             <div class="modal-body defaults-modal-body">
                 <p class="defaults-modal-hint" id="defaults-modal-hint">
@@ -902,7 +902,7 @@
                     </svg>
                     <h3 id="close-confirm-title">Zamknąć aplikację?</h3>
                 </div>
-                <button type="button" id="close-confirm-dismiss" class="modal-close-btn" title="Anuluj">&times;</button>
+                <button type="button" id="close-confirm-dismiss" class="modal-close-btn" title="Anuluj" aria-label="Anuluj">&times;</button>
             </div>
             <div class="modal-body">
                 <p class="close-confirm-text" id="close-confirm-text">
@@ -939,7 +939,7 @@
                     </svg>
                     <h3 id="close-manual-title">Tryb ręczny jest włączony</h3>
                 </div>
-                <button type="button" id="close-manual-dismiss" class="modal-close-btn" title="Anuluj">&times;</button>
+                <button type="button" id="close-manual-dismiss" class="modal-close-btn" title="Anuluj" aria-label="Anuluj">&times;</button>
             </div>
             <div class="modal-body">
                 <p class="close-confirm-text close-manual-text" id="close-manual-text">
@@ -969,7 +969,7 @@
                     </svg>
                     <h3 id="clear-logs-title">Usunąć logi?</h3>
                 </div>
-                <button type="button" id="clear-logs-dismiss" class="modal-close-btn" title="Anuluj">&times;</button>
+                <button type="button" id="clear-logs-dismiss" class="modal-close-btn" title="Anuluj" aria-label="Anuluj">&times;</button>
             </div>
             <div class="modal-body">
                 <p class="close-confirm-text" id="clear-logs-text">
