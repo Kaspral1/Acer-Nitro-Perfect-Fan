@@ -1581,7 +1581,7 @@ input:checked + .slider:before {
   filter:
     drop-shadow(0 0 3px var(--gauge-cpu))
     drop-shadow(0 0 10px var(--gauge-cpu-glow))
-    drop-shadow(0 0 18px rgba(0, 180, 255, 0.4));
+    drop-shadow(0 0 18px var(--cpu-glow));
 }
 
 .gpu-progress {
@@ -1589,7 +1589,7 @@ input:checked + .slider:before {
   filter:
     drop-shadow(0 0 3px var(--gauge-gpu))
     drop-shadow(0 0 10px var(--gauge-gpu-glow))
-    drop-shadow(0 0 18px rgba(118, 255, 0, 0.35));
+    drop-shadow(0 0 18px var(--gpu-glow));
 }
 
 .gauge-center {
@@ -1636,13 +1636,13 @@ input:checked + .slider:before {
 .cpu-theme .temp-badge {
   color: var(--cpu-text);
   background: var(--gauge-cpu-dim);
-  border-color: rgba(0, 229, 255, 0.4);
+  border-color: var(--cpu-glow);
 }
 
 .gpu-theme .temp-badge {
   color: var(--gpu-text);
   background: var(--gauge-gpu-dim);
-  border-color: rgba(180, 255, 44, 0.4);
+  border-color: var(--gpu-glow);
 }
 
 .cpu-theme .temp-badge.high,

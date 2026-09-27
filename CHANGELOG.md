@@ -11,6 +11,12 @@
 - The Python fan layer and emergency restore script can control/restore both
   DAMX fan channels; unit coverage was added for detection, channel preservation
   and automatic-mode restore.
+- Accessibility (a11y): added ARIA labels to icon buttons and modal close controls,
+  linked range sliders to their text labels via `aria-labelledby`, added explicit
+  `type="button"` attributes across interactive controls, and ensured dynamic
+  translation synchronization for modal dismiss buttons.
+- Theme styling: replaced hardcoded gauge glow and temperature badge border colors
+  with theme variables (`--cpu-glow`, `--gpu-glow`) in `styles.css`.
 
 ## v1.1 (2026)
 
