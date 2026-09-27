@@ -3221,11 +3221,21 @@ function applyTranslations() {
     setText('clear-logs-text', 'clear_logs_modal_text');
     setText('clear-logs-cancel-label', 'close_btn_cancel');
     setText('clear-logs-confirm-label', 'clear_logs_confirm');
-    const clearLogsDismiss = document.getElementById('clear-logs-dismiss');
-    if (clearLogsDismiss) {
-        clearLogsDismiss.title = currentTranslations['close_btn_cancel'] || 'Anuluj';
-        clearLogsDismiss.setAttribute('aria-label', currentTranslations['close_btn_cancel'] || 'Anuluj');
-    }
+    const setAriaLabel = (id, key, defaultVal) => {
+        const el = document.getElementById(id);
+        if (el) {
+            const val = currentTranslations[key] || defaultVal;
+            el.title = val;
+            el.setAttribute('aria-label', val);
+        }
+    };
+
+    setAriaLabel('close-modal-x', 'btn_close', 'Zamknij');
+    setAriaLabel('license-modal-close-x', 'btn_close', 'Zamknij');
+    setAriaLabel('defaults-modal-close-x', 'btn_close', 'Zamknij');
+    setAriaLabel('close-confirm-dismiss', 'close_btn_cancel', 'Anuluj');
+    setAriaLabel('close-manual-dismiss', 'close_btn_cancel', 'Anuluj');
+    setAriaLabel('clear-logs-dismiss', 'close_btn_cancel', 'Anuluj');
     setText('settings-tab-general', 'settings_tab_general');
     setText('settings-tab-theme', 'settings_tab_theme');
     setText('theme-hint', 'theme_hint');
