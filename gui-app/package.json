@@ -20,7 +20,7 @@
     "chart.js": "^4.5.1"
   },
   "devDependencies": {
-    "electron": "^41.10.7",
+    "electron": "^42.11.16",
     "electron-builder": "^26.15.3"
   },
   "scripts": {
