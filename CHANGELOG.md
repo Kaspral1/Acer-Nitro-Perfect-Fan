@@ -17,6 +17,9 @@
   translation synchronization for modal dismiss buttons.
 - Theme styling: replaced hardcoded gauge glow and temperature badge border colors
   with theme variables (`--cpu-glow`, `--gpu-glow`) in `styles.css`.
+- Security: Electron updated from 41 to 42.11.18, and the transitive `undici`,
+  `fast-uri` and `brace-expansion` packages moved to patched releases. CI now
+  runs on Node.js 22, which Electron requires.
 
 ## v1.1 (2026)
 
