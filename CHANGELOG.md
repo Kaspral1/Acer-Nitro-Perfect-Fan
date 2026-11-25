@@ -20,6 +20,10 @@
 - Security: Electron updated from 41 to 42.11.18, and the transitive `undici`,
   `fast-uri` and `brace-expansion` packages moved to patched releases. CI now
   runs on Node.js 22, which Electron requires.
+- Security: `kbd_backlight` and `kbd_timeout` are no longer world-writable
+  (`0666`). The udev rule and installers now set mode `0664` with the group of
+  the user who ran `install.sh`, the same group that owns `/etc/nitro-fan`.
+  Run `sudo ./install.sh` again to apply this on an existing install.
 
 ## v1.1 (2026)
 

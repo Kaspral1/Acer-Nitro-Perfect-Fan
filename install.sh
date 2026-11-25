@@ -162,10 +162,14 @@ if [ "$USE_DAMX" -eq 0 ]; then
         chgrp "$SVC_USER" "$h"/pwm1 "$h"/pwm1_enable "$h"/pwm2 "$h"/pwm2_enable
         chmod g+w "$h"/pwm1 "$h"/pwm1_enable "$h"/pwm2 "$h"/pwm2_enable
     done
-    if [ -e /sys/devices/platform/acer-nitro-ec/kbd_backlight ]; then
-        chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_backlight || true
-        [ -e /sys/devices/platform/acer-nitro-ec/kbd_timeout ] && chmod 0666 /sys/devices/platform/acer-nitro-ec/kbd_timeout || true
-    fi
+    # Podświetlenie zapisuje GUI, więc dostęp ma grupa użytkownika GUI (ta sama
+    # co przy $ETC), a nie wszyscy lokalni użytkownicy.
+    for k in /sys/devices/platform/acer-nitro-ec/kbd_backlight \
+             /sys/devices/platform/acer-nitro-ec/kbd_timeout; do
+        [ -e "$k" ] || continue
+        chgrp "$GROUP" "$k" || true
+        chmod 0664 "$k" || true
+    done
 else
     echo ">>> Pomijam regułę udev EC (DAMX zarządza dostępem do linuwu_sense)"
 fi

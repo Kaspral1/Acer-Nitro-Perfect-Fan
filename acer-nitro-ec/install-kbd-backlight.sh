@@ -105,8 +105,18 @@ install_udev_and_check_kbd() {
     local model
     model="$(cat /sys/class/dmi/id/product_name 2>/dev/null || true)"
     if [ -e "$kbd" ]; then
-        chmod 0666 "$kbd" || true
-        [ -e "$kto" ] && chmod 0666 "$kto" || true
+        # Grupa użytkownika GUI: jak /etc/nitro-fan (tak samo robi reguła udev),
+        # a przed pierwszym install.sh grupa użytkownika wywołującego sudo.
+        local f
+        for f in "$kbd" "$kto"; do
+            [ -e "$f" ] || continue
+            if [ -d /etc/nitro-fan ]; then
+                chgrp --reference=/etc/nitro-fan "$f" || true
+            else
+                chgrp "$(id -gn "${SUDO_USER:-root}")" "$f" || true
+            fi
+            chmod 0664 "$f" || true
+        done
         echo ">>> KBD OK: level=$(cat "$kbd") timeout=$(cat "$kto" 2>/dev/null || echo n/a)"
     elif echo "$model" | grep -q 'AN515-54'; then
         echo "!!! Brak $kbd na $model"
