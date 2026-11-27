@@ -57,3 +57,11 @@ cd gui-app && npm start
 MIT, see [LICENSE](LICENSE). © 2024 [keizenx](https://github.com/keizenx), © 2026 [Kaspral1](https://github.com/Kaspral1). GUI lineage: [keizenx/nitro-fan-control](https://github.com/keizenx/nitro-fan-control). Optional parts: the `acer-nitro-ec` kernel module is GPL-2.0, DAMX is GPL-3.0 and not bundled. Details in [THIRD_PARTY.md](THIRD_PARTY.md).
 
 Developed by Kaspral1 with assistance from AI coding tools. All design decisions and the published code are the maintainer's responsibility.
+
+## Support me
+[![Sponsor on Buy Me a Coffee](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/kaspral)
+
+- **Buy Me a Coffee:** [https://buymeacoffee.com/kaspral](https://buymeacoffee.com/kaspral)
+- **BTC:** `bc1pdc8clusv5hpgz7laywwzhjjcklk6x2cgj2xu5uc9xes9fukxaegsn7cs20`
+- **ETH:** `0x006dAcBA1344144AB395D02637045Dd19aB54C2E`
+- **SOL:** `96Lc4X6hieoCkUFHtDW4wvbWXgZvebqTktjRNiCNe1ex`
